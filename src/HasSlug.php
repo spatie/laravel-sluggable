@@ -60,16 +60,12 @@ trait HasSlug
      */
     protected function makeSlugUnique(string $slug) : string
     {
-        if (!$this->recordExistsWithSlug($slug)) {
-            return $slug;
-        }
-
         $originalSlug = $slug;
-        $i = 0;
+        $i = 1;
 
-        do {
+        while($this->recordExistsWithSlug($slug)) {
             $slug = $originalSlug.'-'.$i++;
-        } while ($this->recordExistsWithSlug($slug));
+        }
 
         return $slug;
     }
