@@ -1,0 +1,40 @@
+{
+    "name": "spatie/eloquent-sluggable",
+    "description": "An opinionated package to generate slugs for Eloquent models",
+    "keywords": [
+        "spatie",
+        "eloquent-sluggable"
+    ],
+    "homepage": "https://github.com/spatie/eloquent-sluggable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Freek Van der Herten",
+            "email": "freek@spatie.be",
+            "homepage": "https://spatie.be",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php" : ">=7.0.0",
+        "illuminate/support": "^5.2",
+        "orchestra/testbench": "^3.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "4.*",
+        "scrutinizer/ocular": "~1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spatie\\Sluggable\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Spatie\\Sluggable\\Test\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}
