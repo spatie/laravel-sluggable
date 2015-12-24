@@ -7,12 +7,12 @@ class SlugOptions
     /**
      * @var array
      */
-    public $generateSlugFrom = 'name';
+    public $generateSlugFrom;
 
     /**
      * @var string
      */
-    public $slugField = 'url';
+    public $slugField;
 
     /**
      * @var bool
@@ -31,8 +31,6 @@ class SlugOptions
 
     /**
      * @param string|array $fieldName
-     *
-     * @return \Spatie\Sluggable\SlugOptions
      */
     public function generateSlugFrom($fieldName) : SlugOptions
     {

@@ -17,7 +17,7 @@
     ],
     "require": {
         "php" : ">=7.0.0",
-        "illuminate/support": "^5.2",
+        "illuminate/support": "^5.1",
         "orchestra/testbench": "^3.2"
     },
     "require-dev": {

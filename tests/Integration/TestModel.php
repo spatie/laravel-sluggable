@@ -4,10 +4,9 @@ namespace Spatie\Sluggable\Test\Integration;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\Sluggable;
 use Spatie\Sluggable\SlugOptions;
 
-class TestModel extends Model implements Sluggable
+class TestModel extends Model
 {
     use HasSlug;
 
@@ -17,11 +16,31 @@ class TestModel extends Model implements Sluggable
 
     public $timestamps = false;
 
+    /**
+     * Get the options for generating the slug.
+     */
     public function getSlugOptions() : SlugOptions
+    {
+        return $this->slugOptions ?? $this->getDefaultSlugOptions();
+    }
+
+    /**
+     * Set the options for generating the slug.
+     */
+    public function setSlugOptions(SlugOptions $slugOptions) : TestModel
+    {
+        $this->slugOptions = $slugOptions;
+
+        return $this;
+    }
+
+    /**
+     * Get the default slug options used in the tests.
+     */
+    public function getDefaultSlugOptions() : SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugFrom('name')
-            ->saveSlugTo('url')
-            ->slugShouldBeNoLongerThan(255);
+            ->saveSlugTo('url');
     }
 }
