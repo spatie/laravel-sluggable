@@ -10,7 +10,7 @@ class SlugOptions
     public $generateSlugFrom;
 
     /**
-     * @var string
+     * @var string|array
      */
     public $slugField;
 
@@ -24,7 +24,7 @@ class SlugOptions
      */
     public $maximumLength = 250;
 
-    public static function create()
+    public static function create() : SlugOptions
     {
         return new static();
     }

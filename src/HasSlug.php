@@ -12,6 +12,11 @@ trait HasSlug
     protected $slugOptions;
 
     /**
+     * Get the options for generating the slug.
+     */
+    abstract public function getSlugOptions() : SlugOptions;
+
+    /**
      * Boot the trait.
      */
     protected static function bootHasSlug()
@@ -67,7 +72,7 @@ trait HasSlug
         $originalSlug = $slug;
         $i = 1;
 
-        while ($this->otherRecordExistsWithSlug($slug) || $slug == '') {
+        while ($this->otherRecordExistsWithSlug($slug) || $slug === '') {
             $slug = $originalSlug.'-'.$i++;
         }
 
@@ -80,7 +85,7 @@ trait HasSlug
     protected function otherRecordExistsWithSlug(string $slug) : bool
     {
         return (bool) static::where($this->slugOptions->slugField, $slug)
-            ->where('id', '!=', $this->id ?? '')
+            ->where($this->getKeyName(), '!=', $this->getKey() ?? '')
             ->first();
     }
 
@@ -101,9 +106,4 @@ trait HasSlug
             throw InvalidOption::invalidMaximumLength();
         }
     }
-
-    /**
-     * Get the options for generating the slug.
-     */
-    abstract public function getSlugOptions() : SlugOptions;
 }

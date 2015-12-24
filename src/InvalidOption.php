@@ -8,16 +8,16 @@ class InvalidOption extends Exception
 {
     public static function missingFromField()
     {
-        return new static('could not determinate which fields should be sluggified');
+        return new static('Could not determinate which fields should be sluggified');
     }
 
     public static function missingSlugField()
     {
-        return new static('could not determinate in which field to save the slug');
+        return new static('Could not determinate in which field the slug should be saved');
     }
 
     public static function invalidMaximumLength()
     {
-        return new static('maximum lenght should be greater than zero');
+        return new static('Maximum length should be greater than zero');
     }
 }
