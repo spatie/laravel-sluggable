@@ -1,6 +1,6 @@
 # Changelog
 
-All Notable changes to `eloquent-sluggable` will be documented in this file
+All Notable changes to `laravel-sluggable` will be documented in this file
 
 ## NEXT - YYYY-MM-DD
 

@@ -1,11 +1,11 @@
 {
-    "name": "spatie/eloquent-sluggable",
+    "name": "spatie/laravel-sluggable",
     "description": "An opinionated package to generate slugs for Eloquent models",
     "keywords": [
         "spatie",
-        "eloquent-sluggable"
+        "laravel-sluggable"
     ],
-    "homepage": "https://github.com/spatie/eloquent-sluggable",
+    "homepage": "https://github.com/spatie/laravel-sluggable",
     "license": "MIT",
     "authors": [
         {
