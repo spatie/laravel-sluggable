@@ -1,5 +1,3 @@
-## Work in progress... do not use (yet)
-
 # Generate a slug when saving an Eloquent model
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/eloquent-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/eloquent-sluggable)
@@ -9,7 +7,17 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/eloquent-sluggable.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/eloquent-sluggable)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/eloquent-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/eloquent-sluggable)
 
-This package provides as trait that will generate a slug. The trait can be applied on any model. 
+This package provides as trait that will generate a unique slug when saving model. The trait can be applied on any model. 
+
+```php
+$model = new EloquentModel()
+$model->name = 'activerecord is awesome';
+$model->save();
+
+echo $model->url //ouputs "activerecord-is-awesome"
+```
+
+The slug will be generated with Laravels `str_slug`-method. Spaces will be converted to '-'.
 
 Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
@@ -22,7 +30,69 @@ $ composer require spatie/eloquent-sluggable
 
 ## Usage
 
-Coming soon.
+The package provides a `Spatie\Sluggable\HasSlug`-trait that can be applied on any Eloquent model. 
+
+
+The trait contains an abstract method `getSlugOptions()` that you must implement yourself. 
+
+This is the most simple implementation:
+
+```php
+use Spatie\Sluggable\Slug
+
+public function getDefaultSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('url');
+}
+```
+
+Want to use multiple field as the basis for a slug? No problem!
+
+```php
+use Spatie\Sluggable\Slug
+
+public function getDefaultSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom(['first_name', 'last_name'])
+        ->saveSlugsTo('url');
+}
+```
+
+By default the package will generate unique slugs by appending '-' and a number to a slug that already exists.
+
+You can disable this behaviour by calling `allowDuplicateSlugs`.
+
+```php
+use Spatie\Sluggable\Slug
+
+public function getDefaultSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('url')
+        ->allowDuplicateSlugs();
+}
+```
+
+You can also put a maximum size limit on the created slug.
+
+```php
+use Spatie\Sluggable\Slug
+
+public function getDefaultSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('url')
+        ->slugsShouldBeNoLongerThan(50);
+}
+```
+
+The slug can be slightly longer that the value specified as the suffix to make it unique is added.
+
 
 ## Change log
 

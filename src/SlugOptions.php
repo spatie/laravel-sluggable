@@ -32,7 +32,7 @@ class SlugOptions
     /**
      * @param string|array $fieldName
      */
-    public function generateSlugFrom($fieldName) : SlugOptions
+    public function generateSlugsFrom($fieldName) : SlugOptions
     {
         if (is_string($fieldName)) {
             $fieldName = [$fieldName];
@@ -43,21 +43,21 @@ class SlugOptions
         return $this;
     }
 
-    public function saveSlugTo(string $fieldName) : SlugOptions
+    public function saveSlugsTo(string $fieldName) : SlugOptions
     {
         $this->slugField = $fieldName;
 
         return $this;
     }
 
-    public function duplicateSlugsAreOk() : SlugOptions
+    public function allowDuplicateSlugs() : SlugOptions
     {
         $this->generateUniqueSlugs = false;
 
         return $this;
     }
 
-    public function slugShouldBeNoLongerThan(int $maximumLength) : SlugOptions
+    public function slugsShouldBeNoLongerThan(int $maximumLength) : SlugOptions
     {
         $this->maximumLength = $maximumLength;
 

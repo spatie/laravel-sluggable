@@ -76,7 +76,7 @@ class HasSlugTest extends TestCase
             {
                 public function getSlugOptions() : SlugOptions
                 {
-                    return parent::getSlugOptions()->duplicateSlugsAreOk();
+                    return parent::getSlugOptions()->allowDuplicateSlugs();
                 }
             };
 
@@ -96,7 +96,7 @@ class HasSlugTest extends TestCase
         {
             public function getSlugOptions() : SlugOptions
             {
-                return parent::getSlugOptions()->slugShouldBeNoLongerThan(5);
+                return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
             }
         };
 

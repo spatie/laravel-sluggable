@@ -40,7 +40,7 @@ class TestModel extends Model
     public function getDefaultSlugOptions() : SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugFrom('name')
-            ->saveSlugTo('url');
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('url');
     }
 }
