@@ -1,4 +1,4 @@
-# Generate a slug when saving an Eloquent model
+# Generate slugs when saving Eloquent models
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-sluggable)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)

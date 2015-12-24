@@ -1,6 +1,6 @@
 {
     "name": "spatie/laravel-sluggable",
-    "description": "An opinionated package to generate slugs for Eloquent models",
+    "description": "Generate slugs when saving Eloquent models",
     "keywords": [
         "spatie",
         "laravel-sluggable"
