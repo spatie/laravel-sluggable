@@ -5,12 +5,12 @@ namespace Spatie\Sluggable;
 class SlugOptions
 {
     /**
-     * @var array
+     * @var string|array
      */
     public $generateSlugFrom;
 
     /**
-     * @var string|array
+     * @var string
      */
     public $slugField;
 
@@ -34,10 +34,6 @@ class SlugOptions
      */
     public function generateSlugsFrom($fieldName) : SlugOptions
     {
-        if (is_string($fieldName)) {
-            $fieldName = [$fieldName];
-        }
-
         $this->generateSlugFrom = $fieldName;
 
         return $this;
