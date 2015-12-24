@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 trait HasSlug
 {
     /**
-     * @var SlugOptions
+     * @var \Spatie\Sluggable\SlugOptions
      */
     protected $slugOptions;
 
