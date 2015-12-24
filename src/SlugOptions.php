@@ -32,9 +32,9 @@ class SlugOptions
     /**
      * @param string|array $fieldName
      *
-     * @return \Spatie\Sluggable\SluggableOptions
+     * @return \Spatie\Sluggable\SlugOptions
      */
-    public function generateSlugFrom($fieldName) : SluggableOptions
+    public function generateSlugFrom($fieldName) : SlugOptions
     {
         if (is_string($fieldName)) {
             $fieldName = [$fieldName];
@@ -45,21 +45,21 @@ class SlugOptions
         return $this;
     }
 
-    public function saveSlugTo(string $fieldName) : SluggableOptions
+    public function saveSlugTo(string $fieldName) : SlugOptions
     {
         $this->slugField = $fieldName;
 
         return $this;
     }
 
-    public function duplicateSlugsAreOk() : SluggableOptions
+    public function duplicateSlugsAreOk() : SlugOptions
     {
         $this->generateUniqueSlugs = false;
 
         return $this;
     }
 
-    public function slugShouldBeNoLongerThan(int $maximumLength) : SluggableOptions
+    public function slugShouldBeNoLongerThan(int $maximumLength) : SlugOptions
     {
         $this->maximumLength = $maximumLength;
 

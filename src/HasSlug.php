@@ -12,7 +12,7 @@ trait HasSlug
     /**
      * Boot the trait.
      */
-    protected static function bootGeneratesSlugs()
+    protected static function bootHasSlug()
     {
         static::creating(function (Sluggable $model) {
             $model->addSlug();
@@ -47,9 +47,10 @@ trait HasSlug
     protected function getSlugSourceString() : string
     {
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(function (string $fieldName) : string {
-                return $this->$fieldName;
-            })
+            ->map(function (string $fieldName) : string
+{
+    return $this->$fieldName;
+})
             ->implode('-');
 
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
@@ -63,7 +64,7 @@ trait HasSlug
         $originalSlug = $slug;
         $i = 1;
 
-        while($this->recordExistsWithSlug($slug)) {
+        while ($this->recordExistsWithSlug($slug)) {
             $slug = $originalSlug.'-'.$i++;
         }
 
