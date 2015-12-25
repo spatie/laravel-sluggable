@@ -10,11 +10,11 @@
 This package provides as trait that will generate a unique slug when saving model. The trait can be applied on any model. 
 
 ```php
-$model = new EloquentModel()
+$model = new EloquentModel();
 $model->name = 'activerecord is awesome';
 $model->save();
 
-echo $model->url //ouputs "activerecord-is-awesome"
+echo $model->url; //ouputs "activerecord-is-awesome"
 ```
 
 The slug will be generated with Laravels `str_slug`-method. Spaces will be converted to '-'.
