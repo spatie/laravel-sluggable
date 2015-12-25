@@ -38,7 +38,7 @@ The trait contains an abstract method `getSlugOptions()` that you must implement
 This is the most simple implementation:
 
 ```php
-use Spatie\Sluggable\Slug
+use Spatie\Sluggable\Slug;
 
 public function getDefaultSlugOptions() : SlugOptions
 {
