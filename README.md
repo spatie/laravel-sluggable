@@ -40,7 +40,7 @@ This is the most simple implementation:
 ```php
 use Spatie\Sluggable\Slug;
 
-public function getDefaultSlugOptions() : SlugOptions
+public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
@@ -53,7 +53,7 @@ Want to use multiple field as the basis for a slug? No problem!
 ```php
 use Spatie\Sluggable\Slug
 
-public function getDefaultSlugOptions() : SlugOptions
+public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom(['first_name', 'last_name'])
@@ -68,7 +68,7 @@ You can disable this behaviour by calling `allowDuplicateSlugs`.
 ```php
 use Spatie\Sluggable\Slug
 
-public function getDefaultSlugOptions() : SlugOptions
+public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
@@ -82,7 +82,7 @@ You can also put a maximum size limit on the created slug.
 ```php
 use Spatie\Sluggable\Slug
 
-public function getDefaultSlugOptions() : SlugOptions
+public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
