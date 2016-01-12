@@ -56,9 +56,10 @@ trait HasSlug
     protected function getSlugSourceString() : string
     {
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(function (string $fieldName) : string {
-                return $this->$fieldName;
-            })
+            ->map(function (string $fieldName) : string
+{
+    return $this->$fieldName ?? '';
+})
             ->implode('-');
 
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
