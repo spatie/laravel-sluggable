@@ -49,8 +49,6 @@ class YourEloquentModel extends Model
 {
     use HasSlug;
     
-    protected $table = 'your_table';
-    
     /**
      * Get the options for generating the slug.
      */
