@@ -34,7 +34,7 @@ Your Eloquent models should use the `Spatie\Sluggable\HasSlug` trait and the `Sp
 
 The trait contains an abstract method `getSlugOptions()` that you must implement yourself. 
 
-An example of implementation is below:
+Here's an example of how to implement the trait:
 
 ```php
 <?php
