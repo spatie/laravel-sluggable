@@ -7,17 +7,17 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/laravel-sluggable.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/laravel-sluggable)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-sluggable)
 
-This package provides as trait that will generate a unique slug when saving model. The trait can be applied on any model. 
+This package provides a trait that will generate a unique slug when saving any Eloquent model. 
 
 ```php
 $model = new EloquentModel();
 $model->name = 'activerecord is awesome';
 $model->save();
 
-echo $model->url; //ouputs "activerecord-is-awesome"
+echo $model->slug; // ouputs "activerecord-is-awesome"
 ```
 
-The slug will be generated with Laravels `str_slug`-method. Spaces will be converted to '-'.
+The slugs are generated with Laravels `str_slug` method, whereby spaces are converted to '-'.
 
 Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
@@ -30,29 +30,42 @@ $ composer require spatie/laravel-sluggable
 
 ## Usage
 
-The package provides a `Spatie\Sluggable\HasSlug`-trait that can be applied on any Eloquent model. 
-
+Your Eloquent models should use the `Spatie\Sluggable\HasSlug` trait and the `Spatie\Sluggable\SlugOptions` class.
 
 The trait contains an abstract method `getSlugOptions()` that you must implement yourself. 
 
-This is the most simple implementation:
+An example of implementation is below:
 
 ```php
-use Spatie\Sluggable\Slug;
+<?php
 
-public function getSlugOptions() : SlugOptions
+namespace App;
+
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Model;
+
+class YourEloquentModel extends Model
 {
-    return SlugOptions::create()
-        ->generateSlugsFrom('name')
-        ->saveSlugsTo('url');
+    use HasSlug;
+    
+    protected $table = 'your_table';
+    
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('url');
+    }
 }
 ```
 
 Want to use multiple field as the basis for a slug? No problem!
 
 ```php
-use Spatie\Sluggable\Slug
-
 public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
@@ -61,13 +74,11 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
-By default the package will generate unique slugs by appending '-' and a number to a slug that already exists.
+By default the package will generate unique slugs by appending '-' and a number, to a slug that already exists.
 
 You can disable this behaviour by calling `allowDuplicateSlugs`.
 
 ```php
-use Spatie\Sluggable\Slug
-
 public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
@@ -80,8 +91,6 @@ public function getSlugOptions() : SlugOptions
 You can also put a maximum size limit on the created slug.
 
 ```php
-use Spatie\Sluggable\Slug
-
 public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
@@ -91,7 +100,7 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
-The slug can be slightly longer that the value specified as the suffix to make it unique is added.
+The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
 
 
 ## Change log
