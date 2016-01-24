@@ -86,7 +86,7 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
-You can also put a maximum size limit on the created slug.
+You can also put a maximum size limit on the created slug:
 
 ```php
 public function getSlugOptions() : SlugOptions
@@ -100,6 +100,15 @@ public function getSlugOptions() : SlugOptions
 
 The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
 
+You can also override the generated slug just by setting it to another value then the generated slug.
+```php
+$model = EloquentModel:create(['name' => 'my name']); //url is now "my-name"; 
+$model->url = 'my-custom-url';
+$model-save();
+
+$model->name = 'changed name';
+$model->save(); //url stays "my name"
+```
 
 ## Change log
 

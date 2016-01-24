@@ -2,6 +2,8 @@
 
 All Notable changes to `laravel-sluggable` will be documented in this file
 
+## 1.1.0 - 2016-01-24
+
 ## 1.0.2 - 2016-01-12
 
 - Fix bug when creating slugs from null values
