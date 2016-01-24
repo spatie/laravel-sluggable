@@ -138,4 +138,31 @@ class HasSlugTest extends TestCase
             ['a/ ', 'a'],
         ];
     }
+
+    /**
+     * @test
+     */
+    public function it_can_handle_overwrites_when_updating_a_model()
+    {
+        $model = TestModel::create(['name' => 'this is a test']);
+
+        $model->url = 'this-is-an-url';
+        $model->save();
+
+        $this->assertEquals('this-is-an-url', $model->url);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_handle_duplicates_when_overwriting_a_slug()
+    {
+        $model = TestModel::create(['name' => 'this is a test']);
+        $other_model = TestModel::create(['name' => 'this is an other']);
+
+        $model->url = 'this-is-an-other';
+        $model->save();
+
+        $this->assertEquals('this-is-an-other-1', $model->url);
+    }
 }
