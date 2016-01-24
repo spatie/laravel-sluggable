@@ -39,13 +39,13 @@ trait HasSlug
 
         $this->guardAgainstInvalidSlugOptions();
 
-        $slug = str_slug($this->getSlugSourceString());
+        $slugField = $this->slugOptions->slugField;
+
+        $slug = $this->getOriginal($slugField) != $this->$slugField ? $this->$slugField : str_slug($this->getSlugSourceString());
 
         if ($this->slugOptions->generateUniqueSlugs) {
             $slug = $this->makeSlugUnique($slug);
         }
-
-        $slugField = $this->slugOptions->slugField;
 
         $this->$slugField = $slug;
     }
