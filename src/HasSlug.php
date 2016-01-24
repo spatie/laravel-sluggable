@@ -39,15 +39,39 @@ trait HasSlug
 
         $this->guardAgainstInvalidSlugOptions();
 
-        $slugField = $this->slugOptions->slugField;
-
-        $slug = $this->getOriginal($slugField) != $this->$slugField ? $this->$slugField : str_slug($this->getSlugSourceString());
+        $slug = $this->generateNonUniqueSlug();
 
         if ($this->slugOptions->generateUniqueSlugs) {
             $slug = $this->makeSlugUnique($slug);
         }
 
+        $slugField = $this->slugOptions->slugField;
+
         $this->$slugField = $slug;
+    }
+
+    /**
+     * Generate a non unique slug for this record.
+     */
+    protected function generateNonUniqueSlug() :  string
+    {
+        if ($this->hasCustomSlugBeenUsed()) {
+            $slugField = $this->slugOptions->slugField;
+
+            return $this->$slugField;
+        }
+
+        return str_slug($this->getSlugSourceString());
+    }
+
+    /**
+     * Determine if a custom slug has been saved.
+     */
+    protected function hasCustomSlugBeenUsed() : bool
+    {
+        $slugField = $this->slugOptions->slugField;
+
+        return $this->getOriginal($slugField) != $this->$slugField;
     }
 
     /**
@@ -56,10 +80,9 @@ trait HasSlug
     protected function getSlugSourceString() : string
     {
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(function (string $fieldName) : string
-{
-    return $this->$fieldName ?? '';
-})
+            ->map(function (string $fieldName) : string {
+                return $this->$fieldName ?? '';
+            })
             ->implode('-');
 
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
