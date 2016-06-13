@@ -6,9 +6,7 @@ use Spatie\Sluggable\SlugOptions;
 
 class HasSlugTest extends TestCase
 {
-    /**
-     * @test
-     */
+    /** @test */
     public function it_will_save_a_slug_when_saving_a_model()
     {
         $model = TestModel::create(['name' => 'this is a test']);
@@ -16,9 +14,7 @@ class HasSlugTest extends TestCase
         $this->assertEquals('this-is-a-test', $model->url);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_handle_null_values_when_creating_slugs()
     {
         $model = TestModel::create(['name' => null]);
@@ -26,9 +22,7 @@ class HasSlugTest extends TestCase
         $this->assertEquals('-1', $model->url);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_will_not_change_the_slug_when_the_source_field_is_not_changed()
     {
         $model = TestModel::create(['name' => 'this is a test']);
@@ -39,9 +33,7 @@ class HasSlugTest extends TestCase
         $this->assertEquals('this-is-a-test', $model->url);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_will_update_the_slug_when_the_source_field_is_changed()
     {
         $model = TestModel::create(['name' => 'this is a test']);
@@ -52,9 +44,7 @@ class HasSlugTest extends TestCase
         $this->assertEquals('this-is-another-test', $model->url);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_will_save_a_unique_slug_by_default()
     {
         TestModel::create(['name' => 'this is a test']);
@@ -65,9 +55,7 @@ class HasSlugTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_handle_empty_source_fields()
     {
         foreach (range(1, 10) as $i) {
@@ -76,19 +64,54 @@ class HasSlugTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    /** @test */
+    public function it_can_generate_slugs_from_multiple_source_fields()
+    {
+        $model = new class extends TestModel
+        {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->other_field = 'this is another field';
+        $model->save();
+
+        $this->assertEquals('this-is-a-test-this-is-another-field', $model->url);
+    }
+
+    /** @test */
+    public function it_can_generate_slugs_from_a_callable()
+    {
+        $model = new class extends TestModel
+        {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
+                    return 'foo-' . str_slug($model->name);
+                });
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->save();
+
+        $this->assertEquals('foo-this-is-a-test', $model->url);
+    }
+
+    /** @test */
     public function it_can_generate_duplicate_slugs()
     {
         foreach (range(1, 10) as $i) {
             $model = new class extends TestModel
- {
-     public function getSlugOptions() : SlugOptions
-     {
-         return parent::getSlugOptions()->allowDuplicateSlugs();
-     }
- };
+            {
+                public function getSlugOptions(): SlugOptions
+                {
+                    return parent::getSlugOptions()->allowDuplicateSlugs();
+                }
+            };
 
             $model->name = 'this is a test';
             $model->save();
@@ -97,18 +120,16 @@ class HasSlugTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_generate_slugs_with_a_maximum_length()
     {
         $model = new class extends TestModel
- {
-     public function getSlugOptions() : SlugOptions
-     {
-         return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
-     }
- };
+        {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
+            }
+        };
 
         $model->name = '123456789';
         $model->save();
@@ -139,9 +160,7 @@ class HasSlugTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_handle_overwrites_when_updating_a_model()
     {
         $model = TestModel::create(['name' => 'this is a test']);
@@ -152,9 +171,7 @@ class HasSlugTest extends TestCase
         $this->assertEquals('this-is-an-url', $model->url);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_handle_duplicates_when_overwriting_a_slug()
     {
         $model = TestModel::create(['name' => 'this is a test']);
