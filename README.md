@@ -72,6 +72,9 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+You can also pass a `callable` to `generateSlugsFrom`.
+
+
 By default the package will generate unique slugs by appending '-' and a number, to a slug that already exists.
 
 You can disable this behaviour by calling `allowDuplicateSlugs`.
