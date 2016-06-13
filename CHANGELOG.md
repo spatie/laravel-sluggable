@@ -2,6 +2,9 @@
 
 All Notable changes to `laravel-sluggable` will be documented in this file
 
+## 1.2.0 - 2016-06-13
+- Added the ability to generate slugs from a callable
+
 ## 1.1.0 - 2016-01-24
 - Allow custom slugs
 
