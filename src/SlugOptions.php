@@ -4,7 +4,7 @@ namespace Spatie\Sluggable;
 
 class SlugOptions
 {
-    /** @var string|array */
+    /** @var string|array|callable */
     public $generateSlugFrom;
 
     /** @var string */
@@ -22,7 +22,7 @@ class SlugOptions
     }
 
     /**
-     * @param string|array $fieldName
+     * @param string|array|callable $fieldName
      *
      * @return \Spatie\Sluggable\SlugOptions
      */

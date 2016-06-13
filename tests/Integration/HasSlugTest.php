@@ -65,12 +65,49 @@ class HasSlugTest extends TestCase
     }
 
     /** @test */
+    public function it_can_generate_slugs_from_multiple_source_fields()
+    {
+        $model = new class extends TestModel
+        {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->other_field = 'this is another field';
+        $model->save();
+
+        $this->assertEquals('this-is-a-test-this-is-another-field', $model->url);
+    }
+
+    /** @test */
+    public function it_can_generate_slugs_from_a_callable()
+    {
+        $model = new class extends TestModel
+        {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
+                    return 'foo-' . str_slug($model->name);
+                });
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->save();
+
+        $this->assertEquals('foo-this-is-a-test', $model->url);
+    }
+
+    /** @test */
     public function it_can_generate_duplicate_slugs()
     {
         foreach (range(1, 10) as $i) {
             $model = new class extends TestModel
             {
-                public function getSlugOptions() : SlugOptions
+                public function getSlugOptions(): SlugOptions
                 {
                     return parent::getSlugOptions()->allowDuplicateSlugs();
                 }
@@ -88,7 +125,7 @@ class HasSlugTest extends TestCase
     {
         $model = new class extends TestModel
         {
-            public function getSlugOptions() : SlugOptions
+            public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
             }

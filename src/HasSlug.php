@@ -77,6 +77,11 @@ trait HasSlug
      */
     protected function getSlugSourceString(): string
     {
+        if (is_callable($this->slugOptions->generateSlugFrom)) {
+            $slugSourceString = call_user_func($this->slugOptions->generateSlugFrom, $this);
+            return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
+        }
+
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
             ->map(function (string $fieldName) : string {
                 return $this->$fieldName ?? '';
