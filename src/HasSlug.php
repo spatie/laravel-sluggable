@@ -6,15 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 trait HasSlug
 {
-    /**
-     * @var \Spatie\Sluggable\SlugOptions
-     */
+    /** @var \Spatie\Sluggable\SlugOptions */
     protected $slugOptions;
 
     /**
      * Get the options for generating the slug.
      */
-    abstract public function getSlugOptions() : SlugOptions;
+    abstract public function getSlugOptions(): SlugOptions;
 
     /**
      * Boot the trait.
@@ -53,7 +51,7 @@ trait HasSlug
     /**
      * Generate a non unique slug for this record.
      */
-    protected function generateNonUniqueSlug() :  string
+    protected function generateNonUniqueSlug(): string
     {
         if ($this->hasCustomSlugBeenUsed()) {
             $slugField = $this->slugOptions->slugField;
@@ -67,7 +65,7 @@ trait HasSlug
     /**
      * Determine if a custom slug has been saved.
      */
-    protected function hasCustomSlugBeenUsed() : bool
+    protected function hasCustomSlugBeenUsed(): bool
     {
         $slugField = $this->slugOptions->slugField;
 
@@ -77,7 +75,7 @@ trait HasSlug
     /**
      * Get the string that should be used as base for the slug.
      */
-    protected function getSlugSourceString() : string
+    protected function getSlugSourceString(): string
     {
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
             ->map(function (string $fieldName) : string {
@@ -91,7 +89,7 @@ trait HasSlug
     /**
      * Make the given slug unique.
      */
-    protected function makeSlugUnique(string $slug) : string
+    protected function makeSlugUnique(string $slug): string
     {
         $originalSlug = $slug;
         $i = 1;
@@ -106,7 +104,7 @@ trait HasSlug
     /**
      * Determine if a record exists with the given slug.
      */
-    protected function otherRecordExistsWithSlug(string $slug) : bool
+    protected function otherRecordExistsWithSlug(string $slug): bool
     {
         return (bool) static::where($this->slugOptions->slugField, $slug)
             ->where($this->getKeyName(), '!=', $this->getKey() ?? '0')
