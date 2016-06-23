@@ -52,7 +52,7 @@ class YourEloquentModel extends Model
     /**
      * Get the options for generating the slug.
      */
-    public function getSlugOptions() : SlugOptions
+    public function getSlugOptions()
     {
         return SlugOptions::create()
             ->generateSlugsFrom('name')
@@ -64,7 +64,7 @@ class YourEloquentModel extends Model
 Want to use multiple field as the basis for a slug? No problem!
 
 ```php
-public function getSlugOptions() : SlugOptions
+public function getSlugOptions()
 {
     return SlugOptions::create()
         ->generateSlugsFrom(['first_name', 'last_name'])
@@ -80,7 +80,7 @@ By default the package will generate unique slugs by appending '-' and a number,
 You can disable this behaviour by calling `allowDuplicateSlugs`.
 
 ```php
-public function getSlugOptions() : SlugOptions
+public function getSlugOptions()
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
@@ -92,7 +92,7 @@ public function getSlugOptions() : SlugOptions
 You can also put a maximum size limit on the created slug:
 
 ```php
-public function getSlugOptions() : SlugOptions
+public function getSlugOptions()
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
