@@ -2,55 +2,49 @@
 
 namespace Spatie\Sluggable;
 
-class SlugOptions
-{
-    /** @var string|array|callable */
-    public $generateSlugFrom;
+class SlugOptions {
+	/** @var string|array|callable */
+	public $generateSlugFrom;
 
-    /** @var string */
-    public $slugField;
+	/** @var string */
+	public $slugField;
 
-    /** @var bool */
-    public $generateUniqueSlugs = true;
+	/** @var bool */
+	public $generateUniqueSlugs = true;
 
-    /** @var int */
-    public $maximumLength = 250;
+	/** @var int */
+	public $maximumLength = 250;
 
-    public static function create(): SlugOptions
-    {
-        return new static();
-    }
+	public static function create() {
+		return new static();
+	}
 
-    /**
-     * @param string|array|callable $fieldName
-     *
-     * @return \Spatie\Sluggable\SlugOptions
-     */
-    public function generateSlugsFrom($fieldName): SlugOptions
-    {
-        $this->generateSlugFrom = $fieldName;
+	/**
+	 * @param string|array|callable $fieldName
+	 *
+	 * @return \Spatie\Sluggable\SlugOptions
+	 */
+	public function generateSlugsFrom($fieldName) {
+		$this->generateSlugFrom = $fieldName;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function saveSlugsTo(string $fieldName): SlugOptions
-    {
-        $this->slugField = $fieldName;
+	public function saveSlugsTo(string $fieldName) {
+		$this->slugField = $fieldName;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function allowDuplicateSlugs(): SlugOptions
-    {
-        $this->generateUniqueSlugs = false;
+	public function allowDuplicateSlugs() {
+		$this->generateUniqueSlugs = false;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function slugsShouldBeNoLongerThan(int $maximumLength): SlugOptions
-    {
-        $this->maximumLength = $maximumLength;
+	public function slugsShouldBeNoLongerThan(int $maximumLength) {
+		$this->maximumLength = $maximumLength;
 
-        return $this;
-    }
+		return $this;
+	}
 }
