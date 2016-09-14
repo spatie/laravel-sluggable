@@ -111,6 +111,19 @@ public function getSlugOptions() : SlugOptions
 
 The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
 
+
+You can also specify additional fields that should be considered when determining if a slug is unique or not. The slug will be considered unique if another model with the same slug and specified fields can't be found.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('url')
+        ->uniqueWith(['another_field']);
+}
+```
+
 You can also override the generated slug just by setting it to another value then the generated slug.
 ```php
 $model = EloquentModel:create(['name' => 'my name']); //url is now "my-name"; 
