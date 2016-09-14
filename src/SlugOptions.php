@@ -2,6 +2,8 @@
 
 namespace Spatie\Sluggable;
 
+use Spatie\Sluggable\InvalidOption;
+
 class SlugOptions
 {
     /** @var string|array|callable */
@@ -50,6 +52,26 @@ class SlugOptions
     public function slugsShouldBeNoLongerThan(int $maximumLength): SlugOptions
     {
         $this->maximumLength = $maximumLength;
+
+        return $this;
+    }
+
+    /**
+     * This function will throw an exception when any of the options is missing or invalid.
+     */
+    public function guardAgainstInvalidSlugOptions()
+    {
+        if (!count($this->generateSlugFrom)) {
+            throw InvalidOption::missingFromField();
+        }
+
+        if (!strlen($this->slugField)) {
+            throw InvalidOption::missingSlugField();
+        }
+
+        if ($this->maximumLength <= 0) {
+            throw InvalidOption::invalidMaximumLength();
+        }
 
         return $this;
     }
