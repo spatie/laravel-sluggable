@@ -182,4 +182,41 @@ class HasSlugTest extends TestCase
 
         $this->assertEquals('this-is-an-other-1', $model->url);
     }
+
+    /** @test */
+    public function it_considers_uniquewith_fields_when_generating_a_unique_slug()
+    {
+        $model = new class extends TestModel
+        {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->uniqueWith(['other_field']);
+            }
+        };
+
+        $one = $model->create([
+            'name' => 'this is a test',
+            'other_field' => 'this is one way',
+        ]);
+
+        $two = $model->create([
+            'name' => 'this is a test',
+            'other_field' => 'this is another',
+        ]);
+
+        $three = $model->create([
+            'name' => 'this is a test',
+            'other_field' => 'this is another',
+        ]);
+
+        // Models with different values for the 'other_field' field should
+        // still end up with the same slug, since they're still 'unique'
+        // when considering the 'other_field' field
+        $this->assertEquals('this-is-a-test', $one->url);
+        $this->assertEquals('this-is-a-test', $two->url);
+
+        // In this case, model three has the same 'name' and 'other_field'
+        // as model two, meaning that the slug generated should be unique
+        $this->assertEquals('this-is-a-test-1', $three->url);
+    }
 }

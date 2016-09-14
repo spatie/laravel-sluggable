@@ -18,6 +18,9 @@ class SlugOptions
     /** @var int */
     public $maximumLength = 250;
 
+    /** @var array */
+    public $uniqueWith = [];
+
     public static function create(): SlugOptions
     {
         return new static();
@@ -52,6 +55,13 @@ class SlugOptions
     public function slugsShouldBeNoLongerThan(int $maximumLength): SlugOptions
     {
         $this->maximumLength = $maximumLength;
+
+        return $this;
+    }
+
+    public function uniqueWith(array $fields): SlugOptions
+    {
+        $this->uniqueWith = $fields;
 
         return $this;
     }

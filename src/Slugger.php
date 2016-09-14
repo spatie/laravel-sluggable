@@ -113,8 +113,14 @@ class Slugger
      */
     private function otherRecordExistsWithSlug(string $slug): bool
     {
-        return (bool) $this->model->query()->where($this->slugOptions->slugField, $slug)
-            ->where($this->model->getKeyName(), '!=', $this->model->getKey() ?? '0')
-            ->first();
+        $query = $this->model->query()
+            ->where($this->slugOptions->slugField, $slug)
+            ->where($this->model->getKeyName(), '!=', $this->model->getKey() ?? '0');
+
+        foreach ($this->slugOptions->uniqueWith as $fieldName) {
+            $query->where($fieldName, $this->model->{$fieldName});
+        }
+
+        return (bool) $query->first();
     }
 }
