@@ -182,4 +182,34 @@ class HasSlugTest extends TestCase
 
         $this->assertEquals('this-is-an-other-1', $model->url);
     }
+
+    /** @test */
+    function it_creates_new_slug_when_slug_exists_on_soft_deleted_model()
+    {
+        $model = new class extends TestModelWithSoftDeletes
+        {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->checkAgainstTrashedModels();
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->save();
+
+        $model->delete();
+
+        $another_model = new class extends TestModelWithSoftDeletes
+        {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->checkAgainstTrashedModels();
+            }
+        };
+
+        $another_model->name = 'this is a test';
+        $another_model->save();
+
+        $this->assertEquals($another_model->url, 'this-is-a-test-1');
+    }
 }

@@ -16,6 +16,9 @@ class SlugOptions
     /** @var int */
     public $maximumLength = 250;
 
+    /** @var bool */
+    public $includeSoftDeletes = false;
+
     public static function create(): SlugOptions
     {
         return new static();
@@ -50,6 +53,13 @@ class SlugOptions
     public function slugsShouldBeNoLongerThan(int $maximumLength): SlugOptions
     {
         $this->maximumLength = $maximumLength;
+
+        return $this;
+    }
+
+    public function checkAgainstTrashedModels() : SlugOptions
+    {
+        $this->includeSoftDeletes = true;
 
         return $this;
     }
