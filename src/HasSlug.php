@@ -20,12 +20,50 @@ trait HasSlug
     protected static function bootHasSlug()
     {
         static::creating(function (Model $model) {
-            $model->addSlug();
+            $model->generateSlugOnCreate();
         });
 
         static::updating(function (Model $model) {
-            $model->addSlug();
+            $model->generateSlugOnUpdate();
         });
+    }
+
+    /**
+     * Handle adding slug on model creation
+     */
+    protected function generateSlugOnCreate()
+    {
+        $this->slugOptions = $this->getSlugOptions();
+
+        if (!$this->slugOptions->generateSlugOnCreate) {
+            return;
+        }
+
+        $this->addSlug();
+    }
+
+    /**
+     * Handle adding slug on model update
+     */
+    protected function generateSlugOnUpdate()
+    {
+        $this->slugOptions = $this->getSlugOptions();
+
+        if (!$this->slugOptions->generateSlugOnUpdate) {
+            return;
+        }
+
+        $this->addSlug();
+    }
+
+    /**
+     * Handle setting slug on explicit request
+     */
+    public function generateSlug()
+    {
+        $this->slugOptions = $this->getSlugOptions();
+
+        $this->addSlug();
     }
 
     /**
@@ -33,8 +71,6 @@ trait HasSlug
      */
     protected function addSlug()
     {
-        $this->slugOptions = $this->getSlugOptions();
-
         $this->guardAgainstInvalidSlugOptions();
 
         $slug = $this->generateNonUniqueSlug();

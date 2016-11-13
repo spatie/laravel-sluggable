@@ -182,4 +182,56 @@ class HasSlugTest extends TestCase
 
         $this->assertEquals('this-is-an-other-1', $model->url);
     }
+
+    /** @test */
+    public function it_doesnt_create_the_slug_if_onCreate_is_false()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->doNotGenerateSlugOnCreate();
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->save();
+
+        $this->assertEquals(null, $model->url);
+    }
+
+    /** @test */
+    public function it_doesnt_update_the_slug_if_onUpdate_is_false()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->doNotGenerateSlugOnUpdate();
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->save();
+
+        $model->name = 'this is another test';
+        $model->save();
+
+        $this->assertEquals('this-is-a-test', $model->url);
+    }
+
+    /** @test */
+    public function it_allows_explicit_requests_to_update_slug()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->doNotGenerateSlugOnCreate()->doNotGenerateSlugOnUpdate();
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->generateSlug();
+        $model->save();
+
+        $this->assertEquals('this-is-a-test', $model->url);
+    }
 }
