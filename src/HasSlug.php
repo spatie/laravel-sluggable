@@ -29,13 +29,13 @@ trait HasSlug
     }
 
     /**
-     * Handle adding slug on model creation
+     * Handle adding slug on model creation.
      */
     protected function generateSlugOnCreate()
     {
         $this->slugOptions = $this->getSlugOptions();
 
-        if (!$this->slugOptions->generateSlugsOnCreate) {
+        if (! $this->slugOptions->generateSlugsOnCreate) {
             return;
         }
 
@@ -43,13 +43,13 @@ trait HasSlug
     }
 
     /**
-     * Handle adding slug on model update
+     * Handle adding slug on model update.
      */
     protected function generateSlugOnUpdate()
     {
         $this->slugOptions = $this->getSlugOptions();
 
-        if (!$this->slugOptions->generateSlugsOnUpdate) {
+        if (! $this->slugOptions->generateSlugsOnUpdate) {
             return;
         }
 
@@ -57,7 +57,7 @@ trait HasSlug
     }
 
     /**
-     * Handle setting slug on explicit request
+     * Handle setting slug on explicit request.
      */
     public function generateSlug()
     {
@@ -115,6 +115,7 @@ trait HasSlug
     {
         if (is_callable($this->slugOptions->generateSlugFrom)) {
             $slugSourceString = call_user_func($this->slugOptions->generateSlugFrom, $this);
+
             return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
         }
 
@@ -157,11 +158,11 @@ trait HasSlug
      */
     protected function guardAgainstInvalidSlugOptions()
     {
-        if (!count($this->slugOptions->generateSlugFrom)) {
+        if (! count($this->slugOptions->generateSlugFrom)) {
             throw InvalidOption::missingFromField();
         }
 
-        if (!strlen($this->slugOptions->slugField)) {
+        if (! strlen($this->slugOptions->slugField)) {
             throw InvalidOption::missingSlugField();
         }
 
