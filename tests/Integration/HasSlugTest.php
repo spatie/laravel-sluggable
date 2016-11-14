@@ -67,8 +67,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_from_multiple_source_fields()
     {
-        $model = new class extends TestModel
-        {
+        $model = new class extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
@@ -85,12 +84,11 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_from_a_callable()
     {
-        $model = new class extends TestModel
-        {
+        $model = new class extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
-                    return 'foo-' . str_slug($model->name);
+                    return 'foo-'.str_slug($model->name);
                 });
             }
         };
@@ -105,8 +103,7 @@ class HasSlugTest extends TestCase
     public function it_can_generate_duplicate_slugs()
     {
         foreach (range(1, 10) as $i) {
-            $model = new class extends TestModel
-            {
+            $model = new class extends TestModel {
                 public function getSlugOptions(): SlugOptions
                 {
                     return parent::getSlugOptions()->allowDuplicateSlugs();
@@ -123,8 +120,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_with_a_maximum_length()
     {
-        $model = new class extends TestModel
-        {
+        $model = new class extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
