@@ -121,6 +121,32 @@ $model->name = 'changed name';
 $model->save(); //url stays "my name"
 ```
 
+If you don't want to create the slug when the model is initially created you can set use the doNotGenerateSlugOnCreate() flag the slug options.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('url')
+        ->doNotGenerateSlugOnCreate()
+}
+```
+
+Similarly, if you want to prevent the slug from being updated on model updates, call doNotGenerateSlugOnUpdate(). This can be helpful for creating permalinks that don't change until you explicitly want it to.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('url')
+        ->doNotGenerateSlugOnUpdate()
+}
+```
+
+If you want to explicitly update the slug on the model you can call `generateSlug()` on your model at any time to make the slug according to your other options. Don't forget to `save()` the model to persist the update to your database.
+
 ## Change log
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
