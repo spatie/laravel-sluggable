@@ -2,6 +2,9 @@
 
 All Notable changes to `laravel-sluggable` will be documented in this file
 
+## 1.3.0 - 2016-11-14
+- add `doNotGenerateSlugsOnCreate` and `doNotGenerateSlugsOnUpdate`
+
 ## 1.2.0 - 2016-06-13
 - Added the ability to generate slugs from a callable
 

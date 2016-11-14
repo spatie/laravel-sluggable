@@ -17,10 +17,10 @@ class SlugOptions
     public $maximumLength = 250;
 
     /** @var bool */
-    public $generateSlugOnCreate = true;
+    public $generateSlugsOnCreate = true;
 
     /** @var bool */
-    public $generateSlugOnUpdate = true;
+    public $generateSlugsOnUpdate = true;
 
     public static function create(): SlugOptions
     {
@@ -60,16 +60,16 @@ class SlugOptions
         return $this;
     }
 
-    public function doNotGenerateSlugOnCreate(): SlugOptions
+    public function doNotGenerateSlugsOnCreate(): SlugOptions
     {
-        $this->generateSlugOnCreate = false;
+        $this->generateSlugsOnCreate = false;
 
         return $this;
     }
 
-    public function doNotGenerateSlugOnUpdate(): SlugOptions
+    public function doNotGenerateSlugsOnUpdate(): SlugOptions
     {
-        $this->generateSlugOnUpdate = false;
+        $this->generateSlugsOnUpdate = false;
 
         return $this;
     }

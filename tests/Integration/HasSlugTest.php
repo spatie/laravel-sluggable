@@ -184,12 +184,12 @@ class HasSlugTest extends TestCase
     }
 
     /** @test */
-    public function it_doesnt_create_the_slug_if_onCreate_is_false()
+    public function it_has_an_method_that_prevents_a_slug_being_generated_on_creation()
     {
         $model = new class extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
-                return parent::getSlugOptions()->doNotGenerateSlugOnCreate();
+                return parent::getSlugOptions()->doNotGenerateSlugsOnCreate();
             }
         };
 
@@ -200,12 +200,12 @@ class HasSlugTest extends TestCase
     }
 
     /** @test */
-    public function it_doesnt_update_the_slug_if_onUpdate_is_false()
+    public function it_has_an_method_that_prevents_a_slug_being_generated_on_update()
     {
         $model = new class extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
-                return parent::getSlugOptions()->doNotGenerateSlugOnUpdate();
+                return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
             }
         };
 
@@ -213,23 +213,6 @@ class HasSlugTest extends TestCase
         $model->save();
 
         $model->name = 'this is another test';
-        $model->save();
-
-        $this->assertEquals('this-is-a-test', $model->url);
-    }
-
-    /** @test */
-    public function it_allows_explicit_requests_to_update_slug()
-    {
-        $model = new class extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->doNotGenerateSlugOnCreate()->doNotGenerateSlugOnUpdate();
-            }
-        };
-
-        $model->name = 'this is a test';
-        $model->generateSlug();
         $model->save();
 
         $this->assertEquals('this-is-a-test', $model->url);
