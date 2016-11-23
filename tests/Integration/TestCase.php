@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sluggable\Test\Integration;
+namespace Edofre\Sluggable\Test\Integration;
 
 use File;
 use Illuminate\Database\Schema\Blueprint;
@@ -10,7 +10,7 @@ use Orchestra\Testbench\TestCase as Orchestra;
 abstract class TestCase extends Orchestra
 {
     /**
-     * @var \Spatie\Sluggable\Test\Integration\TestModel
+     * @var \Edofre\Sluggable\Test\Integration\TestModel
      */
     protected $testModel;
 
@@ -22,26 +22,11 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * @param Application $app
-     */
-    protected function getEnvironmentSetUp($app)
-    {
-        $this->initializeDirectory($this->getTempDirectory());
-
-        $app['config']->set('database.default', 'sqlite');
-        $app['config']->set('database.connections.sqlite', [
-            'driver' => 'sqlite',
-            'database' => $this->getTempDirectory().'/database.sqlite',
-            'prefix' => '',
-        ]);
-    }
-
-    /**
      * @param  $app
      */
     protected function setUpDatabase(Application $app)
     {
-        file_put_contents($this->getTempDirectory().'/database.sqlite', null);
+        file_put_contents($this->getTempDirectory() . '/database.sqlite', null);
 
         $app['db']->connection()->getSchemaBuilder()->create('test_models', function (Blueprint $table) {
             $table->increments('id');
@@ -51,16 +36,31 @@ abstract class TestCase extends Orchestra
         });
     }
 
-    protected function initializeDirectory(string $directory)
+    public function getTempDirectory()
+    {
+        return __DIR__ . '/temp';
+    }
+
+    /**
+     * @param Application $app
+     */
+    protected function getEnvironmentSetUp($app)
+    {
+        $this->initializeDirectory($this->getTempDirectory());
+
+        $app['config']->set('database.default', 'sqlite');
+        $app['config']->set('database.connections.sqlite', [
+            'driver'   => 'sqlite',
+            'database' => $this->getTempDirectory() . '/database.sqlite',
+            'prefix'   => '',
+        ]);
+    }
+
+    protected function initializeDirectory($directory)
     {
         if (File::isDirectory($directory)) {
             File::deleteDirectory($directory);
         }
         File::makeDirectory($directory);
-    }
-
-    public function getTempDirectory() : string
-    {
-        return __DIR__.'/temp';
     }
 }

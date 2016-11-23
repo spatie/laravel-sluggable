@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\Sluggable\Test\Integration;
+namespace Edofre\Sluggable\Test\Integration;
 
-use Spatie\Sluggable\SlugOptions;
+use Edofre\Sluggable\SlugOptions;
 
 class HasSlugTest extends TestCase
 {
@@ -67,12 +67,13 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_from_multiple_source_fields()
     {
-        $model = new class extends TestModel {
-            public function getSlugOptions()
-            {
-                return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
-            }
-        };
+
+        $model = new TestModel();
+        $model->setSlugOptions(SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('url')
+            ->generateSlugsFrom(['name', 'other_field'])
+        );
 
         $model->name = 'this is a test';
         $model->other_field = 'this is another field';
@@ -84,14 +85,14 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_from_a_callable()
     {
-        $model = new class extends TestModel {
-            public function getSlugOptions()
-            {
-                return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model) {
-                    return 'foo-'.str_slug($model->name);
-                });
-            }
-        };
+        $model = new TestModel();
+        $slugOptions = SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('url')
+            ->generateSlugsFrom(function (TestModel $model) {
+                return 'foo-' . str_slug($model->name);
+            });
+        $model->setSlugOptions($slugOptions);
 
         $model->name = 'this is a test';
         $model->save();
@@ -103,12 +104,12 @@ class HasSlugTest extends TestCase
     public function it_can_generate_duplicate_slugs()
     {
         foreach (range(1, 10) as $i) {
-            $model = new class extends TestModel {
-                public function getSlugOptions()
-                {
-                    return parent::getSlugOptions()->allowDuplicateSlugs();
-                }
-            };
+            $model = new TestModel();
+            $model->setSlugOptions(SlugOptions::create()
+                ->generateSlugsFrom('name')
+                ->saveSlugsTo('url')
+                ->allowDuplicateSlugs()
+            );
 
             $model->name = 'this is a test';
             $model->save();
@@ -120,12 +121,12 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_with_a_maximum_length()
     {
-        $model = new class extends TestModel {
-            public function getSlugOptions()
-            {
-                return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
-            }
-        };
+        $model = new TestModel();
+        $model->setSlugOptions(SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('url')
+            ->slugsShouldBeNoLongerThan(5)
+        );
 
         $model->name = '123456789';
         $model->save();
@@ -182,12 +183,12 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_has_an_method_that_prevents_a_slug_being_generated_on_creation()
     {
-        $model = new class extends TestModel {
-            public function getSlugOptions()
-            {
-                return parent::getSlugOptions()->doNotGenerateSlugsOnCreate();
-            }
-        };
+        $model = new TestModel();
+        $model->setSlugOptions(SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('url')
+            ->doNotGenerateSlugsOnCreate()
+        );
 
         $model->name = 'this is a test';
         $model->save();
@@ -198,12 +199,12 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_has_an_method_that_prevents_a_slug_being_generated_on_update()
     {
-        $model = new class extends TestModel {
-            public function getSlugOptions()
-            {
-                return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
-            }
-        };
+        $model = new TestModel();
+        $model->setSlugOptions(SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('url')
+            ->doNotGenerateSlugsOnUpdate()
+        );
 
         $model->name = 'this is a test';
         $model->save();

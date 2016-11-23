@@ -1,46 +1,49 @@
 <?php
 
-namespace Spatie\Sluggable\Test\Integration;
+namespace Edofre\Sluggable\Test\Integration;
 
+use Edofre\Sluggable\HasSlug;
+use Edofre\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 class TestModel extends Model
 {
     use HasSlug;
 
-    protected $table = 'test_models';
-
-    protected $guarded = [];
-
+    /** @var bool */
     public $timestamps = false;
+    /** @var string */
+    protected $table = 'test_models';
+    /** @var array */
+    protected $guarded = [];
 
     /**
      * Get the options for generating the slug.
      */
-    public function getSlugOptions() : SlugOptions
+    public function getSlugOptions()
     {
-        return $this->slugOptions ?? $this->getDefaultSlugOptions();
-    }
-
-    /**
-     * Set the options for generating the slug.
-     */
-    public function setSlugOptions(SlugOptions $slugOptions) : TestModel
-    {
-        $this->slugOptions = $slugOptions;
-
-        return $this;
+        return isset($this->slugOptions) ? $this->slugOptions : $this->getDefaultSlugOptions();
     }
 
     /**
      * Get the default slug options used in the tests.
      */
-    public function getDefaultSlugOptions() : SlugOptions
+    public function getDefaultSlugOptions()
     {
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('url');
+    }
+
+    /**
+     * Set the options for generating the slug.
+     * @param SlugOptions $slugOptions
+     * @return $this
+     */
+    public function setSlugOptions(SlugOptions $slugOptions)
+    {
+        $this->slugOptions = $slugOptions;
+
+        return $this;
     }
 }
