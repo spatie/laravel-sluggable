@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sluggable;
+namespace Edofre\Sluggable;
 
 use Exception;
 

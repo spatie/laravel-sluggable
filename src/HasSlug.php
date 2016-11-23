@@ -1,18 +1,13 @@
 <?php
 
-namespace Spatie\Sluggable;
+namespace Edofre\Sluggable;
 
 use Illuminate\Database\Eloquent\Model;
 
 trait HasSlug
 {
-    /** @var \Spatie\Sluggable\SlugOptions */
+    /** @var \Edofre\Sluggable\SlugOptions */
     protected $slugOptions;
-
-    /**
-     * Get the options for generating the slug.
-     */
-    abstract public function getSlugOptions(): SlugOptions;
 
     /**
      * Boot the trait.
@@ -29,34 +24,6 @@ trait HasSlug
     }
 
     /**
-     * Handle adding slug on model creation.
-     */
-    protected function generateSlugOnCreate()
-    {
-        $this->slugOptions = $this->getSlugOptions();
-
-        if (! $this->slugOptions->generateSlugsOnCreate) {
-            return;
-        }
-
-        $this->addSlug();
-    }
-
-    /**
-     * Handle adding slug on model update.
-     */
-    protected function generateSlugOnUpdate()
-    {
-        $this->slugOptions = $this->getSlugOptions();
-
-        if (! $this->slugOptions->generateSlugsOnUpdate) {
-            return;
-        }
-
-        $this->addSlug();
-    }
-
-    /**
      * Handle setting slug on explicit request.
      */
     public function generateSlug()
@@ -65,6 +32,11 @@ trait HasSlug
 
         $this->addSlug();
     }
+
+    /**
+     * Get the options for generating the slug.
+     */
+    abstract public function getSlugOptions();
 
     /**
      * Add the slug to the model.
@@ -85,9 +57,27 @@ trait HasSlug
     }
 
     /**
+     * This function will throw an exception when any of the options is missing or invalid.
+     */
+    protected function guardAgainstInvalidSlugOptions()
+    {
+        if (!count($this->slugOptions->generateSlugFrom)) {
+            throw InvalidOption::missingFromField();
+        }
+
+        if (!strlen($this->slugOptions->slugField)) {
+            throw InvalidOption::missingSlugField();
+        }
+
+        if ($this->slugOptions->maximumLength <= 0) {
+            throw InvalidOption::invalidMaximumLength();
+        }
+    }
+
+    /**
      * Generate a non unique slug for this record.
      */
-    protected function generateNonUniqueSlug(): string
+    protected function generateNonUniqueSlug()
     {
         if ($this->hasCustomSlugBeenUsed()) {
             $slugField = $this->slugOptions->slugField;
@@ -101,7 +91,7 @@ trait HasSlug
     /**
      * Determine if a custom slug has been saved.
      */
-    protected function hasCustomSlugBeenUsed(): bool
+    protected function hasCustomSlugBeenUsed()
     {
         $slugField = $this->slugOptions->slugField;
 
@@ -111,7 +101,7 @@ trait HasSlug
     /**
      * Get the string that should be used as base for the slug.
      */
-    protected function getSlugSourceString(): string
+    protected function getSlugSourceString()
     {
         if (is_callable($this->slugOptions->generateSlugFrom)) {
             $slugSourceString = call_user_func($this->slugOptions->generateSlugFrom, $this);
@@ -120,8 +110,8 @@ trait HasSlug
         }
 
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(function (string $fieldName) : string {
-                return $this->$fieldName ?? '';
+            ->map(function ($fieldName) {
+                return isset($this->$fieldName) ? $this->$fieldName : '';
             })
             ->implode('-');
 
@@ -131,13 +121,13 @@ trait HasSlug
     /**
      * Make the given slug unique.
      */
-    protected function makeSlugUnique(string $slug): string
+    protected function makeSlugUnique($slug)
     {
         $originalSlug = $slug;
         $i = 1;
 
         while ($this->otherRecordExistsWithSlug($slug) || $slug === '') {
-            $slug = $originalSlug.'-'.$i++;
+            $slug = $originalSlug . '-' . $i++;
         }
 
         return $slug;
@@ -146,28 +136,38 @@ trait HasSlug
     /**
      * Determine if a record exists with the given slug.
      */
-    protected function otherRecordExistsWithSlug(string $slug): bool
+    protected function otherRecordExistsWithSlug($slug)
     {
-        return (bool) static::where($this->slugOptions->slugField, $slug)
-            ->where($this->getKeyName(), '!=', $this->getKey() ?? '0')
+        return (bool)static::where($this->slugOptions->slugField, $slug)
+            ->where($this->getKeyName(), '!=', (!is_null($this->getKey()) ? $this->getKey() : '0'))
             ->first();
     }
 
     /**
-     * This function will throw an exception when any of the options is missing or invalid.
+     * Handle adding slug on model creation.
      */
-    protected function guardAgainstInvalidSlugOptions()
+    protected function generateSlugOnCreate()
     {
-        if (! count($this->slugOptions->generateSlugFrom)) {
-            throw InvalidOption::missingFromField();
+        $this->slugOptions = $this->getSlugOptions();
+
+        if (!$this->slugOptions->generateSlugsOnCreate) {
+            return;
         }
 
-        if (! strlen($this->slugOptions->slugField)) {
-            throw InvalidOption::missingSlugField();
+        $this->addSlug();
+    }
+
+    /**
+     * Handle adding slug on model update.
+     */
+    protected function generateSlugOnUpdate()
+    {
+        $this->slugOptions = $this->getSlugOptions();
+
+        if (!$this->slugOptions->generateSlugsOnUpdate) {
+            return;
         }
 
-        if ($this->slugOptions->maximumLength <= 0) {
-            throw InvalidOption::invalidMaximumLength();
-        }
+        $this->addSlug();
     }
 }

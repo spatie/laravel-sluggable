@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sluggable;
+namespace Edofre\Sluggable;
 
 class SlugOptions
 {
@@ -22,7 +22,7 @@ class SlugOptions
     /** @var bool */
     public $generateSlugsOnUpdate = true;
 
-    public static function create(): SlugOptions
+    public static function create()
     {
         return new static();
     }
@@ -30,44 +30,44 @@ class SlugOptions
     /**
      * @param string|array|callable $fieldName
      *
-     * @return \Spatie\Sluggable\SlugOptions
+     * @return \Edofre\Sluggable\SlugOptions
      */
-    public function generateSlugsFrom($fieldName): SlugOptions
+    public function generateSlugsFrom($fieldName)
     {
         $this->generateSlugFrom = $fieldName;
 
         return $this;
     }
 
-    public function saveSlugsTo(string $fieldName): SlugOptions
+    public function saveSlugsTo($fieldName)
     {
         $this->slugField = $fieldName;
 
         return $this;
     }
 
-    public function allowDuplicateSlugs(): SlugOptions
+    public function allowDuplicateSlugs()
     {
         $this->generateUniqueSlugs = false;
 
         return $this;
     }
 
-    public function slugsShouldBeNoLongerThan(int $maximumLength): SlugOptions
+    public function slugsShouldBeNoLongerThan($maximumLength)
     {
         $this->maximumLength = $maximumLength;
 
         return $this;
     }
 
-    public function doNotGenerateSlugsOnCreate(): SlugOptions
+    public function doNotGenerateSlugsOnCreate()
     {
         $this->generateSlugsOnCreate = false;
 
         return $this;
     }
 
-    public function doNotGenerateSlugsOnUpdate(): SlugOptions
+    public function doNotGenerateSlugsOnUpdate()
     {
         $this->generateSlugsOnUpdate = false;
 
