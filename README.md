@@ -1,5 +1,5 @@
-# This is a fork from https://github.com/spatie/laravel-sluggable 
 # I just converted it to work with php 5.6.
+## This is a fork from https://github.com/spatie/laravel-sluggable 
 
 # Generate slugs when saving Eloquent models
 
