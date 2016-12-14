@@ -133,9 +133,17 @@ trait HasSlug
      */
     protected function otherRecordExistsWithSlug($slug)
     {
-        return (bool)static::where($this->slugOptions->slugField, $slug)
-            ->where($this->getKeyName(), '!=', (!is_null($this->getKey()) ? $this->getKey() : '0'))
-            ->first();
+        // Check for SoftDeletes trait
+        if (class_exists('\\App\\Traits\\SoftDeletes') && (in_array(\App\Traits\SoftDeletes::class, class_uses(static::class)))) {
+            return static::where($this->slugOptions->slugField, $slug)
+                ->withTrashed()
+                ->where($this->getKeyName(), '!=', (!is_null($this->getKey()) ? $this->getKey() : '0'))
+                ->first();
+        } else {
+            return (bool)static::where($this->slugOptions->slugField, $slug)
+                ->where($this->getKeyName(), '!=', (!is_null($this->getKey()) ? $this->getKey() : '0'))
+                ->first();
+        }
     }
 
     /**
