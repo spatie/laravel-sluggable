@@ -6,6 +6,10 @@ use Edofre\Sluggable\HasSlug;
 use Edofre\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class TestModel
+ * @package Edofre\Sluggable\Test\Integration
+ */
 class TestModel extends Model
 {
     use HasSlug;
@@ -43,7 +47,6 @@ class TestModel extends Model
     public function setSlugOptions(SlugOptions $slugOptions)
     {
         $this->slugOptions = $slugOptions;
-
         return $this;
     }
 }

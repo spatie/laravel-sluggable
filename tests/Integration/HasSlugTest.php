@@ -4,6 +4,10 @@ namespace Edofre\Sluggable\Test\Integration;
 
 use Edofre\Sluggable\SlugOptions;
 
+/**
+ * Class HasSlugTest
+ * @package Edofre\Sluggable\Test\Integration
+ */
 class HasSlugTest extends TestCase
 {
     /** @test */

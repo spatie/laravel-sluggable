@@ -9,15 +9,15 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
-    /**
-     * @var \Edofre\Sluggable\Test\Integration\TestModel
-     */
+    /** @var \Edofre\Sluggable\Test\Integration\TestModel */
     protected $testModel;
 
+    /**
+     *
+     */
     public function setUp()
     {
         parent::setUp();
-
         $this->setUpDatabase($this->app);
     }
 
@@ -36,6 +36,9 @@ abstract class TestCase extends Orchestra
         });
     }
 
+    /**
+     * @return string
+     */
     public function getTempDirectory()
     {
         return __DIR__ . '/temp';
@@ -56,6 +59,9 @@ abstract class TestCase extends Orchestra
         ]);
     }
 
+    /**
+     * @param $directory
+     */
     protected function initializeDirectory($directory)
     {
         if (File::isDirectory($directory)) {

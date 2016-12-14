@@ -34,11 +34,6 @@ trait HasSlug
     }
 
     /**
-     * Get the options for generating the slug.
-     */
-    abstract public function getSlugOptions();
-
-    /**
      * Add the slug to the model.
      */
     protected function addSlug()
@@ -142,6 +137,11 @@ trait HasSlug
             ->where($this->getKeyName(), '!=', (!is_null($this->getKey()) ? $this->getKey() : '0'))
             ->first();
     }
+
+    /**
+     * Get the options for generating the slug.
+     */
+    abstract public function getSlugOptions();
 
     /**
      * Handle adding slug on model creation.
