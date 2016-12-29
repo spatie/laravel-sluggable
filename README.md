@@ -1,9 +1,9 @@
-# I just converted it to work with php 5.6.
-## This is a fork from https://github.com/spatie/laravel-sluggable 
+## This is a fork from https://github.com/spatie/laravel-sluggable
+### I just converted it to work with php 5.6
 
 # Generate slugs when saving Eloquent models
 
-This package provides a trait that will generate a unique slug when saving any Eloquent model. 
+This package provides a trait that will generate a unique slug when saving any Eloquent model.
 
 ```php
 $model = new EloquentModel();
@@ -26,7 +26,7 @@ $ composer require edofre/laravel-sluggable
 
 Your Eloquent models should use the `Edofre\Sluggable\HasSlug` trait and the `Edofre\Sluggable\SlugOptions` class.
 
-The trait contains an abstract method `getSlugOptions()` that you must implement yourself. 
+The trait contains an abstract method `getSlugOptions()` that you must implement yourself.
 
 Here's an example of how to implement the trait:
 
@@ -42,7 +42,7 @@ use Illuminate\Database\Eloquent\Model;
 class YourEloquentModel extends Model
 {
     use HasSlug;
-    
+
     /**
      * Get the options for generating the slug.
      */
@@ -99,7 +99,7 @@ The slug may be slightly longer than the value specified, due to the suffix whic
 
 You can also override the generated slug just by setting it to another value then the generated slug.
 ```php
-$model = EloquentModel:create(['name' => 'my name']); //url is now "my-name"; 
+$model = EloquentModel:create(['name' => 'my name']); //url is now "my-name";
 $model->url = 'my-custom-url';
 $model-save();
 
