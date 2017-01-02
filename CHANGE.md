@@ -1,12 +1,17 @@
 Change Log: `laravel-sluggage`
 ==============================
 
+## Version 1.5.0
+
+**Date:** 23-Nov-2016
+
+- Proper release to include SoftDeletes withTrashed() method
+
 ## Version 1.1.0
 
 **Date:** 23-Nov-2016
 
 - Updated test environment for 5.6
-
 
 ## Version 1.0.0
 
