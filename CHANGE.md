@@ -1,9 +1,15 @@
 Change Log: `laravel-sluggage`
 ==============================
 
+## Version 1.5.1
+
+**Date:** 02-Jan-2017
+
+- check for trait with trait_exists() instread of class_exists
+
 ## Version 1.5.0
 
-**Date:** 23-Nov-2016
+**Date:** 02-Jan-2017
 
 - Proper release to include SoftDeletes withTrashed() method
 
