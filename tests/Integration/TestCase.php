@@ -3,8 +3,8 @@
 namespace Spatie\Sluggable\Test\Integration;
 
 use File;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Application;
+use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
