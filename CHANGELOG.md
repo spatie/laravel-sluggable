@@ -2,6 +2,9 @@
 
 All Notable changes to `laravel-sluggable` will be documented in this file
 
+## 1.4.0 - 2017-01-24
+- add support for Laravel 5.4
+
 ## 1.3.0 - 2016-11-14
 - add `doNotGenerateSlugsOnCreate` and `doNotGenerateSlugsOnUpdate`
 

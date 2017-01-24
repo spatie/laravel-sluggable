@@ -22,7 +22,8 @@
 
     },
     "require-dev": {
-        "orchestra/testbench": "~3.2.0|~3.3.0",
+        "orchestra/testbench": "~3.2.0|~3.3.0|~3.4.0@dev",
+        "orchestra/database": "~3.2.0|~3.3.0|~3.4.0@dev",
         "phpunit/phpunit": "^5.0"
     },
     "autoload": {
