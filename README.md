@@ -1,6 +1,9 @@
 # Generate slugs when saving Eloquent models
 
 [![Code Climate](https://codeclimate.com/github/Edofre/laravel-sluggable/badges/gpa.svg)](https://codeclimate.com/github/Edofre/laravel-sluggable)
+[![Latest Stable Version](https://poser.pugx.org/edofre/laravel-sluggable/v/stable)](https://packagist.org/packages/edofre/laravel-sluggable)
+[![Latest Unstable Version](https://poser.pugx.org/edofre/laravel-sluggable/v/unstable)](https://packagist.org/packages/edofre/laravel-sluggable)
+[![License](https://poser.pugx.org/edofre/laravel-sluggable/license)](https://packagist.org/packages/edofre/laravel-sluggable)
 
 This package provides a trait that will generate a unique slug when saving any Eloquent model.
 
