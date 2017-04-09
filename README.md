@@ -3,7 +3,6 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-sluggable)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/spatie/laravel-sluggable/master.svg?style=flat-square)](https://travis-ci.org/spatie/laravel-sluggable)
-[![SensioLabsInsight](https://img.shields.io/sensiolabs/i/a56f8c11-331f-4d3c-8724-77f55969f2f7.svg?style=flat-square)](https://insight.sensiolabs.com/projects/a56f8c11-331f-4d3c-8724-77f55969f2f7)
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/laravel-sluggable.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/laravel-sluggable)
 [![StyleCI](https://styleci.io/repos/48512561/shield?branch=master)](https://styleci.io/repos/48512561)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-sluggable)
@@ -24,17 +23,17 @@ Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview 
 
 ## Postcardware
 
-You're free to use this package (it's [MIT-licensed](LICENSE.md)), but if it makes it to your production environment you are required to send us a postcard from your hometown, mentioning which of our package(s) you are using.
+You're free to use this package (it's [MIT-licensed](LICENSE.md)), but if it makes it to your production environment we highly appreciated you sending us a postcard from your hometown, mentioning which of our package(s) you are using.
 
 Our address is: Spatie, Samberstraat 69D, 2060 Antwerp, Belgium.
 
-The best postcards will get published on the open source page on our website.
+The best postcards are published [on our website](https://spatie.be/en/opensource/postcards).
 
 ## Installation
 
 You can install the package via composer:
 ``` bash
-$ composer require spatie/laravel-sluggable
+composer require spatie/laravel-sluggable
 ```
 
 ## Usage
@@ -65,7 +64,7 @@ class YourEloquentModel extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('name')
-            ->saveSlugsTo('url');
+            ->saveSlugsTo('slug');
     }
 }
 ```
@@ -77,7 +76,7 @@ public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom(['first_name', 'last_name'])
-        ->saveSlugsTo('url');
+        ->saveSlugsTo('slug');
 }
 ```
 
@@ -93,7 +92,7 @@ public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
-        ->saveSlugsTo('url')
+        ->saveSlugsTo('slug')
         ->allowDuplicateSlugs();
 }
 ```
@@ -105,7 +104,7 @@ public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
-        ->saveSlugsTo('url')
+        ->saveSlugsTo('slug')
         ->slugsShouldBeNoLongerThan(50);
 }
 ```
@@ -114,12 +113,12 @@ The slug may be slightly longer than the value specified, due to the suffix whic
 
 You can also override the generated slug just by setting it to another value then the generated slug.
 ```php
-$model = EloquentModel:create(['name' => 'my name']); //url is now "my-name"; 
-$model->url = 'my-custom-url';
+$model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name"; 
+$model->slug = 'my-custom-url';
 $model-save();
 
 $model->name = 'changed name';
-$model->save(); //url stays "my name"
+$model->save(); //slug stays "my name"
 ```
 
 If you don't want to create the slug when the model is initially created you can set use the `doNotGenerateSlugsOnCreate() function.
@@ -129,7 +128,7 @@ public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
-        ->saveSlugsTo('url')
+        ->saveSlugsTo('slug')
         ->doNotGenerateSlugsOnCreate();
 }
 ```
@@ -141,7 +140,7 @@ public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
-        ->saveSlugsTo('url')
+        ->saveSlugsTo('slug')
         ->doNotGenerateSlugsOnUpdate();
 }
 ```
@@ -155,7 +154,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 ## Testing
 
 ``` bash
-$ composer test
+composer test
 ```
 
 ## Contributing
