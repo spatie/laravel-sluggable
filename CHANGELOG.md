@@ -1,6 +1,9 @@
 # Changelog
 
-All Notable changes to `laravel-sluggable` will be documented in this file
+All notable changes to `laravel-sluggable` will be documented in this file
+
+## 1.4.1 - 2017-04-11
+- ignore global scopes when determining a unique slug 
 
 ## 1.4.0 - 2017-01-24
 - add support for Laravel 5.4
