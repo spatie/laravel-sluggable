@@ -213,4 +213,20 @@ class HasSlugTest extends TestCase
 
         $this->assertEquals('this-is-a-test', $model->url);
     }
+
+    /** @test */
+    public function it_will_use_separator_option_for_slug_generation()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->withSeparator('_');
+            }
+        };
+
+        $model->name = 'this is a separator test';
+        $model->save();
+
+        $this->assertEquals('this_is_a_separator_test', $model->url);
+    }
 }

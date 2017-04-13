@@ -109,6 +109,17 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+You can also use a custom separator by calling `withSeparator`
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->savesSlugsTo('slug')
+        ->withSeparator('_');
+}
+```
+
 The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
 
 You can also override the generated slug just by setting it to another value then the generated slug.
