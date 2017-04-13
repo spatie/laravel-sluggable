@@ -77,7 +77,7 @@ class SlugOptions
         return $this;
     }
 
-    public function withSeparator(string $separator): SlugOptions
+    public function usingSeparator(string $separator): SlugOptions
     {
         $this->slugSeparator = $separator;
 

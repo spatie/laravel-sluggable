@@ -220,7 +220,7 @@ class HasSlugTest extends TestCase
         $model = new class extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
-                return parent::getSlugOptions()->withSeparator('_');
+                return parent::getSlugOptions()->usingSeparator('_');
             }
         };
 

@@ -109,14 +109,15 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
-You can also use a custom separator by calling `withSeparator`
+You can also use a custom separator by calling `usingSeparator`
+
 ```php
 public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
         ->savesSlugsTo('slug')
-        ->withSeparator('_');
+        ->usingSeparator('_');
 }
 ```
 
