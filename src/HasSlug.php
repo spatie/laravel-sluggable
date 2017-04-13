@@ -95,7 +95,7 @@ trait HasSlug
             return $this->$slugField;
         }
 
-        return str_slug($this->getSlugSourceString());
+        return str_slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator);
     }
 
     /**
