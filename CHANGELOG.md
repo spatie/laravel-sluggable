@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 1.5.0 - 2017-04-13
+
+- add `usingSeparator()`
+
 ## 1.4.1 - 2017-04-11
 - ignore global scopes when determining a unique slug 
 
