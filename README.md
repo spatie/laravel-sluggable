@@ -116,7 +116,7 @@ public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
-        ->savesSlugsTo('slug')
+        ->saveSlugsTo('slug')
         ->usingSeparator('_');
 }
 ```
