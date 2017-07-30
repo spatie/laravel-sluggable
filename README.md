@@ -159,6 +159,14 @@ public function getSlugOptions() : SlugOptions
 
 If you want to explicitly update the slug on the model you can call `generateSlug()` on your model at any time to make the slug according to your other options. Don't forget to `save()` the model to persist the update to your database.
 
+If you want to use slug for pretty url then you can easily use Laravel implicit route model binding. For that add this method in Eloquent Model.
+
+```
+public function getRouteKeyName()
+{
+    return $this->slug;
+}
+```
 ## Change log
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
