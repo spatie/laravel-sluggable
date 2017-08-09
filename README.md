@@ -124,13 +124,11 @@ public function getSlugOptions() : SlugOptions
 The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
 
 You can also override the generated slug just by setting it to another value then the generated slug.
+
 ```php
 $model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name"; 
 $model->slug = 'my-custom-url';
-$model-save();
-
-$model->name = 'changed name';
-$model->save(); //slug stays "my name"
+$model-save(); //slug is now "my-custom-url"; 
 ```
 
 If you don't want to create the slug when the model is initially created you can set use the `doNotGenerateSlugsOnCreate() function.
@@ -145,7 +143,7 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
-Similarly, if you want to prevent the slug from being updated on model updates, call `doNotGenerateSlugsOnUpdate()`. This can be helpful for creating permalinks that don't change until you explicitly want it to.
+Similarly, if you want to prevent the slug from being updated on model updates, call `doNotGenerateSlugsOnUpdate()`.
 
 ```php
 public function getSlugOptions() : SlugOptions
@@ -155,6 +153,16 @@ public function getSlugOptions() : SlugOptions
         ->saveSlugsTo('slug')
         ->doNotGenerateSlugsOnUpdate();
 }
+```
+
+This can be helpful for creating permalinks that don't change until you explicitly want it to.
+
+```php
+$model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name"; 
+$model-save();
+
+$model->name = 'changed name';
+$model->save(); //slug stays "my-name"
 ```
 
 If you want to explicitly update the slug on the model you can call `generateSlug()` on your model at any time to make the slug according to your other options. Don't forget to `save()` the model to persist the update to your database.
