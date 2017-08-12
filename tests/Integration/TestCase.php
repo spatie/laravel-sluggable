@@ -9,9 +9,7 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
-    /**
-     * @var \Spatie\Sluggable\Test\Integration\TestModel
-     */
+    /** @var \Spatie\Sluggable\Test\Integration\TestModel */
     protected $testModel;
 
     public function setUp()
