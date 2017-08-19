@@ -2,8 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
-## 1.5.0 - 2017-04-13
+## 1.5.1 - 2017-08-19
+- fix bugs when using a custom separator
 
+## 1.5.0 - 2017-04-13
 - add `usingSeparator()`
 
 ## 1.4.1 - 2017-04-11
