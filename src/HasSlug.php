@@ -123,7 +123,7 @@ trait HasSlug
             ->map(function (string $fieldName) : string {
                 return $this->$fieldName ?? '';
             })
-            ->implode('-');
+            ->implode($this->slugOptions->slugSeparator);
 
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
     }
@@ -137,7 +137,7 @@ trait HasSlug
         $i = 1;
 
         while ($this->otherRecordExistsWithSlug($slug) || $slug === '') {
-            $slug = $originalSlug.'-'.$i++;
+            $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;
         }
 
         return $slug;
