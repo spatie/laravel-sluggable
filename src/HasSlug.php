@@ -159,7 +159,7 @@ trait HasSlug
      */
     protected function guardAgainstInvalidSlugOptions()
     {
-        if (! count($this->slugOptions->generateSlugFrom)) {
+        if (is_array($this->slugOptions->generateSlugFrom) && ! count($this->slugOptions->generateSlugFrom)) {
             throw InvalidOption::missingFromField();
         }
 

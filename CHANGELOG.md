@@ -2,6 +2,9 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.0.0 - 2017-XX-XX
+- add support for Laravel 5.5, drop support for all older versions of the framework
+
 ## 1.5.1 - 2017-08-19
 - fix bugs when using a custom separator
 
