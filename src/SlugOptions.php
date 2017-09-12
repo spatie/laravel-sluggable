@@ -90,4 +90,11 @@ class SlugOptions
 
         return $this;
     }
+
+    public function usingLanguage(string $language): SlugOptions
+    {
+        $this->slugLanguage = $language;
+
+        return $this;
+    }
 }
