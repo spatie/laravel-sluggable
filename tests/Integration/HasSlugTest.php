@@ -242,4 +242,19 @@ class HasSlugTest extends TestCase
 
         $this->assertEquals('nl', $model->getSlugOptions()->slugLanguage);
     }
+
+    /** @test */
+    public function it_can_generate_language_specific_slugs()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->usingLanguage('ae');
+            }
+        };
+
+        $model->name = 'أحمد محمد';
+        $model->save();
+        $this->assertEquals('أحمد-محمد', $model->url);
+    }
 }
