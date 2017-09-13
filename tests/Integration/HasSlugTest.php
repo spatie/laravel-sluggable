@@ -267,7 +267,5 @@ class HasSlugTest extends TestCase
         $model->name = 'Güte nacht';
         $model->save();
         $this->assertEquals('guete-nacht', $model->url);
-
-
     }
 }
