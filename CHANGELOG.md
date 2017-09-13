@@ -2,6 +2,9 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.1.0 - 2017-09-13
+- add `usingLanguage`
+
 ## 2.0.0 - 2017-08-31
 - add support for Laravel 5.5, drop support for all older versions of the framework
 
