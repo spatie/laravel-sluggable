@@ -121,6 +121,18 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+To set the language used by `str_slug` you may call `usingLanguage`
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->usingLanguage('nl');
+}
+```
+
 The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
 
 You can also override the generated slug just by setting it to another value then the generated slug.

@@ -25,6 +25,9 @@ class SlugOptions
     /** @var string */
     public $slugSeparator = '-';
 
+    /** @var string */
+    public $slugLanguage = 'en';
+
     public static function create(): SlugOptions
     {
         return new static();
@@ -84,6 +87,13 @@ class SlugOptions
     public function usingSeparator(string $separator): SlugOptions
     {
         $this->slugSeparator = $separator;
+
+        return $this;
+    }
+
+    public function usingLanguage(string $language): SlugOptions
+    {
+        $this->slugLanguage = $language;
 
         return $this;
     }
