@@ -249,12 +249,12 @@ class HasSlugTest extends TestCase
         $model = new class extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
-                return parent::getSlugOptions()->usingLanguage('ae');
+                return parent::getSlugOptions()->usingLanguage('de');
             }
         };
 
-        $model->name = 'أحمد محمد';
+        $model->name = 'Güte nacht';
         $model->save();
-        $this->assertEquals('أحمد-محمد', $model->url);
+        $this->assertEquals('guete-nacht', $model->url);
     }
 }
