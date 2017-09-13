@@ -24,7 +24,7 @@ class SlugOptions
 
     /** @var string */
     public $slugSeparator = '-';
-    
+
     /** @var string */
     public $slugLanguage = 'en';
 
