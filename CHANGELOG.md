@@ -2,6 +2,9 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 1.5.2 - 2018-01-25
+- fix bug related to PHP 7.2 update regarding counting non-countable types
+
 ## 2.1.0 - 2017-09-13
 - add `usingLanguage`
 
@@ -10,9 +13,6 @@ All notable changes to `laravel-sluggable` will be documented in this file
 
 ## 1.5.1 - 2017-08-19
 - fix bugs when using a custom separator
-
-## 1.5.2 - 2018-01-25
-- fix bug related to PHP 7.2 update regarding counting non-countable types
 
 ## 1.5.0 - 2017-04-13
 - add `usingSeparator()`
