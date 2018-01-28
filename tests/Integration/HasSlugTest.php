@@ -229,4 +229,43 @@ class HasSlugTest extends TestCase
 
         $this->assertEquals('this_is_a_separator_test', $model->url);
     }
+
+    /** @test */
+    public function it_will_use_language_option_for_slug_generation()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->usingLanguage('nl');
+            }
+        };
+
+        $this->assertEquals('nl', $model->getSlugOptions()->slugLanguage);
+    }
+
+    /** @test */
+    public function it_can_generate_language_specific_slugs()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->usingLanguage('en');
+            }
+        };
+
+        $model->name = 'Güte nacht';
+        $model->save();
+        $this->assertEquals('gute-nacht', $model->url);
+
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->usingLanguage('de');
+            }
+        };
+
+        $model->name = 'Güte nacht';
+        $model->save();
+        $this->assertEquals('guete-nacht', $model->url);
+    }
 }

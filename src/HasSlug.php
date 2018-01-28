@@ -95,7 +95,7 @@ trait HasSlug
             return $this->$slugField;
         }
 
-        return str_slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator);
+        return str_slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
     }
 
     /**
@@ -159,7 +159,7 @@ trait HasSlug
      */
     protected function guardAgainstInvalidSlugOptions()
     {
-        if (! count($this->slugOptions->generateSlugFrom)) {
+        if (is_array($this->slugOptions->generateSlugFrom) && ! ($this->slugOptions->generateSlugFrom)) {
             throw InvalidOption::missingFromField();
         }
 

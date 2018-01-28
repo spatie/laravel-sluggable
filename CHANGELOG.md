@@ -2,6 +2,15 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 1.5.2 - 2018-01-25
+- fix bug related to PHP 7.2 update regarding counting non-countable types
+
+## 2.1.0 - 2017-09-13
+- add `usingLanguage`
+
+## 2.0.0 - 2017-08-31
+- add support for Laravel 5.5, drop support for all older versions of the framework
+
 ## 1.5.1 - 2017-08-19
 - fix bugs when using a custom separator
 
@@ -9,7 +18,7 @@ All notable changes to `laravel-sluggable` will be documented in this file
 - add `usingSeparator()`
 
 ## 1.4.1 - 2017-04-11
-- ignore global scopes when determining a unique slug 
+- ignore global scopes when determining a unique slug
 
 ## 1.4.0 - 2017-01-24
 - add support for Laravel 5.4
