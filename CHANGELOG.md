@@ -2,6 +2,9 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.1.1 - 2017-01-28
+- improve compatibility with Lumen
+
 ## 2.1.0 - 2017-09-13
 - add `usingLanguage`
 
