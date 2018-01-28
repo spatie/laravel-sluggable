@@ -27,7 +27,7 @@ class TestModel extends Model
     /**
      * Set the options for generating the slug.
      */
-    public function setSlugOptions(SlugOptions $slugOptions) : TestModel
+    public function setSlugOptions(SlugOptions $slugOptions) : self
     {
         $this->slugOptions = $slugOptions;
 
