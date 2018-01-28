@@ -28,7 +28,7 @@ class SlugOptions
     /** @var string */
     public $slugLanguage = 'en';
 
-    public static function create(): SlugOptions
+    public static function create(): self
     {
         return new static();
     }
@@ -38,7 +38,7 @@ class SlugOptions
      *
      * @return \Spatie\Sluggable\SlugOptions
      */
-    public function generateSlugsFrom($fieldName): SlugOptions
+    public function generateSlugsFrom($fieldName): self
     {
         if (is_string($fieldName)) {
             $fieldName = [$fieldName];
@@ -49,49 +49,49 @@ class SlugOptions
         return $this;
     }
 
-    public function saveSlugsTo(string $fieldName): SlugOptions
+    public function saveSlugsTo(string $fieldName): self
     {
         $this->slugField = $fieldName;
 
         return $this;
     }
 
-    public function allowDuplicateSlugs(): SlugOptions
+    public function allowDuplicateSlugs(): self
     {
         $this->generateUniqueSlugs = false;
 
         return $this;
     }
 
-    public function slugsShouldBeNoLongerThan(int $maximumLength): SlugOptions
+    public function slugsShouldBeNoLongerThan(int $maximumLength): self
     {
         $this->maximumLength = $maximumLength;
 
         return $this;
     }
 
-    public function doNotGenerateSlugsOnCreate(): SlugOptions
+    public function doNotGenerateSlugsOnCreate(): self
     {
         $this->generateSlugsOnCreate = false;
 
         return $this;
     }
 
-    public function doNotGenerateSlugsOnUpdate(): SlugOptions
+    public function doNotGenerateSlugsOnUpdate(): self
     {
         $this->generateSlugsOnUpdate = false;
 
         return $this;
     }
 
-    public function usingSeparator(string $separator): SlugOptions
+    public function usingSeparator(string $separator): self
     {
         $this->slugSeparator = $separator;
 
         return $this;
     }
 
-    public function usingLanguage(string $language): SlugOptions
+    public function usingLanguage(string $language): self
     {
         $this->slugLanguage = $language;
 
