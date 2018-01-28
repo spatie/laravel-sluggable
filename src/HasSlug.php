@@ -2,6 +2,7 @@
 
 namespace Spatie\Sluggable;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 
 trait HasSlug
@@ -95,7 +96,7 @@ trait HasSlug
             return $this->$slugField;
         }
 
-        return str_slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        return Str::slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Spatie\Sluggable\Test\Integration;
 
+use Illuminate\Support\Str;
 use Spatie\Sluggable\SlugOptions;
 
 class HasSlugTest extends TestCase
@@ -88,7 +89,7 @@ class HasSlugTest extends TestCase
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
-                    return 'foo-'.str_slug($model->name);
+                    return 'foo-'.Str::slug($model->name);
                 });
             }
         };

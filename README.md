@@ -17,7 +17,7 @@ $model->save();
 echo $model->slug; // ouputs "activerecord-is-awesome"
 ```
 
-The slugs are generated with Laravels `str_slug` method, whereby spaces are converted to '-'.
+The slugs are generated with Laravels `Str::slug` method, whereby spaces are converted to '-'.
 
 Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
@@ -113,7 +113,7 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
-To set the language used by `str_slug` you may call `usingLanguage`
+To set the language used by `Str::slug` you may call `usingLanguage`
 
 ```php
 public function getSlugOptions() : SlugOptions
