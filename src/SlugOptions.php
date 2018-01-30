@@ -28,9 +28,26 @@ class SlugOptions
     /** @var string */
     public $slugLanguage = 'en';
 
+    /** @var \Closure */
+    public $slugScopeTo;
+
     public static function create(): self
     {
         return new static();
+    }
+
+    public function __construct()
+    {
+        $this->setDefaultScope();
+    }
+
+    /**
+     * set default scope, so we have always a closure
+     */
+    protected function setDefaultScope() {
+        $this->slugScopeTo = function ($query) {
+
+        };
     }
 
     /**
@@ -94,6 +111,18 @@ class SlugOptions
     public function usingLanguage(string $language): self
     {
         $this->slugLanguage = $language;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param \Closure $closure
+     * @return SlugOptions
+     */
+    public function scopeTo(\Closure $closure): self
+    {
+        $this->slugScopeTo = $closure;
 
         return $this;
     }
