@@ -269,4 +269,34 @@ class HasSlugTest extends TestCase
         $model->save();
         $this->assertEquals('guete-nacht', $model->url);
     }
+
+    /** @test */
+    public function it_will_generate_same_slug_in_different_scopes()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->scopeTo(function(\Illuminate\Database\Eloquent\Builder $query) {
+                    $query->where('other_field', $this->other_field);
+                });
+            }
+        };
+        $model->name = 'this is a test';
+        $model->other_field = 'scope_a';
+        $model->save();
+        $this->assertEquals('this-is-a-test', $model->url);
+
+        $secondModel = $model->newInstance();
+
+        $secondModel->name = 'this is a test';
+        $secondModel->other_field = 'scope_b';
+        $secondModel->save();
+        $this->assertEquals('this-is-a-test', $secondModel->url);
+
+        $thirdModel = $model->newInstance();
+        $thirdModel->name = 'this is a test';
+        $thirdModel->other_field = 'scope_a';
+        $thirdModel->save();
+        $this->assertEquals('this-is-a-test-1', $thirdModel->url);
+    }
 }
