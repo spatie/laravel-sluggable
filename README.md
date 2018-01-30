@@ -169,7 +169,19 @@ $model->name = 'changed name';
 $model->save(); //slug stays "my-name"
 ```
 
-If you want to explicitly update the slug on the model you can call `generateSlug()` on your model at any time to make the slug according to your other options. Don't forget to `save()` the model to persist the update to your database.
+If you want unique slugs for a scope, such as "http://example.com/category1/my-slug" and "http://example.com/category2/my-slug", you can use `scopeTo()`
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->scopeTo(function(Illuminate\Database\Eloquent\Builder $query) {
+            $query->where('category_id', $this->category_id);
+         });
+}
+```
+
+If category1 already has "my-slug", it will generate a unique slug.
 
 ## Changelog
 
