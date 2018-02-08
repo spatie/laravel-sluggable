@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.1.2 - 2018-02-08
+
+- Support Laravel 5.6
+
 ## 2.1.1 - 2017-01-28
 - improve compatibility with Lumen
 
