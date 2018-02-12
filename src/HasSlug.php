@@ -149,8 +149,14 @@ trait HasSlug
      */
     protected function otherRecordExistsWithSlug(string $slug): bool
     {
+        $key = $this->getKey() ?? '0';
+
+        if (! $this->incrementing) {
+            $key = $this->getKey();
+        }
+
         return (bool) static::where($this->slugOptions->slugField, $slug)
-            ->where($this->getKeyName(), '!=', $this->getKey() ?? '0')
+            ->where($this->getKeyName(), '!=', $key)
             ->withoutGlobalScopes()
             ->first();
     }

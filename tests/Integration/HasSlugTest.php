@@ -269,4 +269,12 @@ class HasSlugTest extends TestCase
         $model->save();
         $this->assertEquals('guete-nacht', $model->url);
     }
+
+    /** @test */
+    public function it_can_handle_uuid()
+    {
+        $model = UuidTestModel::create(['id' => '6dae40fa-cae0-11e7-80b6-8c85901eed2e', 'name' => 'test name']);
+
+        $this->assertEquals('test-name', $model->url);
+    }
 }

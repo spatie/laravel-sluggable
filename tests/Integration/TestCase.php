@@ -47,6 +47,13 @@ abstract class TestCase extends Orchestra
             $table->string('other_field')->nullable();
             $table->string('url')->nullable();
         });
+
+        $app['db']->connection()->getSchemaBuilder()->create('uuid_test_models', function (Blueprint $table) {
+            $table->char('id', 36)->primary();
+            $table->string('name')->nullable();
+            $table->string('other_field')->nullable();
+            $table->string('url')->nullable();
+        });
     }
 
     protected function initializeDirectory(string $directory)
