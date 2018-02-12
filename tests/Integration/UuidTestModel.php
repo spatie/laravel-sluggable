@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Spatie\Sluggable\Test\Integration;
 
 use Spatie\Sluggable\HasSlug;
