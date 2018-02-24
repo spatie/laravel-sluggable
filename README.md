@@ -132,7 +132,7 @@ You can also override the generated slug just by setting it to another value the
 ```php
 $model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name"; 
 $model->slug = 'my-custom-url';
-$model-save(); //slug is now "my-custom-url"; 
+$model->save(); //slug is now "my-custom-url"; 
 ```
 
 If you don't want to create the slug when the model is initially created you can set use the `doNotGenerateSlugsOnCreate() function.
@@ -163,7 +163,7 @@ This can be helpful for creating permalinks that don't change until you explicit
 
 ```php
 $model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name"; 
-$model-save();
+$model->save();
 
 $model->name = 'changed name';
 $model->save(); //slug stays "my-name"
