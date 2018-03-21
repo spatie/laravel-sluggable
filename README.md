@@ -135,7 +135,7 @@ $model->slug = 'my-custom-url';
 $model->save(); //slug is now "my-custom-url"; 
 ```
 
-If you don't want to create the slug when the model is initially created you can set use the `doNotGenerateSlugsOnCreate() function.
+If you don't want to create the slug when the model is initially created you can set use the `doNotGenerateSlugsOnCreate()` function.
 
 ```php
 public function getSlugOptions() : SlugOptions
