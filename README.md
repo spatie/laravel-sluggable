@@ -74,7 +74,6 @@ public function getSlugOptions() : SlugOptions
 
 You can also pass a `callable` to `generateSlugsFrom`.
 
-
 By default the package will generate unique slugs by appending '-' and a number, to a slug that already exists.
 
 You can disable this behaviour by calling `allowDuplicateSlugs`.
@@ -101,6 +100,8 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
+
 You can also use a custom separator by calling `usingSeparator`
 
 ```php
@@ -124,8 +125,6 @@ public function getSlugOptions() : SlugOptions
         ->usingLanguage('nl');
 }
 ```
-
-The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
 
 You can also override the generated slug just by setting it to another value than the generated slug.
 
