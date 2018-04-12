@@ -127,7 +127,7 @@ public function getSlugOptions() : SlugOptions
 
 The slug may be slightly longer than the value specified, due to the suffix which is added to make it unique.
 
-You can also override the generated slug just by setting it to another value then the generated slug.
+You can also override the generated slug just by setting it to another value than the generated slug.
 
 ```php
 $model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name"; 
