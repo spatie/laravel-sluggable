@@ -106,7 +106,7 @@ trait HasSlug
     {
         $slugField = $this->slugOptions->slugField;
 
-        return $this->getOriginal($slugField) != $this->$slugField;
+        return $this->getOriginal($slugField) != $this->$slugField && !empty($this->$slugField);
     }
 
     /**
