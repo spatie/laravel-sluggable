@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+# 2.1.4 - 2018-08-28
+
+- add support for Laravel 5.7
+
 ## 2.1.3 - 2018-02-15
 
 - fix for models with non incrementing primary keys
