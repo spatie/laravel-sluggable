@@ -2,7 +2,7 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
-# 2.1.4 - 2018-08-28
+## 2.1.4 - 2018-08-28
 
 - add support for Laravel 5.7
 
