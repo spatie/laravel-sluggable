@@ -269,4 +269,19 @@ class HasSlugTest extends TestCase
         $model->save();
         $this->assertEquals('guete-nacht', $model->url);
     }
+
+    /** @test */
+    public function it_will_save_a_slug_relational_model()
+    {
+        $testModel = TestModel::create([
+            'name' => 'this is a test model',
+            'other_field' => 'other data field',
+        ]);
+        $testRelationModel = TestRelationModel::create([
+            'title' => 'this is a test relation model',
+            'test_model_id' => $testModel->id,
+        ]);
+
+        $this->assertEquals('this-is-a-test-model-other-data-field', $testRelationModel->reference);
+    }
 }
