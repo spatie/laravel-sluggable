@@ -127,7 +127,7 @@ trait HasSlug
                     $fieldNames = explode('.', $fieldName);
                     $value = null;
                     foreach ($fieldNames as $fieldName) {
-                        if(is_null($value)) {
+                        if (is_null($value)) {
                             $value = $this->$fieldName;
                             continue;
                         }
