@@ -122,26 +122,25 @@ trait HasSlug
 
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
             ->map(function (string $fieldName) : string {
-
-                if (strpos($fieldName, '.') !== false) {
-                    $fieldNames = explode('.', $fieldName);
-                    $value = null;
-                    foreach ($fieldNames as $fieldName) {
-                        if (is_null($value)) {
-                            $value = $this->$fieldName;
-                            continue;
-                        }
-                        $value = $value->$fieldName;
-                    }
-
-                    return $value;
-                }
-
-                return $this->$fieldName ?? '';
+                return $this->relationships($fieldName) ?? $this->$fieldName ?? '';
             })
             ->implode($this->slugOptions->slugSeparator);
 
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
+    }
+
+    protected function relationships(string $fieldNames)
+    {
+        if (strpos($fieldNames, '.') === false) {
+            return null;
+        }
+        
+        $value = $this;
+        foreach (explode('.', $fieldNames) as $fieldName) {
+            $value = $value->$fieldName;
+        }
+
+        return $value;
     }
 
     /**
