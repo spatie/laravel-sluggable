@@ -35,6 +35,17 @@ class HasSlugTest extends TestCase
     }
 
     /** @test */
+    public function it_will_use_the_source_field_if_the_slug_field_is_empty()
+    {
+        $model = TestModel::create(['name' => 'this is a test']);
+
+        $model->url = null;
+        $model->save();
+
+        $this->assertEquals('this-is-a-test', $model->url);
+    }
+
+    /** @test */
     public function it_will_update_the_slug_when_the_source_field_is_changed()
     {
         $model = TestModel::create(['name' => 'this is a test']);
