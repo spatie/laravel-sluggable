@@ -90,9 +90,9 @@ trait HasSlug
      */
     protected function generateNonUniqueSlug(): string
     {
-        if ($this->hasCustomSlugBeenUsed()) {
-            $slugField = $this->slugOptions->slugField;
+        $slugField = $this->slugOptions->slugField;
 
+        if ($this->hasCustomSlugBeenUsed() && !empty($this->$slugField)) {
             return $this->$slugField;
         }
 
