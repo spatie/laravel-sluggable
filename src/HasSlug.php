@@ -122,7 +122,7 @@ trait HasSlug
 
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
             ->map(function (string $fieldName) : string {
-                return $this->$fieldName ?? '';
+                return data_get($this, $fieldName) ?? '';
             })
             ->implode($this->slugOptions->slugSeparator);
 
