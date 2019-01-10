@@ -71,7 +71,7 @@ trait HasSlug
     {
         $slugField = $this->slugOptions->slugField;
 
-        if ($this->hasCustomSlugBeenUsed() && !empty($this->$slugField)) {
+        if ($this->hasCustomSlugBeenUsed() && ! empty($this->$slugField)) {
             return $this->$slugField;
         }
 
