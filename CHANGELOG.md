@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+# 2.1.6 - 2018-02-14 ❤️
+
+- performance improvements
+
 ## 2.1.5 - 2018-01-10
 
 - improve compatibility with json fields
