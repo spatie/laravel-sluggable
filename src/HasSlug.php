@@ -122,10 +122,10 @@ trait HasSlug
             $key = $key ?? '0';
         }
 
-        return (bool) static::where($this->slugOptions->slugField, $slug)
+        return static::where($this->slugOptions->slugField, $slug)
             ->where($this->getKeyName(), '!=', $key)
             ->withoutGlobalScopes()
-            ->first();
+            ->exists();
     }
 
     protected function ensureValidSlugOptions()
