@@ -2,7 +2,11 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
-# 2.1.6 - 2018-02-14 ❤️
+## 2.1.7 - 2019-02-26 ❤️
+
+- Add support for Laravel 5.8
+
+## 2.1.6 - 2018-02-14
 
 - performance improvements
 
