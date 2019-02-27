@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+# 2.2.0 - 2019-02-28
+
+- drop support for L5.7 and below, PHP 7.1 and PHPUnit 7
+
 # 2.1.7 - 2019-02-28
 
 - add support for Laravel 5.8
