@@ -12,7 +12,7 @@ abstract class TestCase extends Orchestra
     /** @var \Spatie\Sluggable\Test\Integration\TestModel */
     protected $testModel;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 

@@ -16,13 +16,13 @@
         }
     ],
     "require": {
-        "php" : ">=7.0.0",
-        "illuminate/database": "~5.5.0|~5.6.0|~5.7.0",
-        "illuminate/support": "~5.5.0|~5.6.0|~5.7.0"
+        "php" : "^7.1",
+        "illuminate/database": "~5.5.0|~5.6.0|~5.7.0|~5.8.0",
+        "illuminate/support": "~5.5.0|~5.6.0|~5.7.0|~5.8.0"
 
     },
     "require-dev": {
-        "orchestra/testbench": "~3.5.0|~3.6.0|~3.7.0",
+        "orchestra/testbench": "~3.5.0|~3.6.0|~3.7.0|~3.8.0",
         "phpunit/phpunit": "^6.3|^7.0"
     },
     "autoload": {
@@ -36,6 +36,6 @@
         }
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "vendor/bin/phpunit"
     }
 }
