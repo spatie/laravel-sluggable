@@ -66,8 +66,6 @@ class YourEloquentModel extends Model
 With its migration:
 
 ```php
-<?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -88,16 +86,6 @@ class CreateYourEloquentModelTable extends Migration
             $table->timestamps();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::dropIfExists('your_eloquent_models');
-    }
 }
 
 ```
@@ -105,8 +93,6 @@ class CreateYourEloquentModelTable extends Migration
 To use the generated slug in routes, remember to use Laravel's [implicit route model binding](https://laravel.com/docs/5.8/routing#implicit-binding):
 
 ```php
-<?php
-
 namespace App;
 
 use Spatie\Sluggable\HasSlug;
