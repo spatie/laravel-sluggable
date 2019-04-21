@@ -280,4 +280,15 @@ class HasSlugTest extends TestCase
         $model->save();
         $this->assertEquals('guete-nacht', $model->url);
     }
+
+    /** @test */
+    public function it_will_save_a_unique_slug_by_default_even_when_soft_deletes_are_on()
+    {
+        TestModelSoftDeletes::create(['name' => 'this is a test', 'deleted_at' => date('Y-m-d h:i:s')]);
+
+        foreach (range(1, 10) as $i) {
+            $model = TestModelSoftDeletes::create(['name' => 'this is a test']);
+            $this->assertEquals("this-is-a-test-{$i}", $model->url);
+        }
+    }
 }

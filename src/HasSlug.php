@@ -122,10 +122,24 @@ trait HasSlug
             $key = $key ?? '0';
         }
 
-        return static::where($this->slugOptions->slugField, $slug)
+        $query = static::where($this->slugOptions->slugField, $slug)
             ->where($this->getKeyName(), '!=', $key)
-            ->withoutGlobalScopes()
-            ->exists();
+            ->withoutGlobalScopes();
+
+        if ($this->usesSoftDeletes()) {
+            $query->withTrashed();
+        }
+
+        return $query->exists();
+    }
+
+    protected function usesSoftDeletes()
+    {
+        if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this))) {
+            return true;
+        }
+
+        return false;
     }
 
     protected function ensureValidSlugOptions()
