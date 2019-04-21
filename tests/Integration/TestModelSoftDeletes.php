@@ -2,10 +2,10 @@
 
 namespace Spatie\Sluggable\Test\Integration;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TestModelSoftDeletes extends Model
 {
