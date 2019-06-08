@@ -47,6 +47,14 @@ abstract class TestCase extends Orchestra
             $table->string('other_field')->nullable();
             $table->string('url')->nullable();
         });
+
+        $app['db']->connection()->getSchemaBuilder()->create('test_model_soft_deletes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->string('other_field')->nullable();
+            $table->string('url')->nullable();
+            $table->softDeletes();
+        });
     }
 
     protected function initializeDirectory(string $directory)
