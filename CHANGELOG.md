@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.1.9 - 2019-08-21
+
+- Add support for Laravel 6.0
+
 ## 2.1.8 - 2019-06-08
 
 - ensure slugs are unique when using soft deletes
