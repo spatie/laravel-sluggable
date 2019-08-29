@@ -90,7 +90,7 @@ class CreateYourEloquentModelTable extends Migration
 
 ```
 
-To use the generated slug in routes, remember to use Laravel's [implicit route model binding](https://laravel.com/docs/5.8/routing#implicit-binding):
+To use the generated slug as your only route key, use Laravel's [implicit route model binding](https://laravel.com/docs/5.8/routing#implicit-binding):
 
 ```php
 namespace App;
@@ -121,6 +121,32 @@ class YourEloquentModel extends Model
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+}
+```
+
+To allow the use of either the generated slug OR the route key defined in your model (by default this is the model's ID column) you may add `->allowRouteBinding()` to your SlugOptions configuration chain. For example you want to be able to use the model's ID (or any other column that you specify in the `getRouteKeyName()`) on the administration panel and the slug in the front-end, this will allow you to interchange the slug and chosen route key name.
+
+```php
+namespace App;
+
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Model;
+
+class YourEloquentModel extends Model
+{
+    use HasSlug;
+    
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->allowRouteBinding();
     }
 }
 ```
