@@ -28,9 +28,6 @@ class SlugOptions
     /** @var string */
     public $slugLanguage = 'en';
 
-    /** @var bool */
-    public $routeBinding = false;
-
     public static function create(): self
     {
         return new static();
@@ -97,13 +94,6 @@ class SlugOptions
     public function usingLanguage(string $language): self
     {
         $this->slugLanguage = $language;
-
-        return $this;
-    }
-
-    public function allowRouteBinding(): self
-    {
-        $this->routeBinding = false;
 
         return $this;
     }

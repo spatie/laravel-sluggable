@@ -291,31 +291,4 @@ class HasSlugTest extends TestCase
             $this->assertEquals("this-is-a-test-{$i}", $model->url);
         }
     }
-
-    /** @test */
-    public function it_will_not_include_slug_on_route_binding_by_default()
-    {
-        $model = TestModel::create(['name' => 'this is a test']);
-
-        $reponse = $this->get('tests/'.$model->url);
-
-        $reponse->assertNotFound();
-    }
-
-    /** @test */
-    public function it_will_include_slug_on_route_binding_when_configured_to()
-    {
-        $class = new class extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->allowRouteBinding();
-            }
-        };
-
-        $model = $class::create(['name' => 'this is a test']);
-
-        $reponse = $this->get('tests/'.$model->url);
-
-        $reponse->assertOk()->assertJson($model->toArray());
-    }
 }

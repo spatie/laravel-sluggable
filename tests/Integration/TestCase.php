@@ -32,10 +32,6 @@ abstract class TestCase extends Orchestra
             'database' => $this->getTempDirectory().'/database.sqlite',
             'prefix' => '',
         ]);
-
-        $app['router']->get('tests/{testModel}', function (TestModel $testModel) {
-            return $testModel;
-        });
     }
 
     /**
