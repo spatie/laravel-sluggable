@@ -33,7 +33,7 @@ abstract class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
-        $app['router']->get('tests/{testModel}', function(TestModel $testModel) {
+        $app['router']->get('tests/{testModel}', function (TestModel $testModel) {
             return $testModel;
         });
     }
