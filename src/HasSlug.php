@@ -58,9 +58,9 @@ trait HasSlug
             return $this->where($this->getRouteKeyName(), $value)
                         ->orWhere($this->getSlugOptions()->slugField, $value)
                         ->first();
-        } else {
-            return parent::resolveRouteBinding($value);
         }
+
+        return parent::resolveRouteBinding($value);
     }
 
     protected function addSlug()
