@@ -231,6 +231,43 @@ $model->save();
 $model->name = 'changed name';
 $model->save(); //slug stays "my-name"
 ```
+If you want to add a prefix to each slug then you can use the `->slugPrefix()` option
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->prefixSlug('prefix')
+        ->saveSlugsTo('slug');
+}
+```
+This will automatically add the prefix to the slug"
+
+```php
+$model = EloquentModel::create(['name' => 'my name']);
+
+$model->url // slug is prefix-my-name
+```
+
+If you want to add a suffix to each slug then you can use the `->slugPrefix()` option
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->suffixSlug('suffix')
+        ->saveSlugsTo('slug');
+}
+```
+This will automatically add the suffix to the slug"
+
+```php
+$model = EloquentModel::create(['name' => 'my name']);
+
+$model->url // slug is my-name-suffix
+```
 
 If you want to explicitly update the slug on the model you can call `generateSlug()` on your model at any time to make the slug according to your other options. Don't forget to `save()` the model to persist the update to your database.
 

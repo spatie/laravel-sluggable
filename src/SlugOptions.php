@@ -28,6 +28,12 @@ class SlugOptions
     /** @var string */
     public $slugLanguage = 'en';
 
+    /** @var string **/
+    public $prefixSlug = '';
+
+    /** @var string **/
+    public $suffixSlug = '';
+
     public static function create(): self
     {
         return new static();
@@ -94,6 +100,20 @@ class SlugOptions
     public function usingLanguage(string $language): self
     {
         $this->slugLanguage = $language;
+
+        return $this;
+    }
+
+    public function prefixSlug(string $prefix) : self
+    {
+        $this->prefixSlug = $prefix;
+
+        return $this;
+    }
+
+    public function suffixSlug(string $suffix) : self
+    {
+        $this->suffixSlug = $suffix;
 
         return $this;
     }
