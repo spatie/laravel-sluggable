@@ -291,4 +291,28 @@ class HasSlugTest extends TestCase
             $this->assertEquals("this-is-a-test-{$i}", $model->url);
         }
     }
+
+    /** @test **/
+    public function it_will_add_a_slug_prefix()
+    {
+        $model = TestModelPrefix::create(['name' => 'this is a test']);
+        $this->assertEquals('prefix-this-is-a-test', $model->url);
+
+        foreach (range(1,10) as $i) {
+            $model = TestModelPrefix::create(['name' => 'this is a test']);
+            $this->assertEquals("prefix-this-is-a-test-{$i}", $model->url);
+        }
+    }
+
+    /** @test **/
+    public function it_will_add_a_slug_suffix()
+    {
+        $model = TestModelSuffix::create(['name' => 'this is a test']);
+        $this->assertEquals('this-is-a-test-suffix', $model->url);
+
+        foreach (range(1,10) as $i) {
+            $model = TestModelSuffix::create(['name' => 'this is a test']);
+            $this->assertEquals("this-is-a-test-suffix-{$i}", $model->url);
+        }
+    }
 }

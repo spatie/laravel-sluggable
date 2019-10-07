@@ -75,7 +75,21 @@ trait HasSlug
             return $this->$slugField;
         }
 
-        return Str::slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        $slugSourceString = $this->getSlugSourceString();
+
+        if (!empty($this->slugOptions->slugPrefix) || !empty($this->slugOptions->slugSuffix)) {
+
+            if (!empty($this->slugOptions->slugPrefix)) {
+                $slugSourceString  = $this->slugOptions->slugPrefix . $this->slugOptions->slugSeparator . $slugSourceString;
+            }
+
+            if (!empty($this->slugOptions->slugSuffix)) {
+                $slugSourceString  = $slugSourceString . $this->slugOptions->slugSeparator . $this->slugOptions->slugSuffix;
+            }
+
+        }
+
+        return Str::slug($slugSourceString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
     }
 
     protected function hasCustomSlugBeenUsed(): bool
