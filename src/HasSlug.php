@@ -77,14 +77,14 @@ trait HasSlug
 
         $slugSourceString = $this->getSlugSourceString();
 
-        if (!empty($this->slugOptions->slugPrefix) || !empty($this->slugOptions->slugSuffix)) {
+        if (!empty($this->slugOptions->prefixSlug) || !empty($this->slugOptions->suffixSlug)) {
 
-            if (!empty($this->slugOptions->slugPrefix)) {
-                $slugSourceString  = $this->slugOptions->slugPrefix . $this->slugOptions->slugSeparator . $slugSourceString;
+            if (!empty($this->slugOptions->prefixSlug)) {
+                $slugSourceString  = $this->slugOptions->prefixSlug . $this->slugOptions->slugSeparator . $slugSourceString;
             }
 
-            if (!empty($this->slugOptions->slugSuffix)) {
-                $slugSourceString  = $slugSourceString . $this->slugOptions->slugSeparator . $this->slugOptions->slugSuffix;
+            if (!empty($this->slugOptions->suffixSlug)) {
+                $slugSourceString  = $slugSourceString . $this->slugOptions->slugSeparator . $this->slugOptions->suffixSlug;
             }
 
         }

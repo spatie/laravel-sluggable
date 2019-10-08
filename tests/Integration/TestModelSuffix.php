@@ -41,7 +41,7 @@ class TestModelSuffix extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('name')
-            ->slugSuffix('suffix')
+            ->suffixSlug('suffix')
             ->saveSlugsTo('url');
     }
 }

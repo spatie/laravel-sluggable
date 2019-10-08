@@ -29,10 +29,10 @@ class SlugOptions
     public $slugLanguage = 'en';
 
     /** @var string **/
-    public $slugPrefix = false;
+    public $prefixSlug = '';
 
     /** @var string **/
-    public $slugSuffix = false;
+    public $suffixSlug = '';
 
     public static function create(): self
     {
@@ -104,16 +104,16 @@ class SlugOptions
         return $this;
     }
 
-    public function slugPrefix(string $prefix) : self
+    public function prefixSlug(string $prefix) : self
     {
-        $this->slugPrefix = $prefix;
+        $this->prefixSlug = $prefix;
 
         return $this;
     }
 
-    public function slugSuffix(string $suffix) : self
+    public function suffixSlug(string $suffix) : self
     {
-        $this->slugSuffix = $suffix;
+        $this->suffixSlug = $suffix;
 
         return $this;
     }

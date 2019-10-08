@@ -41,7 +41,7 @@ class TestModelPrefix extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom('name')
-            ->slugPrefix('prefix')
+            ->prefixSlug('prefix')
             ->saveSlugsTo('url');
     }
 }
