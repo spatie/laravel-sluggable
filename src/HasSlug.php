@@ -2,9 +2,9 @@
 
 namespace Spatie\Sluggable;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Support\Str;
 
 trait HasSlug
 {
@@ -131,13 +131,9 @@ trait HasSlug
         return $query->exists();
     }
 
-    protected function usesSoftDeletes()
+    protected function usesSoftDeletes(): bool
     {
-        if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this))) {
-            return true;
-        }
-
-        return false;
+        return (bool) in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this));
     }
 
     protected function ensureValidSlugOptions()
