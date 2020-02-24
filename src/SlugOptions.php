@@ -10,7 +10,7 @@ class SlugOptions
     public string $slugField;
 
     public bool $generateUniqueSlugs = true;
-    
+
     /** Store fields that will be unique with Slug @var array */
     public $uniqueWith = [];
 
@@ -68,7 +68,7 @@ class SlugOptions
 
         return $this;
     }
-    
+
     public function allowDuplicateSlugs(): self
     {
         $this->generateUniqueSlugs = false;
