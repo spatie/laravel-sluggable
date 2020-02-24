@@ -125,9 +125,9 @@ trait HasSlug
         // check if generateUniqueSlugs is true and uniqueWith array not empty
         if (count($this->slugOptions->uniqueWith) > 0 && $this->slugOptions->generateUniqueSlugs) {
             // get column and value of each item of uniqueWith
-            foreach ($this->slugOptions->uniqueWith as $column => $value) {
+            foreach ($this->slugOptions->uniqueWith as $column) {
                 // run additional queries related to uniqueWith array
-                $query->where($column,$value);
+                $query->where($column,$this->$column);
             }
         }
 
