@@ -120,9 +120,18 @@ trait HasSlug
             $key ??= '0';
         }
 
-        $query = static::where($this->slugOptions->slugField, $slug)
-            ->where($this->getKeyName(), '!=', $key)
-            ->withoutGlobalScopes();
+        $query = static::where($this->slugOptions->slugField, $slug);
+
+        // check if generateUniqueSlugs is true and uniqueWith array not empty
+        if (count($this->slugOptions->uniqueWith) > 0 && $this->slugOptions->generateUniqueSlugs) {
+            // get column and value of each item of uniqueWith
+            foreach ($this->slugOptions->uniqueWith as $column => $value) {
+                // run additional queries related to uniqueWith array
+                $query->where($column,$value);
+            }
+        }
+
+        $query->where($this->getKeyName(), '!=', $key)->withoutGlobalScopes();
 
         if ($this->usesSoftDeletes()) {
             $query->withTrashed();
