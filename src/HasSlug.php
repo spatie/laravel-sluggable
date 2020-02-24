@@ -3,7 +3,6 @@
 namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\SlugOptions;
 use Illuminate\Support\Str;
 
 trait HasSlug
