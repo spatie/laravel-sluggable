@@ -52,6 +52,23 @@ class SlugOptions
         return $this;
     }
 
+    /**
+     * @param mixed $fields
+     *
+     * @return \Spatie\Sluggable\SlugOptions
+     */
+    public function uniqueWith($fields): self
+    {
+        if (is_string($fields)) {
+            $fields = [$fields];
+        }
+
+        // Store fields that will be unique with slug
+        $this->uniqueWith = $fields;
+
+        return $this;
+    }
+    
     public function allowDuplicateSlugs(): self
     {
         $this->generateUniqueSlugs = false;
