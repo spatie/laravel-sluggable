@@ -94,7 +94,7 @@ trait HasSlug
         }
 
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(fn(string $fieldName): string => data_get($this, $fieldName, ''))
+            ->map(fn (string $fieldName): string => data_get($this, $fieldName, ''))
             ->implode($this->slugOptions->slugSeparator);
 
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
@@ -127,7 +127,7 @@ trait HasSlug
             // get column and value of each item of uniqueWith
             foreach ($this->slugOptions->uniqueWith as $column) {
                 // run additional queries related to uniqueWith array
-                $query->where($column,$this->$column);
+                $query->where($column, $this->$column);
             }
         }
 
