@@ -147,8 +147,8 @@ public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
         ->generateSlugsFrom('name')
-        ->saveSlugsTo('slug')
-        ->uniqueWith(['user_id']);
+        ->uniqueWith(['user_id'])
+        ->saveSlugsTo('slug');
 }
 ```
 
