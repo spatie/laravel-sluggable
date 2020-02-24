@@ -10,6 +10,9 @@ class SlugOptions
     public string $slugField;
 
     public bool $generateUniqueSlugs = true;
+    
+    /** Store fields that will be unique with Slug @var array */
+    public $uniqueWith = [];
 
     public int $maximumLength = 250;
 
