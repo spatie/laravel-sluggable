@@ -140,7 +140,27 @@ You can also pass a `callable` to `generateSlugsFrom`.
 
 By default the package will generate unique slugs by appending '-' and a number, to a slug that already exists.
 
-You can disable this behaviour by calling `allowDuplicateSlugs`.
+You can specify other fields unique with slug by calling `uniqueWith`.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->uniqueWith(['user_id']);
+}
+```
+
+Assuming that you have already in your migration
+
+```php
+
+    $table->unique(['slug', 'user_id']);
+
+```
+
+Otherwise, You can disable the unique behaviour by calling `allowDuplicateSlugs`.
 
 ```php
 public function getSlugOptions() : SlugOptions
