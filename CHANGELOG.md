@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.4.0 - 2019-03-03
+
+- add support for Laravel 7
+
 ## 2.3.0 - 2019-12-06
 
 - drop support for anything below PHP 7.4 and Laravel 6
