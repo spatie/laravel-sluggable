@@ -1,16 +1,18 @@
 <?php
 
-namespace Spatie\Sluggable\Test\Integration;
+namespace Spatie\Sluggable\Tests;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-class TestModel extends Model
+class TestModelSoftDeletes extends Model
 {
-    use HasSlug;
+    use SoftDeletes,
+        HasSlug;
 
-    protected $table = 'test_models';
+    protected $table = 'test_model_soft_deletes';
 
     protected $guarded = [];
 

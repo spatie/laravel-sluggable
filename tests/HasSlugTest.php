@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sluggable\Test\Integration;
+namespace Spatie\Sluggable\Tests;
 
 use Illuminate\Support\Str;
 use Spatie\Sluggable\SlugOptions;
@@ -162,7 +162,7 @@ class HasSlugTest extends TestCase
             ['é', 'e'],
             ['è', 'e'],
             ['à', 'a'],
-            ['a-euro', 'a'],
+            ['a€', 'a-euro'],
             ['ß', 'ss'],
             ['a/ ', 'a'],
         ];
@@ -183,7 +183,7 @@ class HasSlugTest extends TestCase
     public function it_can_handle_duplicates_when_overwriting_a_slug()
     {
         $model = TestModel::create(['name' => 'this is a test']);
-        $other_model = TestModel::create(['name' => 'this is an other']);
+        $otherModel = TestModel::create(['name' => 'this is an other']);
 
         $model->url = 'this-is-an-other';
         $model->save();
