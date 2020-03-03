@@ -162,7 +162,7 @@ class HasSlugTest extends TestCase
             ['é', 'e'],
             ['è', 'e'],
             ['à', 'a'],
-            ['a€', 'a'],
+            ['a-euro', 'a'],
             ['ß', 'ss'],
             ['a/ ', 'a'],
         ];
