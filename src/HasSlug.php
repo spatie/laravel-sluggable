@@ -4,10 +4,11 @@ namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Spatie\Sluggable\SlugOptions;
 
 trait HasSlug
 {
-    protected SlugOptions $slugOptions;
+    protected $slugOptions = SlugOptions::class;
 
     abstract public function getSlugOptions(): SlugOptions;
 
