@@ -2,8 +2,8 @@
 
 namespace Spatie\Sluggable;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 trait HasSlug
 {
@@ -94,7 +94,7 @@ trait HasSlug
         }
 
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(function (string $fieldName) : string {
+            ->map(function (string $fieldName): string {
                 return data_get($this, $fieldName, '');
             })
             ->implode($this->slugOptions->slugSeparator);

@@ -2,9 +2,9 @@
 
 namespace Spatie\Sluggable\Test\Integration;
 
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Illuminate\Database\Eloquent\Model;
 
 class TestModel extends Model
 {
@@ -19,7 +19,7 @@ class TestModel extends Model
     /**
      * Get the options for generating the slug.
      */
-    public function getSlugOptions() : SlugOptions
+    public function getSlugOptions(): SlugOptions
     {
         return $this->slugOptions ?? $this->getDefaultSlugOptions();
     }
@@ -27,7 +27,7 @@ class TestModel extends Model
     /**
      * Set the options for generating the slug.
      */
-    public function setSlugOptions(SlugOptions $slugOptions) : self
+    public function setSlugOptions(SlugOptions $slugOptions): self
     {
         $this->slugOptions = $slugOptions;
 
@@ -37,7 +37,7 @@ class TestModel extends Model
     /**
      * Get the default slug options used in the tests.
      */
-    public function getDefaultSlugOptions() : SlugOptions
+    public function getDefaultSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom('name')
