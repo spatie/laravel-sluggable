@@ -2,7 +2,11 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
-## 2.4.0 - 2019-03-03
+## 2.4.1 - 2020-04-09
+
+- use method for retrieving incrementing status of the model (#151)
+
+## 2.4.0 - 2020-03-03
 
 - add support for Laravel 7, drop support for Laravel 6
 
