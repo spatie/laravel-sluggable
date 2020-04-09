@@ -115,7 +115,7 @@ trait HasSlug
     {
         $key = $this->getKey();
 
-        if ($this->incrementing) {
+        if ($this->getIncrementing()) {
             $key ??= '0';
         }
 
