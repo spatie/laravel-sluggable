@@ -156,7 +156,6 @@ trait HasSlug
      */
     protected function generateSubstring($slugSourceString)
     {
-
         if (function_exists('mb_substr')) {
             return mb_substr($slugSourceString, 0, $this->slugOptions->maximumLength);
         }
