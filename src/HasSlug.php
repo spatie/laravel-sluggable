@@ -151,9 +151,8 @@ trait HasSlug
     }
 
     /**
-     * Helper function to handle multi-bytes strings if
-     * the module mb_substr is present
-     * Default to substr otherwise
+     * Helper function to handle multi-bytes strings if the module mb_substr is present,
+     * default to substr otherwise.
      */
     protected function generateSubstring($slugSourceString)
     {
