@@ -89,14 +89,14 @@ trait HasSlug
         if (is_callable($this->slugOptions->generateSlugFrom)) {
             $slugSourceString = call_user_func($this->slugOptions->generateSlugFrom, $this);
 
-            return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
+            return $this->generateSubstring($slugSourceString);
         }
 
         $slugSourceString = collect($this->slugOptions->generateSlugFrom)
             ->map(fn (string $fieldName): string => data_get($this, $fieldName, ''))
             ->implode($this->slugOptions->slugSeparator);
 
-        return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
+        return $this->generateSubstring($slugSourceString);
     }
 
     protected function makeSlugUnique(string $slug): string
@@ -148,5 +148,20 @@ trait HasSlug
         if ($this->slugOptions->maximumLength <= 0) {
             throw InvalidOption::invalidMaximumLength();
         }
+    }
+
+    /**
+     * Helper function to handle multi-bytes strings if
+     * the module mb_substr is present
+     * Default to substr otherwise
+     */
+    protected function generateSubstring($slugSourceString)
+    {
+
+        if (function_exists('mb_substr')) {
+            return mb_substr($slugSourceString, 0, $this->slugOptions->maximumLength);
+        }
+
+        return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
     }
 }
