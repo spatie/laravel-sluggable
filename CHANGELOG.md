@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.4.2 - 2020-04-20
+
+- fix bug that causes empty slugs when dealing with multi-bytes chars (#152)
+
 ## 2.4.1 - 2020-04-09
 
 - use method for retrieving incrementing status of the model (#151)
