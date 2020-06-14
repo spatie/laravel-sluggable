@@ -53,8 +53,6 @@ trait HasTranslatableSlug
 
     protected function hasCustomSlugBeenUsed(): bool
     {
-        $slugField = $this->slugOptions->slugField;
-
-        return $this->getOriginal($slugField) != $this->getTranslation($slugField, $this->getLocale(), false);
+        return false;
     }
 }

@@ -28,6 +28,35 @@ class HasTranslatableSlugTest extends TestCase
     }
 
     /** @test */
+    public function it_can_update_one_of_the_translations()
+    {
+        $this->testModel->setTranslation('name', 'en', 'Test value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+        $this->testModel->save();
+
+        $this->testModel->setTranslation('name', 'en', 'Updated value EN');
+        $this->testModel->save();
+
+        $this->assertSame('updated-value-en', $this->testModel->slug);
+        $this->assertSame('test-value-nl', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
+    public function it_can_update_all_translations()
+    {
+        $this->testModel->setTranslation('name', 'en', 'Test value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+        $this->testModel->save();
+
+        $this->testModel->setTranslation('name', 'en', 'Updated value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Updated value NL');
+        $this->testModel->save();
+
+        $this->assertSame('updated-value-en', $this->testModel->slug);
+        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
     public function it_can_make_the_slug_unique_for_each_language()
     {
         $this->testModel->setTranslation('name', 'en', 'Test value EN');
