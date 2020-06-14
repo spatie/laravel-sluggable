@@ -18,7 +18,7 @@ trait HasTranslatableSlug
         }
 
         return Collection::wrap($generateSlugFrom)
-            ->filter(fn ($fieldName)  => $this->isTranslatableAttribute($fieldName))
+            ->filter(fn ($fieldName) => $this->isTranslatableAttribute($fieldName))
             ->flatMap(fn ($fieldName) => $this->getTranslatedLocales($fieldName))
             ->unique();
     }
