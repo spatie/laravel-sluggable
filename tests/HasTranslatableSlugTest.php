@@ -65,6 +65,24 @@ class HasTranslatableSlugTest extends TestCase
     }
 
     /** @test */
+    public function it_handles_fields_that_are_not_translatable()
+    {
+        $this->testModel->useSlugOptions(
+            SlugOptions::create()
+                ->generateSlugsFrom(['name', 'non_translatable_field'])
+                ->saveSlugsTo('slug')
+        );
+
+        $this->testModel->setTranslation('name', 'en', 'Name EN');
+        $this->testModel->setTranslation('name', 'nl', 'Name NL');
+        $this->testModel->non_translatable_field = 'awesome';
+        $this->testModel->save();
+
+        $this->assertSame('name-en-awesome', $this->testModel->slug);
+        $this->assertSame('name-nl-awesome', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
     public function it_uses_the_fallback_language_if_one_of_the_fields_is_not_translated()
     {
         $this->testModel->useSlugOptions(

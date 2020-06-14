@@ -7,10 +7,7 @@ use Illuminate\Support\Traits\Localizable;
 
 trait HasTranslatableSlug
 {
-    use Localizable;
-    use HasSlug {
-         addSlug as originalAddSlug;
-    }
+    use HasSlug, Localizable;
 
     protected function getLocalesForSlug(): Collection
     {
@@ -21,6 +18,7 @@ trait HasTranslatableSlug
         }
 
         return Collection::wrap($generateSlugFrom)
+            ->filter(fn ($fieldName)  => $this->isTranslatableAttribute($fieldName))
             ->flatMap(fn ($fieldName) => $this->getTranslatedLocales($fieldName))
             ->unique();
     }

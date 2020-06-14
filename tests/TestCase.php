@@ -60,6 +60,7 @@ abstract class TestCase extends Orchestra
             $table->increments('id');
             $table->text('name')->nullable();
             $table->text('other_field')->nullable();
+            $table->text('non_translatable_field')->nullable();
             $table->text('slug')->nullable();
         });
     }
