@@ -21,7 +21,8 @@
         "illuminate/support": "^7.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^5.0"
+        "orchestra/testbench": "^5.0",
+        "spatie/laravel-translatable": "^4.3"
     },
     "autoload": {
         "psr-4": {
