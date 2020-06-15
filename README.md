@@ -7,7 +7,7 @@
 [![StyleCI](https://styleci.io/repos/48512561/shield?branch=master)](https://styleci.io/repos/48512561)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-sluggable)
 
-This package provides a trait that will generate a unique slug when saving any Eloquent model. 
+This package provides a trait that will generate a unique slug when saving any Eloquent model.
 
 ```php
 $model = new EloquentModel();
@@ -23,10 +23,13 @@ Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview 
 
 ## Support us
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us). 
+Learn how to create a package like this one, by watching our premium video course:
+
+[![Laravel Package training](https://spatie.be/github/package-training.jpg)](https://laravelpackage.training)
+
+We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
 
 We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
-
 
 ## Installation
 
@@ -39,7 +42,7 @@ composer require spatie/laravel-sluggable
 
 Your Eloquent models should use the `Spatie\Sluggable\HasSlug` trait and the `Spatie\Sluggable\SlugOptions` class.
 
-The trait contains an abstract method `getSlugOptions()` that you must implement yourself. 
+The trait contains an abstract method `getSlugOptions()` that you must implement yourself.
 
 Your models' migrations should have a field to save the generated slug to.
 
@@ -57,7 +60,7 @@ use Illuminate\Database\Eloquent\Model;
 class YourEloquentModel extends Model
 {
     use HasSlug;
-    
+
     /**
      * Get the options for generating the slug.
      */
@@ -109,7 +112,7 @@ use Illuminate\Database\Eloquent\Model;
 class YourEloquentModel extends Model
 {
     use HasSlug;
-    
+
     /**
      * Get the options for generating the slug.
      */
@@ -119,7 +122,7 @@ class YourEloquentModel extends Model
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
     }
-    
+
     /**
      * Get the route key for the model.
      *
@@ -200,9 +203,9 @@ public function getSlugOptions() : SlugOptions
 You can also override the generated slug just by setting it to another value than the generated slug.
 
 ```php
-$model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name"; 
+$model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name";
 $model->slug = 'my-custom-url';
-$model->save(); //slug is now "my-custom-url"; 
+$model->save(); //slug is now "my-custom-url";
 ```
 
 If you don't want to create the slug when the model is initially created you can set use the `doNotGenerateSlugsOnCreate()` function.
@@ -232,7 +235,7 @@ public function getSlugOptions() : SlugOptions
 This can be helpful for creating permalinks that don't change until you explicitly want it to.
 
 ```php
-$model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name"; 
+$model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name";
 $model->save();
 
 $model->name = 'changed name';
@@ -240,6 +243,70 @@ $model->save(); //slug stays "my-name"
 ```
 
 If you want to explicitly update the slug on the model you can call `generateSlug()` on your model at any time to make the slug according to your other options. Don't forget to `save()` the model to persist the update to your database.
+
+### Integration with laravel-translatable
+
+You can use this package along with [laravel-translatable](https://github.com/spatie/laravel-translatable) to generate a slug for each locale. Instead of using the `HasSlug` trait, you must use the `HasTranslatableSlug` trait, and add the name of the slug field to the `$translatable` array. For slugs that are generated from a single field _or_ multiple fields, you don't have to change anything else.
+
+```php
+<?php
+
+namespace App;
+
+use Spatie\Sluggable\HasTranslatableSlug;
+use Spatie\Sluggable\SlugOptions;
+use Spatie\Translatable\HasTranslations;
+use Illuminate\Database\Eloquent\Model;
+
+class YourEloquentModel extends Model
+{
+    use HasTranslations, HasTranslatableSlug;
+
+    public $translatable = ['name', 'slug'];
+
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
+    }
+}
+```
+
+For slugs that are generated from a callable, you need to instantiate the `SlugOptions` with the `createWithLocales` method. The callable now takes two arguments instead of one. Both the `$model` and the `$locale` are available to generate a slug from.
+
+```php
+<?php
+
+namespace App;
+
+use Spatie\Sluggable\HasTranslatableSlug;
+use Spatie\Sluggable\SlugOptions;
+use Spatie\Translatable\HasTranslations;
+use Illuminate\Database\Eloquent\Model;
+
+class YourEloquentModel extends Model
+{
+    use HasTranslations, HasTranslatableSlug;
+
+    public $translatable = ['name', 'slug'];
+
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::createWithLocales(['en', 'nl'])
+            ->generateSlugsFrom(function($model, $locale) {
+                return "{$locale} {$model->id}";
+            })
+            ->saveSlugsTo('slug');
+    }
+}
+```
 
 ## Changelog
 

@@ -87,7 +87,7 @@ trait HasSlug
     protected function getSlugSourceString(): string
     {
         if (is_callable($this->slugOptions->generateSlugFrom)) {
-            $slugSourceString = call_user_func($this->slugOptions->generateSlugFrom, $this);
+            $slugSourceString = $this->getSlugSourceStringFromCallable();
 
             return $this->generateSubstring($slugSourceString);
         }
@@ -97,6 +97,11 @@ trait HasSlug
             ->implode($this->slugOptions->slugSeparator);
 
         return $this->generateSubstring($slugSourceString);
+    }
+
+    protected function getSlugSourceStringFromCallable(): string
+    {
+        return call_user_func($this->slugOptions->generateSlugFrom, $this);
     }
 
     protected function makeSlugUnique(string $slug): string
