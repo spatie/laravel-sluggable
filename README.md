@@ -247,8 +247,6 @@ If you want to explicitly update the slug on the model you can call `generateSlu
 You can use this package along with [laravel-translatable](https://github.com/spatie/laravel-translatable) to generate a slug for each locale. Instead of using the `HasSlug` trait, you must use the `HasTranslatableSlug` trait, and add the name of the slug field to the `$translatable` array. For slugs that are generated from a single field _or_ multiple fields, you don't have to change anything else.
 
 ```php
-<?php
-
 namespace App;
 
 use Spatie\Sluggable\HasTranslatableSlug;
@@ -277,8 +275,6 @@ class YourEloquentModel extends Model
 For slugs that are generated from a callable, you need to instantiate the `SlugOptions` with the `createWithLocales` method. The callable now takes two arguments instead of one. Both the `$model` and the `$locale` are available to generate a slug from.
 
 ```php
-<?php
-
 namespace App;
 
 use Spatie\Sluggable\HasTranslatableSlug;
