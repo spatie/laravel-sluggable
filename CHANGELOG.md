@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.5.0 - 2020-06-15
+
+- add helper trait to integrate with `laravel-translatable` #155
+
 ## 2.4.2 - 2020-04-20
 
 - fix bug that causes empty slugs when dealing with multi-bytes chars (#152)
