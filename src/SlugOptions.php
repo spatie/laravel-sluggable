@@ -21,9 +21,20 @@ class SlugOptions
 
     public string $slugLanguage = 'en';
 
+    public array $translatableLocales = [];
+
     public static function create(): self
     {
         return new static();
+    }
+
+    public static function createWithLocales(array $locales): self
+    {
+        $slugOptions = static::create();
+
+        $slugOptions->translatableLocales = $locales;
+
+        return $slugOptions;
     }
 
     /**
