@@ -49,8 +49,6 @@ Your models' migrations should have a field to save the generated slug to.
 Here's an example of how to implement the trait:
 
 ```php
-<?php
-
 namespace App;
 
 use Spatie\Sluggable\HasSlug;
