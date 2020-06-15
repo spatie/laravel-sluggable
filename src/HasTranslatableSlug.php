@@ -14,14 +14,14 @@ trait HasTranslatableSlug
         $generateSlugFrom = $this->slugOptions->generateSlugFrom;
 
         if (is_callable($generateSlugFrom)) {
-            // returns a collection of locales that were given to the SlugOptions
-            // object with the static 'createWithLocales' method.
+            // returns a collection of locales that were given to the SlugOptions object
+            // when it was instantiated with the 'createWithLocales' method.
             return Collection::make($this->slugOptions->translatableLocales);
         }
 
         // collects all locales for all translatable fields
         return Collection::wrap($generateSlugFrom)
-            ->filter(fn ($fieldName)  => $this->isTranslatableAttribute($fieldName))
+            ->filter(fn ($fieldName) => $this->isTranslatableAttribute($fieldName))
             ->flatMap(fn ($fieldName) => $this->getTranslatedLocales($fieldName));
     }
 
