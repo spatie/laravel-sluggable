@@ -142,7 +142,21 @@ trait HasSlug
 
     protected function ensureValidSlugOptions()
     {
-        if (is_array($this->slugOptions->generateSlugFrom) && ! count($this->slugOptions->generateSlugFrom)) {
+        if (is_array($this->slugOptions->generateSlugFrom)) {
+             if ( ! count($this->slugOptions->generateSlugFrom)) {
+                throw InvalidOption::missingFromField();
+            }
+
+            foreach ($this->slugOptions->generateSlugFrom as $source) {
+                if ( ! $this->validateSource($source)) {
+                    $invalidSources[] = $source;
+                }
+            }
+
+            throw InvalidOption::missingFromField($invalidSources);
+        }
+
+        if ( ! $this->validateSource($this->slugSource)) {
             throw InvalidOption::missingFromField();
         }
 
@@ -153,6 +167,15 @@ trait HasSlug
         if ($this->slugOptions->maximumLength <= 0) {
             throw InvalidOption::invalidMaximumLength();
         }
+    }
+
+    public function validateSource($source)
+    {
+        if ( ! $source || !data_get($this, $source, '')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
