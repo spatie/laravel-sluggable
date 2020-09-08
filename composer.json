@@ -21,8 +21,9 @@
         "illuminate/support": "^8.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^6.0",
-        "spatie/laravel-translatable": "^4.3"
+        "orchestra/testbench": "^5.0|^6.0",
+        "spatie/laravel-translatable": "^4.3",
+        "friendsofphp/php-cs-fixer": "^2.16"
     },
     "autoload": {
         "psr-4": {
@@ -35,7 +36,8 @@
         }
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit",
+        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
