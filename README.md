@@ -231,7 +231,7 @@ public function getSlugOptions() : SlugOptions
 This can be helpful for creating permalinks that don't change until you explicitly want it to.
 
 ```php
-$model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name";
+$model = EloquentModel::create(['name' => 'my name']); //slug is now "my-name";
 $model->save();
 
 $model->name = 'changed name';
