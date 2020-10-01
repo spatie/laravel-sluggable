@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.5.2 - 2020-10-01
+
+- fixed an incompatibility bug with postgresql uuid column (#173)
+
 ## 2.5.1 - 2020-09-07
 
 - add support for Laravel 8
