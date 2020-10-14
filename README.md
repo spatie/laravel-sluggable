@@ -12,7 +12,7 @@ $model = new EloquentModel();
 $model->name = 'activerecord is awesome';
 $model->save();
 
-echo $model->slug; // ouputs "activerecord-is-awesome"
+echo $model->slug; // outputs "activerecord-is-awesome"
 ```
 
 The slugs are generated with Laravels `Str::slug` method, whereby spaces are converted to '-'.
