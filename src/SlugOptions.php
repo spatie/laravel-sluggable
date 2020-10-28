@@ -17,6 +17,8 @@ class SlugOptions
 
     public bool $generateSlugsOnUpdate = true;
 
+    public bool $generateSlugsIfAlreadyPresent = true;
+
     public string $slugSeparator = '-';
 
     public string $slugLanguage = 'en';
@@ -84,6 +86,13 @@ class SlugOptions
     public function doNotGenerateSlugsOnUpdate(): self
     {
         $this->generateSlugsOnUpdate = false;
+
+        return $this;
+    }
+
+    public function doNotGenerateSlugsIfAlreadyPresent(): self
+    {
+        $this->generateSlugsIfAlreadyPresent = false;
 
         return $this;
     }
