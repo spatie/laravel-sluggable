@@ -244,7 +244,7 @@ class HasSlugTest extends TestCase
         $model = new class extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
-                return parent::getSlugOptions()->doNotGenerateSlugsIfAlreadyPresent();
+                return parent::getSlugOptions()->preventOverwrite();
             }
         };
 

@@ -17,7 +17,7 @@ class SlugOptions
 
     public bool $generateSlugsOnUpdate = true;
 
-    public bool $generateSlugsIfAlreadyPresent = true;
+    public bool $preventOverwrite = false;
 
     public string $slugSeparator = '-';
 
@@ -90,9 +90,9 @@ class SlugOptions
         return $this;
     }
 
-    public function doNotGenerateSlugsIfAlreadyPresent(): self
+    public function preventOverwrite(): self
     {
-        $this->generateSlugsIfAlreadyPresent = false;
+        $this->preventOverwrite = true;
 
         return $this;
     }

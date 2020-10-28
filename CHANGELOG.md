@@ -2,6 +2,11 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.6.0 - 2020-10-28
+
+- add `preventOverwrite`
+- add support for PHP 8
+
 ## 2.5.2 - 2020-10-01
 
 - fixed an incompatibility bug with postgresql uuid column (#173)

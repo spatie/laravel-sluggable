@@ -30,8 +30,10 @@ trait HasSlug
             return;
         }
 
-        if ($this->{$this->slugOptions->slugField} !== null && ! $this->slugOptions->generateSlugsIfAlreadyPresent) {
-            return;
+        if ($this->slugOptions->preventOverwrite) {
+            if ($this->{$this->slugOptions->slugField} !== null) {
+                return;
+            }
         }
 
         $this->addSlug();
@@ -45,8 +47,10 @@ trait HasSlug
             return;
         }
 
-        if ($this->{$this->slugOptions->slugField} !== null && ! $this->slugOptions->generateSlugsIfAlreadyPresent) {
-            return;
+        if ($this->slugOptions->preventOverwrite) {
+            if ($this->{$this->slugOptions->slugField} !== null) {
+                return;
+            }
         }
 
         $this->addSlug();

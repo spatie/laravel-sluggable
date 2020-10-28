@@ -238,7 +238,8 @@ $model->save(); //slug stays "my-name"
 
 If you want to explicitly update the slug on the model you can call `generateSlug()` on your model at any time to make the slug according to your other options. Don't forget to `save()` the model to persist the update to your database.
 
-You can also prevent its generation if the slug's field already has a value.
+
+You can prevent slugs from being overwritten.
 
 ```php
 public function getSlugOptions() : SlugOptions
@@ -246,7 +247,7 @@ public function getSlugOptions() : SlugOptions
     return SlugOptions::create()
         ->generateSlugsFrom('name')
         ->saveSlugsTo('slug')
-        ->doNotGenerateSlugsIfAlreadyPresent();
+        ->preventOverwrite();
 }
 ```
 
