@@ -239,6 +239,23 @@ class HasSlugTest extends TestCase
     }
 
     /** @test */
+    public function it_has_an_method_that_prevents_a_slug_beign_generated_if_already_present()
+    {
+        $model = new class extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->doNotGenerateSlugsIfAlreadyPresent();
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->url = 'already-generated-slug';
+        $model->save();
+
+        $this->assertEquals('already-generated-slug', $model->url);
+    }
+
+    /** @test */
     public function it_will_use_separator_option_for_slug_generation()
     {
         $model = new class extends TestModel {
