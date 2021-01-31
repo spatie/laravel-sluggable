@@ -133,7 +133,7 @@ trait HasSlug
         $query = static::where($this->slugOptions->slugField, $slug)
             ->withoutGlobalScopes();
 
-        if ($this->exists()) {
+        if ($this->exists) {
             $query->where($this->getKeyName(), '!=', $this->getKey());
         }
 
