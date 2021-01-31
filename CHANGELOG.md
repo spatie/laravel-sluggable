@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.6.1 - 2020-01-31
+
+- fix Eloquent model checking (#186)
+
 ## 2.6.0 - 2020-10-28
 
 - add `preventOverwrite`
