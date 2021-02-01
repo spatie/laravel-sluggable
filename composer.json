@@ -18,13 +18,13 @@
     "require": {
         "php": "^7.4|^8.0",
         "illuminate/database": "^7.0|^8.0",
-        "illuminate/support": "^7.0.5|^8.0",
-        "phpunit/phpunit": "^9.5"
+        "illuminate/support": "^7.0.5|^8.0"
     },
     "require-dev": {
         "orchestra/testbench": "^5.0|^6.0",
         "spatie/laravel-translatable": "^4.3",
-        "friendsofphp/php-cs-fixer": "^2.16"
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "psr-4": {
