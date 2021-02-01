@@ -17,11 +17,11 @@
     ],
     "require": {
         "php": "^7.4|^8.0",
-        "illuminate/database": "^7.0|^8.0",
-        "illuminate/support": "^7.0.5|^8.0"
+        "illuminate/database": "^7.30|^8.0",
+        "illuminate/support": "^7.30|^8.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^5.0|^6.11",
+        "orchestra/testbench": "^5.16|^6.11",
         "spatie/laravel-translatable": "^4.6",
         "friendsofphp/php-cs-fixer": "^2.18",
         "phpunit/phpunit": "^9.5.1"
