@@ -21,10 +21,10 @@
         "illuminate/support": "^7.0.5|^8.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^5.0|^6.0",
-        "spatie/laravel-translatable": "^4.3",
-        "friendsofphp/php-cs-fixer": "^2.16",
-        "phpunit/phpunit": "^9.5"
+        "orchestra/testbench": "^5.0|^6.11",
+        "spatie/laravel-translatable": "^4.6",
+        "friendsofphp/php-cs-fixer": "^2.18",
+        "phpunit/phpunit": "^9.5.1"
     },
     "autoload": {
         "psr-4": {
