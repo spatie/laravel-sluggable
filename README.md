@@ -197,7 +197,7 @@ public function getSlugOptions() : SlugOptions
 You can also override the generated slug just by setting it to another value than the generated slug.
 
 ```php
-$model = EloquentModel:create(['name' => 'my name']); //slug is now "my-name";
+$model = EloquentModel::create(['name' => 'my name']); //slug is now "my-name";
 $model->slug = 'my-custom-url';
 $model->save(); //slug is now "my-custom-url";
 ```
