@@ -198,6 +198,22 @@ class HasTranslatableSlugTest extends TestCase
     }
 
     /** @test */
+    public function it_can_handle_overwrites_for_one_item_when_updating_a_model_with_custom_slugs()
+    {
+        $this->testModel->setTranslation('name', 'en', 'Test value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+        $this->testModel->setTranslation('slug', 'en', 'Test slug EN');
+        $this->testModel->setTranslation('slug', 'nl', 'Test slug NL');
+        $this->testModel->save();
+
+        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+        $this->testModel->save();
+
+        $this->assertSame('test-slug-en', $this->testModel->slug);
+        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
     public function it_can_handle_duplicates_when_overwriting_a_slug()
     {
         $this->testModel->setTranslation('name', 'en', 'Test value EN');
