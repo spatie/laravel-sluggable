@@ -58,14 +58,13 @@ trait HasTranslatableSlug
         $slugField = $this->slugOptions->slugField;
         $slugString = $this->getSlugSourceString();
 
-        $originalSlug = $this->getOriginal($slugField)[$this->getLocale()] ?? null;
-        $newSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+        $slug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
 
-        $hasCustomSlug = $this->hasCustomSlugBeenUsed() && !empty($newSlug);
-        $hasChangedCustomSlug = $slugString == $this->getOriginalSourceString() && !is_null($newSlug) && $originalSlug == $newSlug;
+        $hasCustomSlug = $this->hasCustomSlugBeenUsed() && !empty($slug);
+        $hasNonChangedCustomSlug = !$this->slugIsBasedOnTitle() && !empty($slug);
 
-        if($hasCustomSlug || $hasChangedCustomSlug){
-            $slugString = $newSlug;
+        if($hasCustomSlug || $hasNonChangedCustomSlug){
+            $slugString = $slug;
         }
 
         return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
@@ -89,6 +88,15 @@ trait HasTranslatableSlug
     protected function getSlugSourceStringFromCallable(): string
     {
         return call_user_func($this->slugOptions->generateSlugFrom, $this, $this->getLocale());
+    }
+
+    protected function slugIsBasedOnTitle()
+    {
+        $slugField = $this->slugOptions->slugField;
+        $titleSlug = Str::slug($this->getOriginalSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        $currentSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+
+        return $titleSlug == $currentSlug;
     }
 
     protected function hasCustomSlugBeenUsed(): bool
