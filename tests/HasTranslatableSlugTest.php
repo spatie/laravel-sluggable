@@ -159,8 +159,8 @@ class HasTranslatableSlugTest extends TestCase
     {
         $this->testModel->setTranslation('name', 'en', 'Test value EN');
         $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
         $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
+        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
 
         $this->testModel->save();
 
@@ -175,8 +175,8 @@ class HasTranslatableSlugTest extends TestCase
         $this->testModel->setTranslation('name', 'nl', 'Test value NL');
         $this->testModel->save();
 
-        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
         $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
+        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
         $this->testModel->save();
 
         $this->assertSame('updated-value-en', $this->testModel->slug);
