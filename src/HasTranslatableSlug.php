@@ -2,8 +2,8 @@
 
 namespace Spatie\Sluggable;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Localizable;
 
 trait HasTranslatableSlug
@@ -60,10 +60,10 @@ trait HasTranslatableSlug
 
         $slug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
 
-        $hasCustomSlug = $this->hasCustomSlugBeenUsed() && !empty($slug);
-        $hasNonChangedCustomSlug = !$this->slugIsBasedOnTitle() && !empty($slug);
+        $hasCustomSlug = $this->hasCustomSlugBeenUsed() && ! empty($slug);
+        $hasNonChangedCustomSlug = ! $this->slugIsBasedOnTitle() && ! empty($slug);
 
-        if($hasCustomSlug || $hasNonChangedCustomSlug){
+        if ($hasCustomSlug || $hasNonChangedCustomSlug) {
             $slugString = $slug;
         }
 
