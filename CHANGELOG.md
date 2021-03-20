@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 2.6.2 - 2021-03-20
+
+- Added translatable slug overriding (#190)
+
 ## 2.6.1 - 2020-01-31
 
 - fix Eloquent model checking (#186)
