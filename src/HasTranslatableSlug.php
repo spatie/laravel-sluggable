@@ -2,6 +2,7 @@
 
 namespace Spatie\Sluggable;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Localizable;
 
@@ -52,13 +53,58 @@ trait HasTranslatableSlug
         });
     }
 
+    protected function generateNonUniqueSlug(): string
+    {
+        $slugField = $this->slugOptions->slugField;
+        $slugString = $this->getSlugSourceString();
+
+        $slug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+
+        $hasCustomSlug = $this->hasCustomSlugBeenUsed() && !empty($slug);
+        $hasNonChangedCustomSlug = !$this->slugIsBasedOnTitle() && !empty($slug);
+
+        if($hasCustomSlug || $hasNonChangedCustomSlug){
+            $slugString = $slug;
+        }
+
+        return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+    }
+
     protected function getSlugSourceStringFromCallable(): string
     {
         return call_user_func($this->slugOptions->generateSlugFrom, $this, $this->getLocale());
     }
 
+    protected function slugIsBasedOnTitle()
+    {
+        $slugField = $this->slugOptions->slugField;
+        $titleSlug = Str::slug($this->getOriginalSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        $currentSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+
+        return $titleSlug === $currentSlug;
+    }
+
+    protected function getOriginalSourceString()
+    {
+        if (is_callable($this->slugOptions->generateSlugFrom)) {
+            $slugSourceString = $this->getSlugSourceStringFromCallable();
+
+            return $this->generateSubstring($slugSourceString);
+        }
+
+        $slugSourceString = collect($this->slugOptions->generateSlugFrom)
+            ->map(fn (string $fieldName): string => $this->getOriginal($fieldName)[$this->getLocale()] ?? '')
+            ->implode($this->slugOptions->slugSeparator);
+
+        return $this->generateSubstring($slugSourceString);
+    }
+
     protected function hasCustomSlugBeenUsed(): bool
     {
-        return false;
+        $slugField = $this->slugOptions->slugField;
+        $originalSlug = $this->getOriginal($slugField)[$this->getLocale()] ?? null;
+        $newSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+
+        return $originalSlug !== $newSlug;
     }
 }

@@ -153,4 +153,83 @@ class HasTranslatableSlugTest extends TestCase
         $this->assertSame('name-en-other-en', $this->testModel->slug);
         $this->assertSame('name-nl-other-nl', $this->testModel->getTranslation('slug', 'nl'));
     }
+
+    /** @test */
+    public function it_can_handle_overwrites_when_creating_a_model()
+    {
+        $this->testModel->setTranslation('name', 'en', 'Test value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+        $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
+        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+
+        $this->testModel->save();
+
+        $this->assertSame('updated-value-en', $this->testModel->slug);
+        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
+    public function it_can_handle_overwrites_when_updating_a_model()
+    {
+        $this->testModel->setTranslation('name', 'en', 'Test value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+        $this->testModel->save();
+
+        $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
+        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+        $this->testModel->save();
+
+        $this->assertSame('updated-value-en', $this->testModel->slug);
+        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
+    public function it_can_handle_overwrites_for_one_item_when_updating_a_model()
+    {
+        $this->testModel->setTranslation('name', 'en', 'Test value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+        $this->testModel->save();
+
+        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+        $this->testModel->save();
+
+        $this->assertSame('test-value-en', $this->testModel->slug);
+        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
+    public function it_can_handle_overwrites_for_one_item_when_updating_a_model_with_custom_slugs()
+    {
+        $this->testModel->setTranslation('name', 'en', 'Test value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+        $this->testModel->setTranslation('slug', 'en', 'Test slug EN');
+        $this->testModel->setTranslation('slug', 'nl', 'Test slug NL');
+        $this->testModel->save();
+
+        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+        $this->testModel->save();
+
+        $this->assertSame('test-slug-en', $this->testModel->slug);
+        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
+    public function it_can_handle_duplicates_when_overwriting_a_slug()
+    {
+        $this->testModel->setTranslation('name', 'en', 'Test value EN');
+        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+        $this->testModel->save();
+
+        $newModel = new $this->testModel;
+        $newModel->setTranslation('name', 'en', 'Test value 2 EN');
+        $newModel->setTranslation('name', 'nl', 'Test value 2 NL');
+        $newModel->save();
+
+        $newModel->setTranslation('slug', 'en', 'test-value-en');
+        $newModel->setTranslation('slug', 'nl', 'test-value-nl');
+        $newModel->save();
+
+        $this->assertSame('test-value-en-1', $newModel->slug);
+        $this->assertSame('test-value-nl-1', $newModel->getTranslation('slug', 'nl'));
+    }
 }
