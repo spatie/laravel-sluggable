@@ -2,6 +2,13 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.0.0 - unreleased
+
+- require PHP 8+
+- drop support for PHP 7.x
+- convert syntax to PHP 8
+- move Exceptions to `Exceptions` folder to match structure of other packages
+
 ## 2.6.2 - 2021-03-20
 
 - Added translatable slug overriding (#190)
