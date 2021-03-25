@@ -25,12 +25,12 @@ class SlugOptions
 
     public array $translatableLocales = [];
 
-    public static function create(): self
+    public static function create(): static
     {
         return new static();
     }
 
-    public static function createWithLocales(array $locales): self
+    public static function createWithLocales(array $locales): static
     {
         $slugOptions = static::create();
 
@@ -39,12 +39,7 @@ class SlugOptions
         return $slugOptions;
     }
 
-    /**
-     * @param string|array|callable $fieldName
-     *
-     * @return \Spatie\Sluggable\SlugOptions
-     */
-    public function generateSlugsFrom($fieldName): self
+    public function generateSlugsFrom(string | array | callable $fieldName): self
     {
         if (is_string($fieldName)) {
             $fieldName = [$fieldName];

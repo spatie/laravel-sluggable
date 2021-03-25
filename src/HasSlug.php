@@ -4,6 +4,7 @@ namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Spatie\Sluggable\Exceptions\InvalidOption;
 
 trait HasSlug
 {
@@ -11,7 +12,7 @@ trait HasSlug
 
     abstract public function getSlugOptions(): SlugOptions;
 
-    protected static function bootHasSlug()
+    protected static function bootHasSlug(): void
     {
         static::creating(function (Model $model) {
             $model->generateSlugOnCreate();
@@ -22,7 +23,7 @@ trait HasSlug
         });
     }
 
-    protected function generateSlugOnCreate()
+    protected function generateSlugOnCreate(): void
     {
         $this->slugOptions = $this->getSlugOptions();
 
@@ -39,7 +40,7 @@ trait HasSlug
         $this->addSlug();
     }
 
-    protected function generateSlugOnUpdate()
+    protected function generateSlugOnUpdate(): void
     {
         $this->slugOptions = $this->getSlugOptions();
 
@@ -56,14 +57,14 @@ trait HasSlug
         $this->addSlug();
     }
 
-    public function generateSlug()
+    public function generateSlug(): void
     {
         $this->slugOptions = $this->getSlugOptions();
 
         $this->addSlug();
     }
 
-    protected function addSlug()
+    protected function addSlug(): void
     {
         $this->ensureValidSlugOptions();
 
@@ -146,10 +147,10 @@ trait HasSlug
 
     protected function usesSoftDeletes(): bool
     {
-        return (bool) in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this));
+        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this), true);
     }
 
-    protected function ensureValidSlugOptions()
+    protected function ensureValidSlugOptions(): void
     {
         if (is_array($this->slugOptions->generateSlugFrom) && ! count($this->slugOptions->generateSlugFrom)) {
             throw InvalidOption::missingFromField();

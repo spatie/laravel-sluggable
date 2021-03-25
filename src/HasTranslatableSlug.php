@@ -26,7 +26,7 @@ trait HasTranslatableSlug
             ->flatMap(fn ($fieldName) => $this->getTranslatedLocales($fieldName));
     }
 
-    protected function addSlug()
+    protected function addSlug(): void
     {
         $this->ensureValidSlugOptions();
 
@@ -75,7 +75,7 @@ trait HasTranslatableSlug
         return call_user_func($this->slugOptions->generateSlugFrom, $this, $this->getLocale());
     }
 
-    protected function slugIsBasedOnTitle()
+    protected function slugIsBasedOnTitle(): bool
     {
         $slugField = $this->slugOptions->slugField;
         $titleSlug = Str::slug($this->getOriginalSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
@@ -84,7 +84,7 @@ trait HasTranslatableSlug
         return $titleSlug === $currentSlug;
     }
 
-    protected function getOriginalSourceString()
+    protected function getOriginalSourceString(): string
     {
         if (is_callable($this->slugOptions->generateSlugFrom)) {
             $slugSourceString = $this->getSlugSourceStringFromCallable();
