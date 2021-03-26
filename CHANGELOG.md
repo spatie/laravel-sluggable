@@ -2,7 +2,7 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
-## 3.0.0 - unreleased
+## 3.0.0 - 2021
 
 - require PHP 8+
 - drop support for PHP 7.x
