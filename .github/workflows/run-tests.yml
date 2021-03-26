@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [8.0, 7.4]
+        php: [8.0]
         laravel: [7, 8]
         dependency-version: [prefer-lowest, prefer-stable]
 
