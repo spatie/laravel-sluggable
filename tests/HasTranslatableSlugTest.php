@@ -232,4 +232,45 @@ class HasTranslatableSlugTest extends TestCase
         $this->assertSame('test-value-en-1', $newModel->slug);
         $this->assertSame('test-value-nl-1', $newModel->getTranslation('slug', 'nl'));
     }
+
+    /** @test */
+    public function it_can_update_slug_with_non_unique_names()
+    {
+        $model1 = new TranslatableModel;
+        $model1->setTranslation('name', 'en', 'Test Value');
+        $model1->save();
+
+        $model2 = new TranslatableModel;
+        $model2->setTranslation('name', 'en', 'Test Value');
+        $model2->save();
+
+        $model2->setTranslation('name', 'en', 'Changed Value');
+        $model2->save();
+
+        $this->assertSame('changed-value', $model2->getTranslation('slug', 'en'));
+    }
+
+    /** @test */
+    public function it_can_update_slug_with_non_unique_names_multiple()
+    {
+        $testModels = [];
+        foreach (range(0, 15) as $i) {
+            $model = new TranslatableModel;
+            $model->setTranslation('name', 'en', 'Test Value');
+            $model->setTranslation('name', 'nl', 'Test Value');
+            $model->save();
+            
+            array_push($testModels, $model);
+        }
+
+        foreach (range(0, 15) as $i) {
+            $model = $testModels[$i];
+            $model->setTranslation('name', 'en', 'Changed Value');
+            $model->save();
+
+            $expectedSlug = 'changed-value' . ($i === 0 ? '' : '-' . $i);
+            $this->assertSame($expectedSlug, $model->getTranslation('slug', 'en'));
+        }
+    }
+    
 }
