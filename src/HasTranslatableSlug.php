@@ -60,8 +60,8 @@ trait HasTranslatableSlug
 
         $slug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
 
-        $hasCustomSlug = $this->hasCustomSlugBeenUsed() && ! empty($slug);
-        $hasNonChangedCustomSlug = ! $this->slugIsBasedOnTitle() && ! empty($slug);
+        $hasCustomSlug = $this->hasCustomSlugBeenUsed() && !empty($slug);
+        $hasNonChangedCustomSlug = !$this->slugIsBasedOnTitle() && !empty($slug);
 
         if ($hasCustomSlug || $hasNonChangedCustomSlug) {
             $slugString = $slug;
@@ -81,12 +81,12 @@ trait HasTranslatableSlug
         $titleSlug = Str::slug($this->getOriginalSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
         $currentSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
 
-        if ($titleSlug === $currentSlug || $titleSlug === '') {
-            return true;
+        if (!str_starts_with($currentSlug, $titleSlug) || $titleSlug === '') {
+            return false;
         }
 
-        if (!str_starts_with($currentSlug, $titleSlug)) {
-            return false;
+        if ($titleSlug === $currentSlug) {
+            return true;
         }
 
         $slugSeparator = $currentSlug[strlen($titleSlug)];
