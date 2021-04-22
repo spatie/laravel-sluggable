@@ -2,7 +2,11 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
-## 3.0.0 - 2021
+## 3.0.1 - 2021-04-22
+
+- update slug on non unique names (#195)
+
+## 3.0.0 - 2021-03-01
 
 - require PHP 8+
 - drop support for PHP 7.x
