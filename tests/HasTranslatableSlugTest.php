@@ -272,5 +272,4 @@ class HasTranslatableSlugTest extends TestCase
             $this->assertSame($expectedSlug, $model->getTranslation('slug', 'en'));
         }
     }
-    
 }
