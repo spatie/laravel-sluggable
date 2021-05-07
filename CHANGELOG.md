@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.0.2 - 2021-05-07
+
+- bugfix for updating slugs generated from a callback (#200)
+
 ## 3.0.1 - 2021-04-22
 
 - update slug on non unique names (#195)
