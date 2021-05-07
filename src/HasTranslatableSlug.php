@@ -60,8 +60,9 @@ trait HasTranslatableSlug
 
         $slug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
 
+        $slugGeneratedFromCallable = is_callable($this->slugOptions->generateSlugFrom);
         $hasCustomSlug = $this->hasCustomSlugBeenUsed() && ! empty($slug);
-        $hasNonChangedCustomSlug = ! $this->slugIsBasedOnTitle() && ! empty($slug);
+        $hasNonChangedCustomSlug = ! $slugGeneratedFromCallable && ! $this->slugIsBasedOnTitle() && ! empty($slug);
 
         if ($hasCustomSlug || $hasNonChangedCustomSlug) {
             $slugString = $slug;

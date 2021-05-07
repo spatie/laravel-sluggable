@@ -155,6 +155,36 @@ class HasTranslatableSlugTest extends TestCase
     }
 
     /** @test */
+    public function it_can_use_a_callback_to_update_the_slug_per_language()
+    {
+        $this->testModel->useSlugOptions(
+            SlugOptions::createWithLocales(['en', 'nl'])
+                ->generateSlugsFrom(function ($model, $locale) {
+                    return implode(' ', [
+                        $model->getTranslation('name', $locale, false),
+                        $model->getTranslation('other_field', $locale, false),
+                    ]);
+                })
+                ->saveSlugsTo('slug')
+        );
+
+        $this->testModel->setTranslation('name', 'en', 'Name EN');
+        $this->testModel->setTranslation('name', 'nl', 'Name NL');
+        $this->testModel->setTranslation('other_field', 'en', '1');
+        $this->testModel->setTranslation('other_field', 'nl', '1');
+
+        $this->testModel->save();
+
+        $this->testModel->setTranslation('other_field', 'en', '2');
+        $this->testModel->setTranslation('other_field', 'nl', '2');
+
+        $this->testModel->save();
+
+        $this->assertSame('name-en-2', $this->testModel->slug);
+        $this->assertSame('name-nl-2', $this->testModel->getTranslation('slug', 'nl'));
+    }
+
+    /** @test */
     public function it_can_handle_overwrites_when_creating_a_model()
     {
         $this->testModel->setTranslation('name', 'en', 'Test value EN');
@@ -259,7 +289,7 @@ class HasTranslatableSlugTest extends TestCase
             $model->setTranslation('name', 'en', 'Test Value');
             $model->setTranslation('name', 'nl', 'Test Value');
             $model->save();
-            
+
             array_push($testModels, $model);
         }
 
