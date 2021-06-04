@@ -136,7 +136,7 @@ trait HasSlug
 
         if ($this->slugOptions->extraScopeCallback) {
             $query->where($this->slugOptions->extraScopeCallback);
-        }            
+        }
 
         if ($this->exists) {
             $query->where($this->getKeyName(), '!=', $this->getKey());
