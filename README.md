@@ -246,6 +246,18 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+If you have a global scope that should be taken into account, you can define this as well with `extraScope`. For example if you have a pages table containing pages of multiple websites and every website has it's own unique slugs.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->extraScope(fn ($builder) => $builder->where('scope_id', $this->scope_id));
+}
+```
+
 ### Integration with laravel-translatable
 
 You can use this package along with [laravel-translatable](https://github.com/spatie/laravel-translatable) to generate a slug for each locale. Instead of using the `HasSlug` trait, you must use the `HasTranslatableSlug` trait, and add the name of the slug field to the `$translatable` array. For slugs that are generated from a single field _or_ multiple fields, you don't have to change anything else.
