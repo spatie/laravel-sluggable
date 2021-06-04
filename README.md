@@ -89,6 +89,8 @@ class CreateYourEloquentModelTable extends Migration
 
 ```
 
+### Using slugs in routes
+
 To use the generated slug in routes, remember to use Laravel's [implicit route model binding](https://laravel.com/docs/5.8/routing#implicit-binding):
 
 ```php
@@ -124,6 +126,8 @@ class YourEloquentModel extends Model
 }
 ```
 
+### Using multiple fields to create the slug
+
 Want to use multiple field as the basis for a slug? No problem!
 
 ```php
@@ -134,6 +138,8 @@ public function getSlugOptions() : SlugOptions
         ->saveSlugsTo('slug');
 }
 ```
+
+### Customizing slug generation
 
 You can also pass a `callable` to `generateSlugsFrom`.
 
@@ -150,6 +156,8 @@ public function getSlugOptions() : SlugOptions
         ->allowDuplicateSlugs();
 }
 ```
+
+### Limiting the length of a slug
 
 You can also put a maximum size limit on the created slug:
 
@@ -177,6 +185,8 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+### Setting the slug language
+
 To set the language used by `Str::slug` you may call `usingLanguage`
 
 ```php
@@ -189,6 +199,8 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+### Overriding slugs
+
 You can also override the generated slug just by setting it to another value than the generated slug.
 
 ```php
@@ -196,6 +208,8 @@ $model = EloquentModel::create(['name' => 'my name']); //slug is now "my-name";
 $model->slug = 'my-custom-url';
 $model->save(); //slug is now "my-custom-url";
 ```
+
+### Prevent slugs from being generated on creation
 
 If you don't want to create the slug when the model is initially created you can set use the `doNotGenerateSlugsOnCreate()` function.
 
@@ -208,6 +222,8 @@ public function getSlugOptions() : SlugOptions
         ->doNotGenerateSlugsOnCreate();
 }
 ```
+
+### Prevent slug updates
 
 Similarly, if you want to prevent the slug from being updated on model updates, call `doNotGenerateSlugsOnUpdate()`.
 
@@ -231,8 +247,11 @@ $model->name = 'changed name';
 $model->save(); //slug stays "my-name"
 ```
 
+### Regenerating slugs
+
 If you want to explicitly update the slug on the model you can call `generateSlug()` on your model at any time to make the slug according to your other options. Don't forget to `save()` the model to persist the update to your database.
 
+### Preventing overwrites
 
 You can prevent slugs from being overwritten.
 
@@ -245,6 +264,9 @@ public function getSlugOptions() : SlugOptions
         ->preventOverwrite();
 }
 ```
+
+### Using scopes
+
 
 If you have a global scope that should be taken into account, you can define this as well with `extraScope`. For example if you have a pages table containing pages of multiple websites and every website has it's own unique slugs.
 
