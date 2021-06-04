@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.1.0 - 2021-06-04
+
+- add extra scope callback option (#201)
+
 ## 3.0.2 - 2021-05-07
 
 - bugfix for updating slugs generated from a callback (#200)
