@@ -63,6 +63,13 @@ abstract class TestCase extends Orchestra
             $table->text('non_translatable_field')->nullable();
             $table->text('slug')->nullable();
         });
+
+        $app['db']->connection()->getSchemaBuilder()->create('scopeable_models', function (Blueprint $table) {
+            $table->increments('id');
+            $table->text('name')->nullable();
+            $table->text('slug')->nullable();
+            $table->unsignedInteger('scope_id')->nullable();
+        });
     }
 
     protected function initializeDirectory(string $directory)
