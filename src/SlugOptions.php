@@ -28,6 +28,8 @@ class SlugOptions
 
     public array $translatableLocales = [];
 
+    public array $forbiddenSlugs = [];
+
     public static function create(): static
     {
         return new static();
@@ -70,6 +72,13 @@ class SlugOptions
     public function slugsShouldBeNoLongerThan(int $maximumLength): self
     {
         $this->maximumLength = $maximumLength;
+
+        return $this;
+    }
+
+    public function slugsShouldNotBeEqualTo(array $forbiddenSlugs): self
+    {
+        $this->forbiddenSlugs = $forbiddenSlugs;
 
         return $this;
     }

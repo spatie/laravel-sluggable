@@ -145,6 +145,48 @@ class HasSlugTest extends TestCase
         $this->assertEquals('12345', $model->url);
     }
 
+    /** @test */
+    public function it_cant_generate_slugs_with_a_protected_name()
+    {
+        $model = new class() extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->slugsShouldNotBeEqualTo(['reserved']);
+            }
+        };
+
+        $model->name = 'reserved';
+        $model->save();
+
+        $this->assertEquals('reserved-1', $model->url);
+    }
+
+    /** @test */
+    public function it_cant_generate_slugs_with_a_protected_name_even_with_no_duplication()
+    {
+        $model = new class() extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->slugsShouldNotBeEqualTo(['reserved-1']);
+            }
+        };
+
+        $model->name = 'reserved';
+        $model->save();
+
+        $newModel = new class() extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->slugsShouldNotBeEqualTo(['reserved-1']);
+            }
+        };
+
+        $newModel->name = 'reserved';
+        $newModel->save();
+
+        $this->assertEquals('reserved-2', $model->url);
+    }
+
     /**
      * @test
      * @dataProvider weirdCharacterProvider

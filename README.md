@@ -185,6 +185,30 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+### Protecting a set of strings to be used as slugs
+
+You can prevent the created slug to match certain strings 
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->slugsShouldNotBeEqualTo([
+            'reserved',
+            'do-not-use'
+        ]);
+}
+```
+
+The package will generate an allowed slug by appending '-' and a number to the default generated slug.
+
+```php
+$model = EloquentModel::create(['name' => 'reserved']); //slug is now "reserved-1";
+$model->save();
+```
+
 ### Setting the slug language
 
 To set the language used by `Str::slug` you may call `usingLanguage`

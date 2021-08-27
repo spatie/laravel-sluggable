@@ -36,17 +36,16 @@ trait HasTranslatableSlug
 
                 $slugField = $this->slugOptions->slugField;
 
-                if ($this->slugOptions->generateUniqueSlugs) {
-                    // temporarly change the 'slugField' of the SlugOptions
-                    // so the 'otherRecordExistsWithSlug' method queries
-                    // the locale JSON column instead of the 'slugField'.
-                    $this->slugOptions->saveSlugsTo("{$slugField}->{$locale}");
+                // temporarly change the 'slugField' of the SlugOptions
+                // so the 'otherRecordExistsWithSlug' method queries
+                // the locale JSON column instead of the 'slugField'.
+                $this->slugOptions->saveSlugsTo("{$slugField}->{$locale}");
 
-                    $slug = $this->makeSlugUnique($slug);
+                $slug = $this->makeSlugValid($slug);
 
-                    // revert the change for the next iteration
-                    $this->slugOptions->saveSlugsTo($slugField);
-                }
+                // revert the change for the next iteration
+                $this->slugOptions->saveSlugsTo($slugField);
+
 
                 $this->setTranslation($slugField, $locale, $slug);
             });

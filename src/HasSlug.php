@@ -68,11 +68,7 @@ trait HasSlug
     {
         $this->ensureValidSlugOptions();
 
-        $slug = $this->generateNonUniqueSlug();
-
-        if ($this->slugOptions->generateUniqueSlugs) {
-            $slug = $this->makeSlugUnique($slug);
-        }
+        $slug = $this->makeSlugValid($this->generateNonUniqueSlug());
 
         $slugField = $this->slugOptions->slugField;
 
@@ -117,16 +113,23 @@ trait HasSlug
         return call_user_func($this->slugOptions->generateSlugFrom, $this);
     }
 
-    protected function makeSlugUnique(string $slug): string
+    protected function makeSlugValid(string $slug): string
     {
         $originalSlug = $slug;
         $i = 1;
 
-        while ($this->otherRecordExistsWithSlug($slug) || $slug === '') {
+        while ($this->isSlugInvalid($slug)) {
             $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;
         }
 
         return $slug;
+    }
+
+    protected function isSlugInvalid(string $slug): bool
+    {
+        return $slug === ''
+            || in_array($slug, $this->slugOptions->forbiddenSlugs)
+            || ($this->slugOptions->generateUniqueSlugs && $this->otherRecordExistsWithSlug($slug));
     }
 
     protected function otherRecordExistsWithSlug(string $slug): bool
