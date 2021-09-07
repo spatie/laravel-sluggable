@@ -13,7 +13,7 @@ class HasTranslatableSlugTest extends TestCase
     {
         parent::setUp();
 
-        $this->testModel = new TranslatableModel;
+        $this->testModel = new TranslatableModel();
     }
 
     /** @test */
@@ -250,7 +250,7 @@ class HasTranslatableSlugTest extends TestCase
         $this->testModel->setTranslation('name', 'nl', 'Test value NL');
         $this->testModel->save();
 
-        $newModel = new $this->testModel;
+        $newModel = new $this->testModel();
         $newModel->setTranslation('name', 'en', 'Test value 2 EN');
         $newModel->setTranslation('name', 'nl', 'Test value 2 NL');
         $newModel->save();
@@ -266,11 +266,11 @@ class HasTranslatableSlugTest extends TestCase
     /** @test */
     public function it_can_update_slug_with_non_unique_names()
     {
-        $model1 = new TranslatableModel;
+        $model1 = new TranslatableModel();
         $model1->setTranslation('name', 'en', 'Test Value');
         $model1->save();
 
-        $model2 = new TranslatableModel;
+        $model2 = new TranslatableModel();
         $model2->setTranslation('name', 'en', 'Test Value');
         $model2->save();
 
@@ -285,7 +285,7 @@ class HasTranslatableSlugTest extends TestCase
     {
         $testModels = [];
         foreach (range(0, 15) as $i) {
-            $model = new TranslatableModel;
+            $model = new TranslatableModel();
             $model->setTranslation('name', 'en', 'Test Value');
             $model->setTranslation('name', 'nl', 'Test Value');
             $model->save();

@@ -79,7 +79,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_from_multiple_source_fields()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
@@ -96,7 +96,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_from_a_callable()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
@@ -115,7 +115,7 @@ class HasSlugTest extends TestCase
     public function it_can_generate_duplicate_slugs()
     {
         foreach (range(1, 10) as $i) {
-            $model = new class extends TestModel {
+            $model = new class() extends TestModel {
                 public function getSlugOptions(): SlugOptions
                 {
                     return parent::getSlugOptions()->allowDuplicateSlugs();
@@ -132,7 +132,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_slugs_with_a_maximum_length()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
@@ -206,7 +206,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_has_an_method_that_prevents_a_slug_being_generated_on_creation()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->doNotGenerateSlugsOnCreate();
@@ -222,7 +222,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_has_an_method_that_prevents_a_slug_being_generated_on_update()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
@@ -241,7 +241,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_has_an_method_that_prevents_a_slug_beign_generated_if_already_present()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->preventOverwrite();
@@ -258,7 +258,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_will_use_separator_option_for_slug_generation()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->usingSeparator('_');
@@ -274,7 +274,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_will_use_language_option_for_slug_generation()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->usingLanguage('nl');
@@ -287,7 +287,7 @@ class HasSlugTest extends TestCase
     /** @test */
     public function it_can_generate_language_specific_slugs()
     {
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->usingLanguage('en');
@@ -298,7 +298,7 @@ class HasSlugTest extends TestCase
         $model->save();
         $this->assertEquals('gute-nacht', $model->url);
 
-        $model = new class extends TestModel {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->usingLanguage('de');

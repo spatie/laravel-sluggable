@@ -8,7 +8,8 @@ use Illuminate\Support\Traits\Localizable;
 
 trait HasTranslatableSlug
 {
-    use HasSlug, Localizable;
+    use HasSlug;
+    use Localizable;
 
     protected function getLocalesForSlug(): Collection
     {

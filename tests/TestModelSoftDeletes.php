@@ -9,8 +9,8 @@ use Spatie\Sluggable\SlugOptions;
 
 class TestModelSoftDeletes extends Model
 {
-    use SoftDeletes,
-        HasSlug;
+    use SoftDeletes;
+    use HasSlug;
 
     protected $table = 'test_model_soft_deletes';
 
