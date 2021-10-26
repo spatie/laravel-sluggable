@@ -320,4 +320,37 @@ class HasSlugTest extends TestCase
             $this->assertEquals("this-is-a-test-{$i}", $model->url);
         }
     }
+
+    /** @test */
+    public function it_will_save_a_unique_slug_by_default_when_replicating_a_model()
+    {
+        $model = TestModel::create(['name' => 'this is a test']);
+
+        $replica = $model->replicate();
+        $replica->save();
+
+        $this->assertEquals('this-is-a-test', $model->url);
+        $this->assertEquals('this-is-a-test-1', $replica->url);
+    }
+
+
+    /** @test */
+    public function it_will_save_a_unique_slug_when_replicating_a_model_that_does_not_generates_slugs_on_update()
+    {
+        $model = new class() extends TestModel {
+            public function getSlugOptions(): SlugOptions
+            {
+                return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
+            }
+        };
+
+        $model->name = 'this is a test';
+        $model->save();
+
+        $replica = $model->replicate();
+        $replica->save();
+
+        $this->assertEquals('this-is-a-test', $model->url);
+        $this->assertEquals('this-is-a-test-1', $replica->url);
+    }
 }
