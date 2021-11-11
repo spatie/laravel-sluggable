@@ -126,22 +126,34 @@ trait HasTranslatableSlug
 
     public function resolveRouteBinding($value, $field = null): Model|null
     {
-        if ($field ?? $this->getRouteKeyName() !== $this->getSlugOptions()->slugField) {
+        if (($field ?? $this->getRouteKeyName()) !== $this->getSlugOptions()->slugField) {
             return parent::resolveRouteBinding($value, $field);
         }
 
-        return $this->whereJsonContains($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
-            ->first();
+        // Only some database types support json operations.
+        // If the database doesn't support it, null is returned as default method would do the same
+        try {
+            return $this->whereJsonContains($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
+                ->first();
+        } catch (\RuntimeException $exception) {
+            return null;
+        }
     }
 
     public function resolveSoftDeletableRouteBinding($value, $field = null): Model|null
     {
-        if ($field ?? $this->getRouteKeyName() !== $this->getSlugOptions()->slugField) {
+        if (($field ?? $this->getRouteKeyName()) !== $this->getSlugOptions()->slugField) {
             return $this->where($field ?? $this->getRouteKeyName(), $value)->withTrashed()->first();
         }
 
-        return $this->whereJsonContains($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
-            ->withTrashed()->first();
+        // Only some database types support json operations.
+        // If the database doesn't support it, null is returned as default method would do the same
+        try {
+            return $this->whereJsonContains($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
+                ->withTrashed()->first();
+        } catch (\RuntimeException $exception) {
+            return null;
+        }
     }
 
     public function resolveChildRouteBindingQuery($childType, $value, $field): Model|null
@@ -154,14 +166,20 @@ trait HasTranslatableSlug
 
         $field = $field ?: $relationship->getRelated()->getRouteKeyName();
 
-        if ($relationship instanceof HasManyThrough ||
-            $relationship instanceof BelongsToMany) {
-            return $relationship->whereJsonContains(
-                $relationship->getRelated()->getTable() . '.' . $field . '->' . $this->getLocale(),
-                $value
-            );
-        } else {
-            return $relationship->whereJsonContains($field . '->' . $this->getLocale(), $value);
+        // Only some database types support json operations.
+        // If the database doesn't support it, null is returned as default method would do the same
+        try {
+            if ($relationship instanceof HasManyThrough ||
+                $relationship instanceof BelongsToMany) {
+                return $relationship->whereJsonContains(
+                    $relationship->getRelated()->getTable() . '.' . $field . '->' . $this->getLocale(),
+                    $value
+                );
+            } else {
+                return $relationship->whereJsonContains($field . '->' . $this->getLocale(), $value);
+            }
+        } catch (\RuntimeException $exception) {
+            return null;
         }
     }
 }
