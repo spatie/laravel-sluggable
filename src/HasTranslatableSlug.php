@@ -2,6 +2,9 @@
 
 namespace Spatie\Sluggable;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Localizable;
@@ -119,5 +122,46 @@ trait HasTranslatableSlug
         $newSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
 
         return $originalSlug !== $newSlug;
+    }
+
+    public function resolveRouteBinding($value, $field = null): Model|null
+    {
+        if ($field ?? $this->getRouteKeyName() !== $this->getSlugOptions()->slugField) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        return $this->whereJsonContains($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
+            ->first();
+    }
+
+    public function resolveSoftDeletableRouteBinding($value, $field = null): Model|null
+    {
+        if ($field ?? $this->getRouteKeyName() !== $this->getSlugOptions()->slugField) {
+            return $this->where($field ?? $this->getRouteKeyName(), $value)->withTrashed()->first();
+        }
+
+        return $this->whereJsonContains($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
+            ->withTrashed()->first();
+    }
+
+    public function resolveChildRouteBindingQuery($childType, $value, $field): Model|null
+    {
+        if ($field !== $this->getSlugOptions()->slugField) {
+            return parent::resolveChildRouteBindingQuery($childType, $value, $field);
+        }
+
+        $relationship = $this->{Str::plural(Str::camel($childType))}();
+
+        $field = $field ?: $relationship->getRelated()->getRouteKeyName();
+
+        if ($relationship instanceof HasManyThrough ||
+            $relationship instanceof BelongsToMany) {
+            return $relationship->whereJsonContains(
+                $relationship->getRelated()->getTable() . '.' . $field . '->' . $this->getLocale(),
+                $value
+            );
+        } else {
+            return $relationship->whereJsonContains($field . '->' . $this->getLocale(), $value);
+        }
     }
 }
