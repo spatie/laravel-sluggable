@@ -97,7 +97,7 @@ trait HasTranslatableSlug
         $slugSeparator = $currentSlug[strlen($titleSlug)];
         $slugIdentifier = substr($currentSlug, strlen($titleSlug) + 1);
 
-        return  $slugSeparator === $this->slugOptions->slugSeparator && is_numeric($slugIdentifier);
+        return $slugSeparator === $this->slugOptions->slugSeparator && is_numeric($slugIdentifier);
     }
 
     protected function getOriginalSourceString(): string
