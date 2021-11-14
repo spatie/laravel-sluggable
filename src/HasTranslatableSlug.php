@@ -133,7 +133,7 @@ trait HasTranslatableSlug
         // Only some database types support json operations.
         // If the database doesn't support it, null is returned as default method would do the same
         try {
-            return $this->whereJsonContains($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
+            return $this->where($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
                 ->first();
         } catch (\RuntimeException $exception) {
             return null;
@@ -143,13 +143,13 @@ trait HasTranslatableSlug
     public function resolveSoftDeletableRouteBinding($value, $field = null): Model|null
     {
         if (($field ?? $this->getRouteKeyName()) !== $this->getSlugOptions()->slugField) {
-            return $this->where($field ?? $this->getRouteKeyName(), $value)->withTrashed()->first();
+            return parent::resolveSoftDeletableRouteBinding($value, $field);
         }
 
         // Only some database types support json operations.
         // If the database doesn't support it, null is returned as default method would do the same
         try {
-            return $this->whereJsonContains($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
+            return $this->where($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
                 ->withTrashed()->first();
         } catch (\RuntimeException $exception) {
             return null;
@@ -171,12 +171,12 @@ trait HasTranslatableSlug
         try {
             if ($relationship instanceof HasManyThrough ||
                 $relationship instanceof BelongsToMany) {
-                return $relationship->whereJsonContains(
+                return $relationship->where(
                     $relationship->getRelated()->getTable() . '.' . $field . '->' . $this->getLocale(),
                     $value
                 );
             } else {
-                return $relationship->whereJsonContains($field . '->' . $this->getLocale(), $value);
+                return $relationship->where($field . '->' . $this->getLocale(), $value);
             }
         } catch (\RuntimeException $exception) {
             return null;
