@@ -302,4 +302,56 @@ class HasTranslatableSlugTest extends TestCase
             $this->assertSame($expectedSlug, $model->getTranslation('slug', 'en'));
         }
     }
+
+
+    /** @test */
+    public function it_can_resolve_route_binding()
+    {
+        $model = new TranslatableModel();
+
+        $model->setTranslation('name', 'en', 'Test value EN');
+        $model->setTranslation('name', 'nl', 'Test value NL');
+        $model->setTranslation('slug', 'en', 'updated-value-en');
+        $model->setTranslation('slug', 'nl', 'updated-value-nl');
+        $model->save();
+
+        // Test for em locale
+        $result = (new TranslatableModel())->resolveRouteBinding('updated-value-en', 'slug');
+
+        $this->assertNotNull($result);
+        $this->assertEquals($model->id, $result->id);
+
+        // Test for nl locale
+        $this->app->setLocale('nl');
+
+        $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
+
+        $this->assertNotNull($result);
+        $this->assertEquals($model->id, $result->id);
+
+        // Test for fr locale - should fail
+        $this->app->setLocale('fr');
+        $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
+        $this->assertNull($result);
+    }
+
+    /** @test */
+    public function it_can_resolve_route_binding_even_when_soft_deletes_are_on()
+    {
+        foreach (range(1, 10) as $i) {
+            $model = new TranslatableModelSoftDeletes();
+            $model->setTranslation('name', 'en', 'Test value EN');
+            $model->setTranslation('slug', 'en', 'updated-value-en-' . $i);
+            $model->save();
+            $model->delete();
+
+            $result = (new TranslatableModelSoftDeletes())->resolveSoftDeletableRouteBinding(
+                'updated-value-en-' . $i,
+                'slug'
+            );
+
+            $this->assertNotNull($result);
+            $this->assertEquals($model->id, $result->id);
+        }
+    }
 }

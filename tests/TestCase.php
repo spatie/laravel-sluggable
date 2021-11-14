@@ -64,6 +64,15 @@ abstract class TestCase extends Orchestra
             $table->text('slug')->nullable();
         });
 
+        $app['db']->connection()->getSchemaBuilder()->create('translatable_model_soft_deletes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->text('name')->nullable();
+            $table->text('other_field')->nullable();
+            $table->text('non_translatable_field')->nullable();
+            $table->text('slug')->nullable();
+            $table->softDeletes();
+        });
+
         $app['db']->connection()->getSchemaBuilder()->create('scopeable_models', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name')->nullable();
