@@ -2,6 +2,7 @@
 
 namespace Spatie\Sluggable\Tests;
 
+use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\SlugOptions;
 
 class HasTranslatableSlugTest extends TestCase
@@ -353,5 +354,24 @@ class HasTranslatableSlugTest extends TestCase
             $this->assertNotNull($result);
             $this->assertEquals($model->id, $result->id);
         }
+    }
+    /** @test */
+    public function it_can_bind_route_model_implicit()
+    {
+        $model = new TranslatableModel();
+        $model->setTranslation('name', 'en', 'Test value EN');
+        $model->setTranslation('slug', 'en', 'updated-value-en');
+        $model->save();
+
+        Route::get(
+            '/translatable-model/{test:slug}',
+            function (TranslatableModel $test) use ($model) {
+                $this->assertNotNull($test);
+                $this->assertEquals($model->id, $test->id);
+            }
+        )->middleware('bindings');
+
+        $result = $this->get("/translatable-model/updated-value-en");
+        $this->assertEquals(200, $result->status());
     }
 }
