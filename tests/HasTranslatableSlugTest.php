@@ -316,7 +316,7 @@ class HasTranslatableSlugTest extends TestCase
         $model->setTranslation('slug', 'nl', 'updated-value-nl');
         $model->save();
 
-        // Test for em locale
+        // Test for en locale
         $result = (new TranslatableModel())->resolveRouteBinding('updated-value-en', 'slug');
 
         $this->assertNotNull($result);

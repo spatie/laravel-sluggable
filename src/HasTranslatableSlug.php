@@ -129,12 +129,11 @@ trait HasTranslatableSlug
         if (($field ?? $this->getRouteKeyName()) !== $this->getSlugOptions()->slugField) {
             return parent::resolveRouteBinding($value, $field);
         }
-
         // Only some database types support json operations.
         // If the database doesn't support it, null is returned as default method would do the same
         try {
-            return $this->where($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
-                ->first();
+            return $this
+                ->where("{$this->getSlugOptions()->slugField}->{$this->getLocale()}", $value)->first();
         } catch (\RuntimeException $exception) {
             return null;
         }
@@ -149,8 +148,8 @@ trait HasTranslatableSlug
         // Only some database types support json operations.
         // If the database doesn't support it, null is returned as default method would do the same
         try {
-            return $this->where($this->getSlugOptions()->slugField . '->' . $this->getLocale(), $value)
-                ->withTrashed()->first();
+            return $this
+                ->where("{$this->getSlugOptions()->slugField}->{$this->getLocale()}", $value)->withTrashed()->first();
         } catch (\RuntimeException $exception) {
             return null;
         }
@@ -171,12 +170,10 @@ trait HasTranslatableSlug
         try {
             if ($relationship instanceof HasManyThrough ||
                 $relationship instanceof BelongsToMany) {
-                return $relationship->where(
-                    $relationship->getRelated()->getTable() . '.' . $field . '->' . $this->getLocale(),
-                    $value
-                );
+                return $relationship
+                    ->where("{$relationship->getRelated()->getTable()}.{$field}->{$this->getLocale()}", $value);
             } else {
-                return $relationship->where($field . '->' . $this->getLocale(), $value);
+                return $relationship->where("{$field}->{$this->getLocale()}", $value);
             }
         } catch (\RuntimeException $exception) {
             return null;
