@@ -175,9 +175,9 @@ trait HasTranslatableSlug
                 $relationship instanceof BelongsToMany) {
                 return $relationship
                     ->where("{$relationship->getRelated()->getTable()}.{$field}->{$this->getLocale()}", $value);
-            } else {
-                return $relationship->where("{$field}->{$this->getLocale()}", $value);
             }
+
+            return $relationship->where("{$field}->{$this->getLocale()}", $value);
         } catch (RuntimeException $exception) {
             return null;
         }

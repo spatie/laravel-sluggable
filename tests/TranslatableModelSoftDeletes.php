@@ -19,9 +19,9 @@ class TranslatableModelSoftDeletes extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public $translatable = ['name', 'other_field', 'slug'];
+    protected $translatable = ['name', 'other_field', 'slug'];
 
-    private $customSlugOptions;
+    protected $customSlugOptions;
 
     public function useSlugOptions($slugOptions)
     {
