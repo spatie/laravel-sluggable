@@ -338,7 +338,11 @@ class YourEloquentModel extends Model
             ->saveSlugsTo('slug');
     }
 }
+
 ```
+
+#### Implicit route model binding
+
 You can also use Laravels [implicit route model binding](https://laravel.com/docs/8.x/routing#implicit-binding) inside your controller to automatically resolve the model. To use this feature, make sure that the slug column matches the `routeNameKey`.  
 Currently, only some database types support JSON opterations. Further information about which databases support JSON can be found in the [Laravel docs](https://laravel.com/docs/8.x/queries#json-where-clauses).
 
