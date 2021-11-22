@@ -128,6 +128,7 @@ trait HasTranslatableSlug
     public function resolveRouteBinding($value, $field = null): Model|null
     {
         $field = $field ?? $this->getRouteKeyName();
+        
         if ($field !== $this->getSlugOptions()->slugField) {
             return parent::resolveRouteBinding($value, $field);
         }
@@ -135,7 +136,8 @@ trait HasTranslatableSlug
         // If the database doesn't support it, null is returned as default method would do the same
         try {
             return $this
-                ->where("{$this->getSlugOptions()->slugField}->{$this->getLocale()}", $value)->first();
+                ->where("{$this->getSlugOptions()->slugField}->{$this->getLocale()}", $value)
+                ->first();
         } catch (RuntimeException $exception) {
             return null;
         }
@@ -144,6 +146,7 @@ trait HasTranslatableSlug
     public function resolveSoftDeletableRouteBinding($value, $field = null): Model|null
     {
         $field = $field ?? $this->getRouteKeyName();
+        
         if ($field !== $this->getSlugOptions()->slugField) {
             return parent::resolveSoftDeletableRouteBinding($value, $field);
         }
@@ -152,7 +155,8 @@ trait HasTranslatableSlug
         // If the database doesn't support it, null is returned as default method would do the same
         try {
             return $this
-                ->where("{$this->getSlugOptions()->slugField}->{$this->getLocale()}", $value)->withTrashed()->first();
+                ->where("{$this->getSlugOptions()->slugField}->{$this->getLocale()}", $value)->withTrashed()
+                ->first();
         } catch (RuntimeException $exception) {
             return null;
         }
