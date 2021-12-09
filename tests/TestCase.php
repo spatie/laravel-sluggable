@@ -5,7 +5,6 @@ namespace Spatie\Sluggable\Tests;
 use File;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -28,8 +27,8 @@ abstract class TestCase extends Orchestra
     {
         $this->initializeDirectory($this->getTempDirectory());
 
-        Config::set('database.default', 'sqlite');
-        Config::set('database.connections.sqlite', [
+        config()->set('database.default', 'sqlite');
+        config()->set('database.connections.sqlite', [
             'driver' => 'sqlite',
             'database' => $this->getTempDirectory() . '/database.sqlite',
             'prefix' => '',
@@ -64,6 +63,7 @@ abstract class TestCase extends Orchestra
             $table->text('other_field')->nullable();
             $table->text('non_translatable_field')->nullable();
             $table->text('slug')->nullable();
+            $table->foreignId('test_model_id')->nullable()->index();
         });
 
         Schema::create('translatable_model_soft_deletes', function (Blueprint $table) {

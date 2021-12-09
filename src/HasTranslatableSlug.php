@@ -2,13 +2,12 @@
 
 namespace Spatie\Sluggable;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Localizable;
-use RuntimeException;
 
 trait HasTranslatableSlug
 {
@@ -125,65 +124,36 @@ trait HasTranslatableSlug
         return $originalSlug !== $newSlug;
     }
 
+    public function resolveRouteBindingQuery($query, $value, $field = null): Builder|Relation
+    {
+        $field = $field ?? $this->getRouteKeyName();
+
+        if ($field !== $this->getSlugOptions()->slugField) {
+            return parent::resolveRouteBindingQuery($query, $value, $field);
+        }
+
+        return $query->where("{$field}->{$this->getLocale()}", $value);
+    }
+
     public function resolveRouteBinding($value, $field = null): Model|null
     {
         $field = $field ?? $this->getRouteKeyName();
-        
+
         if ($field !== $this->getSlugOptions()->slugField) {
             return parent::resolveRouteBinding($value, $field);
         }
-        // Only some database types support json operations.
-        // If the database doesn't support it, null is returned as default method would do the same
-        try {
-            return $this
-                ->where("{$this->getSlugOptions()->slugField}->{$this->getLocale()}", $value)
-                ->first();
-        } catch (RuntimeException $exception) {
-            return null;
-        }
+
+        return $this->resolveRouteBindingQuery($this, $value, $field)->first();
     }
 
     public function resolveSoftDeletableRouteBinding($value, $field = null): Model|null
     {
         $field = $field ?? $this->getRouteKeyName();
-        
+
         if ($field !== $this->getSlugOptions()->slugField) {
             return parent::resolveSoftDeletableRouteBinding($value, $field);
         }
 
-        // Only some database types support json operations.
-        // If the database doesn't support it, null is returned as default method would do the same
-        try {
-            return $this
-                ->where("{$this->getSlugOptions()->slugField}->{$this->getLocale()}", $value)->withTrashed()
-                ->first();
-        } catch (RuntimeException $exception) {
-            return null;
-        }
-    }
-
-    public function resolveChildRouteBindingQuery($childType, $value, $field): Model|null
-    {
-        $relationship = $this->{Str::plural(Str::camel($childType))}();
-
-        $field = $field ?: $relationship->getRelated()->getRouteKeyName();
-
-        if ($field !== $this->getSlugOptions()->slugField) {
-            return parent::resolveChildRouteBindingQuery($childType, $value, $field);
-        }
-
-        // Only some database types support json operations.
-        // If the database doesn't support it, null is returned as default method would do the same
-        try {
-            if ($relationship instanceof HasManyThrough ||
-                $relationship instanceof BelongsToMany) {
-                return $relationship
-                    ->where("{$relationship->getRelated()->getTable()}.{$field}->{$this->getLocale()}", $value);
-            }
-
-            return $relationship->where("{$field}->{$this->getLocale()}", $value);
-        } catch (RuntimeException $exception) {
-            return null;
-        }
+        return $this->resolveRouteBindingQuery($this, $value, $field)->withTrashed()->first();
     }
 }

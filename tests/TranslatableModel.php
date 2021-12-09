@@ -3,6 +3,7 @@
 namespace Spatie\Sluggable\Tests;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Sluggable\HasTranslatableSlug;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Translatable\HasTranslations;
@@ -31,5 +32,10 @@ class TranslatableModel extends Model
         return $this->customSlugOptions ?: SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
+    }
+
+    public function testModel(): BelongsTo
+    {
+        return $this->belongsTo(TestModel::class);
     }
 }

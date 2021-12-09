@@ -304,7 +304,6 @@ class HasTranslatableSlugTest extends TestCase
         }
     }
 
-
     /** @test */
     public function it_can_resolve_route_binding()
     {
@@ -372,6 +371,38 @@ class HasTranslatableSlugTest extends TestCase
         )->middleware('bindings');
 
         $result = $this->get("/translatable-model/updated-value-en");
+        $this->assertEquals(200, $result->status());
+    }
+
+    /** @test */
+    public function it_can_bind_child_route_model_implicit()
+    {
+        if (version_compare("8.75.0", app()->version()) === 1) {
+            $this->markTestSkipped("Implicit child model resolution not supported with framework version <= 08.75.0");
+        }
+
+        $model = new TranslatableModel();
+        $model->setTranslation('name', 'en', 'Test value EN');
+        $model->setTranslation('slug', 'en', 'updated-value-en');
+        $model->test_model_id = 1;
+        $model->save();
+
+        $parent = new TestModel();
+        $parent->name = 'parent';
+        $parent->save();
+
+        Route::get(
+            '/test-model/{test_model:url}/translatable-model/{translatable_model:slug}',
+            function (TestModel $testModel, TranslatableModel $translatableModel) use ($parent, $model) {
+                $this->assertNotNull($parent);
+                $this->assertNotNull($translatableModel);
+                $this->assertEquals($parent->id, $testModel->id);
+                $this->assertEquals($model->id, $translatableModel->id);
+            }
+        )->middleware('bindings');
+
+        $result = $this->get("/test-model/parent/translatable-model/updated-value-en");
+
         $this->assertEquals(200, $result->status());
     }
 }
