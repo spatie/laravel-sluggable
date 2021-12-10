@@ -370,8 +370,9 @@ class HasTranslatableSlugTest extends TestCase
             }
         )->middleware('bindings');
 
-        $result = $this->get("/translatable-model/updated-value-en");
-        $this->assertEquals(200, $result->status());
+        $response = $this->get("/translatable-model/updated-value-en");
+
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -401,8 +402,8 @@ class HasTranslatableSlugTest extends TestCase
             }
         )->middleware('bindings');
 
-        $result = $this->get("/test-model/parent/translatable-model/updated-value-en");
+        $response = $this->get("/test-model/parent/translatable-model/updated-value-en");
 
-        $this->assertEquals(200, $result->status());
+        $response->assertStatus(200);
     }
 }
