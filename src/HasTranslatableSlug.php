@@ -3,7 +3,6 @@
 namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -133,27 +132,5 @@ trait HasTranslatableSlug
         }
 
         return $query->where("{$field}->{$this->getLocale()}", $value);
-    }
-
-    public function resolveRouteBinding($value, $field = null): Model|null
-    {
-        $field = $field ?? $this->getRouteKeyName();
-
-        if ($field !== $this->getSlugOptions()->slugField) {
-            return parent::resolveRouteBinding($value, $field);
-        }
-
-        return $this->resolveRouteBindingQuery($this, $value, $field)->first();
-    }
-
-    public function resolveSoftDeletableRouteBinding($value, $field = null): Model|null
-    {
-        $field = $field ?? $this->getRouteKeyName();
-
-        if ($field !== $this->getSlugOptions()->slugField) {
-            return parent::resolveSoftDeletableRouteBinding($value, $field);
-        }
-
-        return $this->resolveRouteBindingQuery($this, $value, $field)->withTrashed()->first();
     }
 }

@@ -378,10 +378,6 @@ class HasTranslatableSlugTest extends TestCase
     /** @test */
     public function it_can_bind_child_route_model_implicit()
     {
-        if (version_compare("8.75.0", app()->version()) === 1) {
-            $this->markTestSkipped("Implicit child model resolution not supported with framework version <= 08.75.0");
-        }
-
         $model = new TranslatableModel();
         $model->setTranslation('name', 'en', 'Test value EN');
         $model->setTranslation('slug', 'en', 'updated-value-en');
