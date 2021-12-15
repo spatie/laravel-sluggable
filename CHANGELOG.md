@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.2.0 - 2021-12-15
+
+## What's Changed
+
+- Adds support for implicit route model binding with translated slugs by @marvin-wtt in https://github.com/spatie/laravel-sluggable/pull/213
+
+## New Contributors
+
+- @marvin-wtt made their first contribution in https://github.com/spatie/laravel-sluggable/pull/213
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.1.1...3.2.0
+
 ## 3.1.1 - 2021-12-13
 
 ## What's Changed
