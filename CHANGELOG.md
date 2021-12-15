@@ -2,6 +2,22 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.1.1 - 2021-12-13
+
+## What's Changed
+
+- Migrate to PHP-CS-Fixer 3.x by @shuvroroy in https://github.com/spatie/laravel-sluggable/pull/203
+- Adds test case for replicate method by @eduarguz in https://github.com/spatie/laravel-sluggable/pull/212
+- Fix Deprecation: currentSlug is null by @phh in https://github.com/spatie/laravel-sluggable/pull/218
+
+## New Contributors
+
+- @shuvroroy made their first contribution in https://github.com/spatie/laravel-sluggable/pull/203
+- @eduarguz made their first contribution in https://github.com/spatie/laravel-sluggable/pull/212
+- @phh made their first contribution in https://github.com/spatie/laravel-sluggable/pull/218
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.1.0...3.1.1
+
 ## 3.1.0 - 2021-06-04
 
 - add extra scope callback option (#201)
@@ -63,9 +79,11 @@ All notable changes to `laravel-sluggable` will be documented in this file
 - drop support for anything below PHP 7.4 and Laravel 6
 
 ## 2.2.1 - 2019-09-16
+
 - Changed: Updated Laravel 6 compatibility for future versions
 
 ## 2.2.0 - 2019-09-04
+
 - Drop support for PHP 7.1
 - Add support for Laravel 6.0
 
@@ -98,36 +116,47 @@ All notable changes to `laravel-sluggable` will be documented in this file
 - Support Laravel 5.6
 
 ## 2.1.1 - 2017-01-28
+
 - improve compatibility with Lumen
 
 ## 2.1.0 - 2017-09-13
+
 - add `usingLanguage`
 
 ## 2.0.0 - 2017-08-31
+
 - add support for Laravel 5.5, drop support for all older versions of the framework
 
 ## 1.5.2 - 2018-05-08
+
 - make compatible with PHP 7.2
 
 ## 1.5.1 - 2017-08-19
+
 - fix bugs when using a custom separator
 
 ## 1.5.0 - 2017-04-13
+
 - add `usingSeparator()`
 
 ## 1.4.1 - 2017-04-11
-- ignore global scopes when determining a unique slug 
+
+- ignore global scopes when determining a unique slug
 
 ## 1.4.0 - 2017-01-24
+
 - add support for Laravel 5.4
 
 ## 1.3.0 - 2016-11-14
+
 - add `doNotGenerateSlugsOnCreate` and `doNotGenerateSlugsOnUpdate`
 
 ## 1.2.0 - 2016-06-13
+
 - Added the ability to generate slugs from a callable
 
 ## 1.1.0 - 2016-01-24
+
 - Allow custom slugs
 
 ## 1.0.2 - 2016-01-12

@@ -21,7 +21,7 @@
         "illuminate/support": "^8.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^5.16|^6.11",
+        "orchestra/testbench": "^6.23",
         "spatie/laravel-translatable": "^4.6",
         "friendsofphp/php-cs-fixer": "^2.18",
         "phpunit/phpunit": "^9.5.1"
