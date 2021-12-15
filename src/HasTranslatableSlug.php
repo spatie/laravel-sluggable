@@ -2,6 +2,8 @@
 
 namespace Spatie\Sluggable;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Localizable;
@@ -94,7 +96,7 @@ trait HasTranslatableSlug
         $slugSeparator = $currentSlug[strlen($titleSlug)];
         $slugIdentifier = substr($currentSlug, strlen($titleSlug) + 1);
 
-        return  $slugSeparator === $this->slugOptions->slugSeparator && is_numeric($slugIdentifier);
+        return $slugSeparator === $this->slugOptions->slugSeparator && is_numeric($slugIdentifier);
     }
 
     protected function getOriginalSourceString(): string
@@ -119,5 +121,16 @@ trait HasTranslatableSlug
         $newSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
 
         return $originalSlug !== $newSlug;
+    }
+
+    public function resolveRouteBindingQuery($query, $value, $field = null): Builder|Relation
+    {
+        $field = $field ?? $this->getRouteKeyName();
+
+        if ($field !== $this->getSlugOptions()->slugField) {
+            return parent::resolveRouteBindingQuery($query, $value, $field);
+        }
+
+        return $query->where("{$field}->{$this->getLocale()}", $value);
     }
 }
