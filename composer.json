@@ -23,7 +23,6 @@
     "require-dev": {
         "orchestra/testbench": "^6.23|^7.0",
         "spatie/laravel-translatable": "^5.0",
-        "friendsofphp/php-cs-fixer": "^2.18",
         "phpunit/phpunit": "^9.5.1"
     },
     "autoload": {
