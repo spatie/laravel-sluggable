@@ -2,6 +2,7 @@
 
 namespace Spatie\Sluggable\Tests;
 
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\SlugOptions;
 
@@ -368,7 +369,7 @@ class HasTranslatableSlugTest extends TestCase
                 $this->assertNotNull($test);
                 $this->assertEquals($model->id, $test->id);
             }
-        )->middleware('bindings');
+        )->middleware(SubstituteBindings::class);
 
         $response = $this->get("/translatable-model/updated-value-en");
 
@@ -396,7 +397,7 @@ class HasTranslatableSlugTest extends TestCase
                 $this->assertEquals($parent->id, $testModel->id);
                 $this->assertEquals($model->id, $translatableModel->id);
             }
-        )->middleware('bindings');
+        )->middleware(SubstituteBindings::class);
 
         $response = $this->get("/test-model/parent/translatable-model/updated-value-en");
 
