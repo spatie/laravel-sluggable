@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.3.0 - 2022-01-13
+
+- support Laravel 9
+
 ## 3.2.0 - 2021-12-15
 
 ## What's Changed
