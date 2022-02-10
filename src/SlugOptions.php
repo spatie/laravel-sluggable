@@ -28,6 +28,8 @@ class SlugOptions
 
     public array $translatableLocales = [];
 
+    public bool $arabicable = false;
+
     public static function create(): static
     {
         return new static();
@@ -112,6 +114,13 @@ class SlugOptions
     public function extraScope(callable $callbackMethod): self
     {
         $this->extraScopeCallback = $callbackMethod;
+
+        return $this;
+    }
+    
+    public function arabicable(): self
+    {
+        $this->arabicable = true;
 
         return $this;
     }

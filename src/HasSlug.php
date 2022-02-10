@@ -87,6 +87,10 @@ trait HasSlug
             return $this->$slugField;
         }
 
+        if ($this->slugOptions->arabicable) {
+            return $this->arabicSlug($this->getSlugSourceString(),$this->slugOptions->slugSeparator);
+        }
+
         return Str::slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
     }
 
@@ -180,5 +184,23 @@ trait HasSlug
         }
 
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
+    }
+
+    protected function arabicSlug($string,$separator = '-') {
+        if (is_null($string)) {
+            return "";
+        }
+    
+        $string = trim($string);
+    
+        $string = mb_strtolower($string, "UTF-8");;
+    
+        $string = preg_replace("/[^a-z0-9_\sءاأإآؤئبتثجحخدذرزسشصضطظعغفقكلمنهويةى]#u/", "", $string);
+    
+        $string = preg_replace("/[\s-]+/", " ", $string);
+    
+        $string = preg_replace("/[\s_]/", $separator, $string);
+    
+        return $string;
     }
 }

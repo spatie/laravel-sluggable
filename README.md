@@ -199,6 +199,35 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+### Using slugs in Arabic language
+
+Because Laravels `Str::slug` method does not support Arabic letters, So You can override
+the generated slug from `Str::slug` by calling `arabicable` to generate slugs in Arabic !
+
+```php
+namespace App;
+
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Model;
+
+class YourEloquentModel extends Model
+{
+    use HasSlug;
+
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->arabicable();
+    }
+}
+```
+
 ### Overriding slugs
 
 You can also override the generated slug just by setting it to another value than the generated slug.
