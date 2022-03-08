@@ -1,356 +1,293 @@
 <?php
 
-namespace Spatie\Sluggable\Tests;
-
 use Illuminate\Support\Str;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Sluggable\Tests\TestSupport\TestModel;
+use Spatie\Sluggable\Tests\TestSupport\TestModelSoftDeletes;
 
-class HasSlugTest extends TestCase
-{
-    /** @test */
-    public function it_will_save_a_slug_when_saving_a_model()
-    {
+it('will save a slug when saving a model', function () {
+    $model = TestModel::create(['name' => 'this is a test']);
+
+    expect($model->url)->toEqual('this-is-a-test');
+});
+
+it('can handle null values when creating slugs', function () {
+    $model = TestModel::create(['name' => null]);
+
+    expect($model->url)->toEqual('-1');
+});
+
+it('will not change the slug when the source field is not changed', function () {
+    $model = TestModel::create(['name' => 'this is a test']);
+
+    $model->other_field = 'otherValue';
+    $model->save();
+
+    expect($model->url)->toEqual('this-is-a-test');
+});
+
+it('will use the source field if the slug field is empty', function () {
+    $model = TestModel::create(['name' => 'this is a test']);
+
+    $model->url = null;
+    $model->save();
+
+    expect($model->url)->toEqual('this-is-a-test');
+});
+
+it('will update the slug when the source field is changed', function () {
+    $model = TestModel::create(['name' => 'this is a test']);
+
+    $model->name = 'this is another test';
+    $model->save();
+
+    expect($model->url)->toEqual('this-is-another-test');
+});
+
+it('will save a unique slug by default', function () {
+    TestModel::create(['name' => 'this is a test']);
+
+    foreach (range(1, 10) as $i) {
         $model = TestModel::create(['name' => 'this is a test']);
 
-        $this->assertEquals('this-is-a-test', $model->url);
+        expect($model->url)->toEqual("this-is-a-test-{$i}");
     }
+});
 
-    /** @test */
-    public function it_can_handle_null_values_when_creating_slugs()
-    {
-        $model = TestModel::create(['name' => null]);
-
-        $this->assertEquals('-1', $model->url);
-    }
-
-    /** @test */
-    public function it_will_not_change_the_slug_when_the_source_field_is_not_changed()
-    {
-        $model = TestModel::create(['name' => 'this is a test']);
-
-        $model->other_field = 'otherValue';
-        $model->save();
-
-        $this->assertEquals('this-is-a-test', $model->url);
-    }
-
-    /** @test */
-    public function it_will_use_the_source_field_if_the_slug_field_is_empty()
-    {
-        $model = TestModel::create(['name' => 'this is a test']);
-
-        $model->url = null;
-        $model->save();
-
-        $this->assertEquals('this-is-a-test', $model->url);
-    }
-
-    /** @test */
-    public function it_will_update_the_slug_when_the_source_field_is_changed()
-    {
-        $model = TestModel::create(['name' => 'this is a test']);
-
-        $model->name = 'this is another test';
-        $model->save();
-
-        $this->assertEquals('this-is-another-test', $model->url);
-    }
-
-    /** @test */
-    public function it_will_save_a_unique_slug_by_default()
-    {
-        TestModel::create(['name' => 'this is a test']);
-
-        foreach (range(1, 10) as $i) {
-            $model = TestModel::create(['name' => 'this is a test']);
-            $this->assertEquals("this-is-a-test-{$i}", $model->url);
+it('can generate slugs from multiple source fields', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
         }
-    }
+    };
 
-    /** @test */
-    public function it_can_handle_empty_source_fields()
-    {
-        foreach (range(1, 10) as $i) {
-            $model = TestModel::create(['name' => '']);
-            $this->assertEquals("-{$i}", $model->url);
+    $model->name = 'this is a test';
+    $model->other_field = 'this is another field';
+    $model->save();
+
+    expect($model->url)->toEqual('this-is-a-test-this-is-another-field');
+});
+
+it('can generate slugs from a callable', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
+                return 'foo-' . Str::slug($model->name);
+            });
         }
-    }
+    };
 
-    /** @test */
-    public function it_can_generate_slugs_from_multiple_source_fields()
-    {
-        $model = new class () extends TestModel {
+    $model->name = 'this is a test';
+    $model->save();
+
+    expect($model->url)->toEqual('foo-this-is-a-test');
+});
+
+it('can generate duplicate slugs', function () {
+    foreach (range(1, 10) as $ignored) {
+        $model = new class() extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
-                return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
-            }
-        };
-
-        $model->name = 'this is a test';
-        $model->other_field = 'this is another field';
-        $model->save();
-
-        $this->assertEquals('this-is-a-test-this-is-another-field', $model->url);
-    }
-
-    /** @test */
-    public function it_can_generate_slugs_from_a_callable()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
-                    return 'foo-'.Str::slug($model->name);
-                });
+                return parent::getSlugOptions()->allowDuplicateSlugs();
             }
         };
 
         $model->name = 'this is a test';
         $model->save();
 
-        $this->assertEquals('foo-this-is-a-test', $model->url);
+        expect($model->url)->toEqual('this-is-a-test');
     }
+});
 
-    /** @test */
-    public function it_can_generate_duplicate_slugs()
-    {
-        foreach (range(1, 10) as $i) {
-            $model = new class () extends TestModel {
-                public function getSlugOptions(): SlugOptions
-                {
-                    return parent::getSlugOptions()->allowDuplicateSlugs();
-                }
-            };
-
-            $model->name = 'this is a test';
-            $model->save();
-
-            $this->assertEquals('this-is-a-test', $model->url);
+it('can generate slugs with a maximum length', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
         }
-    }
+    };
 
-    /** @test */
-    public function it_can_generate_slugs_with_a_maximum_length()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
-            }
-        };
+    $model->name = '123456789';
+    $model->save();
 
-        $model->name = '123456789';
-        $model->save();
+    expect($model->url)->toEqual('12345');
+});
 
-        $this->assertEquals('12345', $model->url);
-    }
+it('can handle weird characters when generating the slug', function (string $weirdCharacter, string $normalCharacter) {
+    $model = TestModel::create(['name' => $weirdCharacter]);
 
-    /**
-     * @test
-     * @dataProvider weirdCharacterProvider
-     */
-    public function it_can_handle_weird_characters_when_generating_the_slug(string $weirdCharacter, string $normalCharacter)
-    {
-        $model = TestModel::create(['name' => $weirdCharacter]);
+    expect($model->url)->toEqual($normalCharacter);
+})->with([
+    ['é', 'e'],
+    ['è', 'e'],
+    ['à', 'a'],
+    ['a€', 'aeur'],
+    ['ß', 'ss'],
+    ['a/ ', 'a'],
+]);
 
-        $this->assertEquals($normalCharacter, $model->url);
-    }
 
-    public function weirdCharacterProvider()
-    {
-        return [
-            ['é', 'e'],
-            ['è', 'e'],
-            ['à', 'a'],
-            ['a€', 'aeur'],
-            ['ß', 'ss'],
-            ['a/ ', 'a'],
-        ];
-    }
+it('can handle multibytes characters cutting when generating the slug', function () {
+    $model = TestModel::create(['name' => 'là']);
+    $model->setSlugOptions($model->getSlugOptions()->slugsShouldBeNoLongerThan(2));
+    $model->generateSlug();
 
-    /**
-     * @test
-     */
-    public function it_can_handle_multibytes_characters_cutting_when_generating_the_slug()
-    {
-        $model = TestModel::create(['name' => 'là']);
-        $model->setSlugOptions($model->getSlugOptions()->slugsShouldBeNoLongerThan(2));
-        $model->generateSlug();
+    expect($model->url)->toEqual('la');
+});
 
-        $this->assertEquals('la', $model->url);
-    }
+it('can handle overwrites when updating a model', function () {
+    $model = TestModel::create(['name' => 'this is a test']);
 
-    /** @test */
-    public function it_can_handle_overwrites_when_updating_a_model()
-    {
-        $model = TestModel::create(['name' => 'this is a test']);
+    $model->url = 'this-is-an-url';
+    $model->save();
 
-        $model->url = 'this-is-an-url';
-        $model->save();
+    expect($model->url)->toEqual('this-is-an-url');
+});
 
-        $this->assertEquals('this-is-an-url', $model->url);
-    }
+it('can handle duplicates when overwriting a slug', function () {
+    $model = TestModel::create(['name' => 'this is a test']);
+    $otherModel = TestModel::create(['name' => 'this is an other']);
 
-    /** @test */
-    public function it_can_handle_duplicates_when_overwriting_a_slug()
-    {
-        $model = TestModel::create(['name' => 'this is a test']);
-        $otherModel = TestModel::create(['name' => 'this is an other']);
+    $model->url = 'this-is-an-other';
+    $model->save();
 
-        $model->url = 'this-is-an-other';
-        $model->save();
+    expect($model->url)->toEqual('this-is-an-other-1');
+});
 
-        $this->assertEquals('this-is-an-other-1', $model->url);
-    }
 
-    /** @test */
-    public function it_has_an_method_that_prevents_a_slug_being_generated_on_creation()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->doNotGenerateSlugsOnCreate();
-            }
-        };
-
-        $model->name = 'this is a test';
-        $model->save();
-
-        $this->assertEquals(null, $model->url);
-    }
-
-    /** @test */
-    public function it_has_an_method_that_prevents_a_slug_being_generated_on_update()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
-            }
-        };
-
-        $model->name = 'this is a test';
-        $model->save();
-
-        $model->name = 'this is another test';
-        $model->save();
-
-        $this->assertEquals('this-is-a-test', $model->url);
-    }
-
-    /** @test */
-    public function it_has_an_method_that_prevents_a_slug_beign_generated_if_already_present()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->preventOverwrite();
-            }
-        };
-
-        $model->name = 'this is a test';
-        $model->url = 'already-generated-slug';
-        $model->save();
-
-        $this->assertEquals('already-generated-slug', $model->url);
-    }
-
-    /** @test */
-    public function it_will_use_separator_option_for_slug_generation()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->usingSeparator('_');
-            }
-        };
-
-        $model->name = 'this is a separator test';
-        $model->save();
-
-        $this->assertEquals('this_is_a_separator_test', $model->url);
-    }
-
-    /** @test */
-    public function it_will_use_language_option_for_slug_generation()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->usingLanguage('nl');
-            }
-        };
-
-        $this->assertEquals('nl', $model->getSlugOptions()->slugLanguage);
-    }
-
-    /** @test */
-    public function it_can_generate_language_specific_slugs()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->usingLanguage('en');
-            }
-        };
-
-        $model->name = 'Güte nacht';
-        $model->save();
-        $this->assertEquals('gute-nacht', $model->url);
-
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->usingLanguage('de');
-            }
-        };
-
-        $model->name = 'Güte nacht';
-        $model->save();
-        $this->assertEquals('guete-nacht', $model->url);
-    }
-
-    /** @test */
-    public function it_will_save_a_unique_slug_by_default_even_when_soft_deletes_are_on()
-    {
-        TestModelSoftDeletes::create(['name' => 'this is a test', 'deleted_at' => date('Y-m-d h:i:s')]);
-
-        foreach (range(1, 10) as $i) {
-            $model = TestModelSoftDeletes::create(['name' => 'this is a test']);
-            $this->assertEquals("this-is-a-test-{$i}", $model->url);
+it('has an method that prevents a slug being generated on creation', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->doNotGenerateSlugsOnCreate();
         }
+    };
+
+    $model->name = 'this is a test';
+    $model->save();
+
+    expect($model->url)->toBeNull();
+});
+
+it('has an method that prevents a slug being generated on update', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
+        }
+    };
+
+    $model->name = 'this is a test';
+    $model->save();
+
+    $model->name = 'this is another test';
+    $model->save();
+
+    expect($model->url)->toEqual('this-is-a-test');
+});
+
+it('has an method that prevents a slug beign generated if already present', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->preventOverwrite();
+        }
+    };
+
+    $model->name = 'this is a test';
+    $model->url = 'already-generated-slug';
+    $model->save();
+
+    expect($model->url)->toEqual('already-generated-slug');
+});
+
+it('will use separator option for slug generation', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->usingSeparator('_');
+        }
+    };
+
+    $model->name = 'this is a separator test';
+    $model->save();
+
+    expect($model->url)->toEqual('this_is_a_separator_test');
+});
+
+it('will use language option for slug generation', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->usingLanguage('nl');
+        }
+    };
+
+    expect($model->getSlugOptions()->slugLanguage)->toEqual('nl');
+});
+
+it('can generate language specific slugs', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->usingLanguage('en');
+        }
+    };
+
+    $model->name = 'Güte nacht';
+    $model->save();
+
+    expect($model->url)->toEqual('gute-nacht');
+
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->usingLanguage('de');
+        }
+    };
+
+    $model->name = 'Güte nacht';
+    $model->save();
+
+    expect($model->url)->toEqual('guete-nacht');
+});
+
+it('will save a unique slug by default even when soft deletes are on', function () {
+    TestModelSoftDeletes::create(['name' => 'this is a test', 'deleted_at' => date('Y-m-d h:i:s')]);
+
+    foreach (range(1, 10) as $i) {
+        $model = TestModelSoftDeletes::create(['name' => 'this is a test']);
+
+        expect($model->url)->toEqual("this-is-a-test-{$i}");
     }
+});
 
-    /** @test */
-    public function it_will_save_a_unique_slug_by_default_when_replicating_a_model()
-    {
-        $model = TestModel::create(['name' => 'this is a test']);
+it('will save a unique slug by default when replicating a model', function () {
+    $model = TestModel::create(['name' => 'this is a test']);
 
-        $replica = $model->replicate();
-        $replica->save();
+    $replica = $model->replicate();
+    $replica->save();
 
-        $this->assertEquals('this-is-a-test', $model->url);
-        $this->assertEquals('this-is-a-test-1', $replica->url);
-    }
+    expect($model->url)->toEqual('this-is-a-test');
+    expect($replica->url)->toEqual('this-is-a-test-1');
+});
 
+it('will save a unique slug when replicating a model that does not generates slugs on update', function () {
+    $model = new class() extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
+        }
+    };
 
-    /** @test */
-    public function it_will_save_a_unique_slug_when_replicating_a_model_that_does_not_generates_slugs_on_update()
-    {
-        $model = new class () extends TestModel {
-            public function getSlugOptions(): SlugOptions
-            {
-                return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
-            }
-        };
+    $model->name = 'this is a test';
+    $model->save();
 
-        $model->name = 'this is a test';
-        $model->save();
+    $replica = $model->replicate();
+    $replica->save();
 
-        $replica = $model->replicate();
-        $replica->save();
-
-        $this->assertEquals('this-is-a-test', $model->url);
-        $this->assertEquals('this-is-a-test-1', $replica->url);
-    }
-}
+    expect($model->url)->toEqual('this-is-a-test');
+    expect($replica->url)->toEqual('this-is-a-test-1');
+});

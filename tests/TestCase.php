@@ -5,14 +5,13 @@ namespace Spatie\Sluggable\Tests;
 use File;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
-    /** @var \Spatie\Sluggable\Tests\TestModel */
-    protected $testModel;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -26,8 +25,8 @@ abstract class TestCase extends Orchestra
     {
         $this->initializeDirectory($this->getTempDirectory());
 
-        $app['config']->set('database.default', 'sqlite');
-        $app['config']->set('database.connections.sqlite', [
+        config()->set('database.default', 'sqlite');
+        config()->set('database.connections.sqlite', [
             'driver' => 'sqlite',
             'database' => $this->getTempDirectory().'/database.sqlite',
             'prefix' => '',
@@ -35,20 +34,20 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * @param  $app
+     * @param Application $app
      */
     protected function setUpDatabase(Application $app)
     {
         file_put_contents($this->getTempDirectory().'/database.sqlite', null);
 
-        $app['db']->connection()->getSchemaBuilder()->create('test_models', function (Blueprint $table) {
+        Schema::create('test_models', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
             $table->string('other_field')->nullable();
             $table->string('url')->nullable();
         });
 
-        $app['db']->connection()->getSchemaBuilder()->create('test_model_soft_deletes', function (Blueprint $table) {
+        Schema::create('test_model_soft_deletes', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
             $table->string('other_field')->nullable();
@@ -56,7 +55,7 @@ abstract class TestCase extends Orchestra
             $table->softDeletes();
         });
 
-        $app['db']->connection()->getSchemaBuilder()->create('translatable_models', function (Blueprint $table) {
+        Schema::create('translatable_models', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name')->nullable();
             $table->text('other_field')->nullable();
@@ -64,7 +63,7 @@ abstract class TestCase extends Orchestra
             $table->text('slug')->nullable();
         });
 
-        $app['db']->connection()->getSchemaBuilder()->create('scopeable_models', function (Blueprint $table) {
+        Schema::create('scopeable_models', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name')->nullable();
             $table->text('slug')->nullable();
@@ -80,7 +79,7 @@ abstract class TestCase extends Orchestra
         File::makeDirectory($directory);
     }
 
-    public function getTempDirectory(): string
+    protected function getTempDirectory(): string
     {
         return __DIR__.'/temp';
     }

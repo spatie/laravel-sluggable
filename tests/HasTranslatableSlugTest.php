@@ -3,303 +3,264 @@
 namespace Spatie\Sluggable\Tests;
 
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
 
-class HasTranslatableSlugTest extends TestCase
-{
-    /** @var \Spatie\Translatable\Test\TranslatableModel */
-    protected $testModel;
+beforeEach(function () {
+    $this->testModel = new TranslatableModel();
+});
 
-    public function setUp(): void
-    {
-        parent::setUp();
+it('generates a slug for each translation', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
 
-        $this->testModel = new TranslatableModel();
+    expect($this->testModel->slug)->toBe('test-value-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('test-value-nl');
+});
+
+it('can update one of the translations', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
+
+    $this->testModel->setTranslation('name', 'en', 'Updated value EN');
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('updated-value-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('test-value-nl');
+});
+
+it('can update all translations', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
+
+    $this->testModel->setTranslation('name', 'en', 'Updated value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Updated value NL');
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('updated-value-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+});
+
+it('can make the slug unique for each language', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
+
+    $secondTestModel = TranslatableModel::create([
+        'name' => [
+            'en' => 'Test value EN',
+            'nl' => 'Test value NL',
+        ],
+    ]);
+
+    expect($secondTestModel->slug)->toBe('test-value-en-1');
+    expect($secondTestModel->getTranslation('slug', 'nl'))->toBe('test-value-nl-1');
+});
+
+it('can generate a slug based on multiple fields', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::create()
+            ->generateSlugsFrom(['name', 'other_field'])
+            ->saveSlugsTo('slug')
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'Name EN');
+    $this->testModel->setTranslation('name', 'nl', 'Name NL');
+    $this->testModel->setTranslation('other_field', 'en', 'Other EN');
+    $this->testModel->setTranslation('other_field', 'nl', 'Other NL');
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('name-en-other-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-other-nl');
+});
+
+it('handles fields that are not translatable', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::create()
+            ->generateSlugsFrom(['name', 'non_translatable_field'])
+            ->saveSlugsTo('slug')
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'Name EN');
+    $this->testModel->setTranslation('name', 'nl', 'Name NL');
+    $this->testModel->non_translatable_field = 'awesome';
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('name-en-awesome');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-awesome');
+});
+
+it('uses the fallback language if one of the fields is not translated', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::create()
+            ->generateSlugsFrom(['name', 'other_field'])
+            ->saveSlugsTo('slug')
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'Name EN');
+    $this->testModel->setTranslation('name', 'nl', 'Name NL');
+    $this->testModel->setTranslation('other_field', 'en', 'Other EN');
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('name-en-other-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-other-en');
+});
+
+it('can use a callback to generate a slug per language', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::createWithLocales(['en', 'nl'])
+            ->generateSlugsFrom(function ($model, $locale) {
+                return implode(' ', [
+                    $model->getTranslation('name', $locale, false),
+                    $model->getTranslation('other_field', $locale, false),
+                ]);
+            })
+            ->saveSlugsTo('slug')
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'Name EN');
+    $this->testModel->setTranslation('name', 'nl', 'Name NL');
+    $this->testModel->setTranslation('other_field', 'en', 'Other EN');
+    $this->testModel->setTranslation('other_field', 'nl', 'Other NL');
+
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('name-en-other-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-other-nl');
+});
+
+it('can use a callback to update the slug per language', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::createWithLocales(['en', 'nl'])
+            ->generateSlugsFrom(function ($model, $locale) {
+                return implode(' ', [
+                    $model->getTranslation('name', $locale, false),
+                    $model->getTranslation('other_field', $locale, false),
+                ]);
+            })
+            ->saveSlugsTo('slug')
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'Name EN');
+    $this->testModel->setTranslation('name', 'nl', 'Name NL');
+    $this->testModel->setTranslation('other_field', 'en', '1');
+    $this->testModel->setTranslation('other_field', 'nl', '1');
+
+    $this->testModel->save();
+
+    $this->testModel->setTranslation('other_field', 'en', '2');
+    $this->testModel->setTranslation('other_field', 'nl', '2');
+
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('name-en-2');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-2');
+});
+
+it('can handle overwrites when creating a model', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
+    $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('updated-value-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+});
+
+it('can handle overwrites when updating a model', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
+
+    $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
+    $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('updated-value-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+});
+
+it('can handle overwrites for one item when updating a model', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
+
+    $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('test-value-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+});
+
+it('can handle overwrites for one item when updating a model with custom slugs', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->setTranslation('slug', 'en', 'Test slug EN');
+    $this->testModel->setTranslation('slug', 'nl', 'Test slug NL');
+    $this->testModel->save();
+
+    $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('test-slug-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+});
+
+it('it can handle duplicates when overwriting a slug', function () {
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
+
+    $newModel = new $this->testModel();
+    $newModel->setTranslation('name', 'en', 'Test value 2 EN');
+    $newModel->setTranslation('name', 'nl', 'Test value 2 NL');
+    $newModel->save();
+
+    $newModel->setTranslation('slug', 'en', 'test-value-en');
+    $newModel->setTranslation('slug', 'nl', 'test-value-nl');
+    $newModel->save();
+
+    expect($newModel->slug)->toBe('test-value-en-1');
+    expect($newModel->getTranslation('slug', 'nl'))->toBe('test-value-nl-1');
+});
+
+it('can update slug with non unique names', function () {
+    $model1 = new TranslatableModel();
+    $model1->setTranslation('name', 'en', 'Test Value');
+    $model1->save();
+
+    $model2 = new TranslatableModel();
+    $model2->setTranslation('name', 'en', 'Test Value');
+    $model2->save();
+
+    $model2->setTranslation('name', 'en', 'Changed Value');
+    $model2->save();
+
+    expect($model2->getTranslation('slug', 'en'))->toBe('changed-value');
+});
+
+it('can update slug with non unique names multiple', function () {
+    $testModels = [];
+    foreach (range(0, 15) as $i) {
+        $model = new TranslatableModel();
+        $model->setTranslation('name', 'en', 'Test Value');
+        $model->setTranslation('name', 'nl', 'Test Value');
+        $model->save();
+
+        $testModels[] = $model;
     }
 
-    /** @test */
-    public function it_generates_a_slug_for_each_translation()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->save();
+    foreach (range(0, 15) as $i) {
+        $model = $testModels[$i];
+        $model->setTranslation('name', 'en', 'Changed Value');
+        $model->save();
 
-        $this->assertSame('test-value-en', $this->testModel->slug);
-        $this->assertSame('test-value-nl', $this->testModel->getTranslation('slug', 'nl'));
+        $expectedSlug = 'changed-value' . ($i === 0 ? '' : '-' . $i);
+
+        expect($model->getTranslation('slug', 'en'))->toBe($expectedSlug);
     }
-
-    /** @test */
-    public function it_can_update_one_of_the_translations()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->save();
-
-        $this->testModel->setTranslation('name', 'en', 'Updated value EN');
-        $this->testModel->save();
-
-        $this->assertSame('updated-value-en', $this->testModel->slug);
-        $this->assertSame('test-value-nl', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_update_all_translations()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->save();
-
-        $this->testModel->setTranslation('name', 'en', 'Updated value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Updated value NL');
-        $this->testModel->save();
-
-        $this->assertSame('updated-value-en', $this->testModel->slug);
-        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_make_the_slug_unique_for_each_language()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->save();
-
-        $secondTestModel = TranslatableModel::create([
-            'name' => [
-                'en' => 'Test value EN',
-                'nl' => 'Test value NL',
-            ],
-        ]);
-
-        $this->assertSame('test-value-en-1', $secondTestModel->slug);
-        $this->assertSame('test-value-nl-1', $secondTestModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_generate_a_slug_based_on_multiple_fields()
-    {
-        $this->testModel->useSlugOptions(
-            SlugOptions::create()
-                ->generateSlugsFrom(['name', 'other_field'])
-                ->saveSlugsTo('slug')
-        );
-
-        $this->testModel->setTranslation('name', 'en', 'Name EN');
-        $this->testModel->setTranslation('name', 'nl', 'Name NL');
-        $this->testModel->setTranslation('other_field', 'en', 'Other EN');
-        $this->testModel->setTranslation('other_field', 'nl', 'Other NL');
-        $this->testModel->save();
-
-        $this->assertSame('name-en-other-en', $this->testModel->slug);
-        $this->assertSame('name-nl-other-nl', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_handles_fields_that_are_not_translatable()
-    {
-        $this->testModel->useSlugOptions(
-            SlugOptions::create()
-                ->generateSlugsFrom(['name', 'non_translatable_field'])
-                ->saveSlugsTo('slug')
-        );
-
-        $this->testModel->setTranslation('name', 'en', 'Name EN');
-        $this->testModel->setTranslation('name', 'nl', 'Name NL');
-        $this->testModel->non_translatable_field = 'awesome';
-        $this->testModel->save();
-
-        $this->assertSame('name-en-awesome', $this->testModel->slug);
-        $this->assertSame('name-nl-awesome', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_uses_the_fallback_language_if_one_of_the_fields_is_not_translated()
-    {
-        $this->testModel->useSlugOptions(
-            SlugOptions::create()
-                ->generateSlugsFrom(['name', 'other_field'])
-                ->saveSlugsTo('slug')
-        );
-
-        $this->testModel->setTranslation('name', 'en', 'Name EN');
-        $this->testModel->setTranslation('name', 'nl', 'Name NL');
-        $this->testModel->setTranslation('other_field', 'en', 'Other EN');
-        $this->testModel->save();
-
-        $this->assertSame('name-en-other-en', $this->testModel->slug);
-        $this->assertSame('name-nl-other-en', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_use_a_callback_to_generate_a_slug_per_language()
-    {
-        $this->testModel->useSlugOptions(
-            SlugOptions::createWithLocales(['en', 'nl'])
-                ->generateSlugsFrom(function ($model, $locale) {
-                    return implode(' ', [
-                        $model->getTranslation('name', $locale, false),
-                        $model->getTranslation('other_field', $locale, false),
-                    ]);
-                })
-                ->saveSlugsTo('slug')
-        );
-
-        $this->testModel->setTranslation('name', 'en', 'Name EN');
-        $this->testModel->setTranslation('name', 'nl', 'Name NL');
-        $this->testModel->setTranslation('other_field', 'en', 'Other EN');
-        $this->testModel->setTranslation('other_field', 'nl', 'Other NL');
-
-        $this->testModel->save();
-
-        $this->assertSame('name-en-other-en', $this->testModel->slug);
-        $this->assertSame('name-nl-other-nl', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_use_a_callback_to_update_the_slug_per_language()
-    {
-        $this->testModel->useSlugOptions(
-            SlugOptions::createWithLocales(['en', 'nl'])
-                ->generateSlugsFrom(function ($model, $locale) {
-                    return implode(' ', [
-                        $model->getTranslation('name', $locale, false),
-                        $model->getTranslation('other_field', $locale, false),
-                    ]);
-                })
-                ->saveSlugsTo('slug')
-        );
-
-        $this->testModel->setTranslation('name', 'en', 'Name EN');
-        $this->testModel->setTranslation('name', 'nl', 'Name NL');
-        $this->testModel->setTranslation('other_field', 'en', '1');
-        $this->testModel->setTranslation('other_field', 'nl', '1');
-
-        $this->testModel->save();
-
-        $this->testModel->setTranslation('other_field', 'en', '2');
-        $this->testModel->setTranslation('other_field', 'nl', '2');
-
-        $this->testModel->save();
-
-        $this->assertSame('name-en-2', $this->testModel->slug);
-        $this->assertSame('name-nl-2', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_handle_overwrites_when_creating_a_model()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
-        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
-
-        $this->testModel->save();
-
-        $this->assertSame('updated-value-en', $this->testModel->slug);
-        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_handle_overwrites_when_updating_a_model()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->save();
-
-        $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
-        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
-        $this->testModel->save();
-
-        $this->assertSame('updated-value-en', $this->testModel->slug);
-        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_handle_overwrites_for_one_item_when_updating_a_model()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->save();
-
-        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
-        $this->testModel->save();
-
-        $this->assertSame('test-value-en', $this->testModel->slug);
-        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_handle_overwrites_for_one_item_when_updating_a_model_with_custom_slugs()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->setTranslation('slug', 'en', 'Test slug EN');
-        $this->testModel->setTranslation('slug', 'nl', 'Test slug NL');
-        $this->testModel->save();
-
-        $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
-        $this->testModel->save();
-
-        $this->assertSame('test-slug-en', $this->testModel->slug);
-        $this->assertSame('updated-value-nl', $this->testModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_handle_duplicates_when_overwriting_a_slug()
-    {
-        $this->testModel->setTranslation('name', 'en', 'Test value EN');
-        $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-        $this->testModel->save();
-
-        $newModel = new $this->testModel();
-        $newModel->setTranslation('name', 'en', 'Test value 2 EN');
-        $newModel->setTranslation('name', 'nl', 'Test value 2 NL');
-        $newModel->save();
-
-        $newModel->setTranslation('slug', 'en', 'test-value-en');
-        $newModel->setTranslation('slug', 'nl', 'test-value-nl');
-        $newModel->save();
-
-        $this->assertSame('test-value-en-1', $newModel->slug);
-        $this->assertSame('test-value-nl-1', $newModel->getTranslation('slug', 'nl'));
-    }
-
-    /** @test */
-    public function it_can_update_slug_with_non_unique_names()
-    {
-        $model1 = new TranslatableModel();
-        $model1->setTranslation('name', 'en', 'Test Value');
-        $model1->save();
-
-        $model2 = new TranslatableModel();
-        $model2->setTranslation('name', 'en', 'Test Value');
-        $model2->save();
-
-        $model2->setTranslation('name', 'en', 'Changed Value');
-        $model2->save();
-
-        $this->assertSame('changed-value', $model2->getTranslation('slug', 'en'));
-    }
-
-    /** @test */
-    public function it_can_update_slug_with_non_unique_names_multiple()
-    {
-        $testModels = [];
-        foreach (range(0, 15) as $i) {
-            $model = new TranslatableModel();
-            $model->setTranslation('name', 'en', 'Test Value');
-            $model->setTranslation('name', 'nl', 'Test Value');
-            $model->save();
-
-            array_push($testModels, $model);
-        }
-
-        foreach (range(0, 15) as $i) {
-            $model = $testModels[$i];
-            $model->setTranslation('name', 'en', 'Changed Value');
-            $model->save();
-
-            $expectedSlug = 'changed-value' . ($i === 0 ? '' : '-' . $i);
-            $this->assertSame($expectedSlug, $model->getTranslation('slug', 'en'));
-        }
-    }
-}
+});

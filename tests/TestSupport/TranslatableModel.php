@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sluggable\Tests;
+namespace Spatie\Sluggable\Tests\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasTranslatableSlug;
@@ -17,11 +17,11 @@ class TranslatableModel extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public $translatable = ['name', 'other_field', 'slug'];
+    public array $translatable = ['name', 'other_field', 'slug'];
 
-    private $customSlugOptions;
+    private ?SlugOptions $customSlugOptions = null;
 
-    public function useSlugOptions($slugOptions)
+    public function useSlugOptions(SlugOptions $slugOptions)
     {
         $this->customSlugOptions = $slugOptions;
     }
