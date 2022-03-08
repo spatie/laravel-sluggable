@@ -55,7 +55,7 @@ it('will save a unique slug by default', function () {
 });
 
 it('can generate slugs from multiple source fields', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
@@ -70,7 +70,7 @@ it('can generate slugs from multiple source fields', function () {
 });
 
 it('can generate slugs from a callable', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
@@ -87,7 +87,7 @@ it('can generate slugs from a callable', function () {
 
 it('can generate duplicate slugs', function () {
     foreach (range(1, 10) as $ignored) {
-        $model = new class() extends TestModel {
+        $model = new class () extends TestModel {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->allowDuplicateSlugs();
@@ -102,7 +102,7 @@ it('can generate duplicate slugs', function () {
 });
 
 it('can generate slugs with a maximum length', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
@@ -158,7 +158,7 @@ it('can handle duplicates when overwriting a slug', function () {
 
 
 it('has an method that prevents a slug being generated on creation', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->doNotGenerateSlugsOnCreate();
@@ -172,7 +172,7 @@ it('has an method that prevents a slug being generated on creation', function ()
 });
 
 it('has an method that prevents a slug being generated on update', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
@@ -189,7 +189,7 @@ it('has an method that prevents a slug being generated on update', function () {
 });
 
 it('has an method that prevents a slug beign generated if already present', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->preventOverwrite();
@@ -204,7 +204,7 @@ it('has an method that prevents a slug beign generated if already present', func
 });
 
 it('will use separator option for slug generation', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingSeparator('_');
@@ -218,7 +218,7 @@ it('will use separator option for slug generation', function () {
 });
 
 it('will use language option for slug generation', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingLanguage('nl');
@@ -229,7 +229,7 @@ it('will use language option for slug generation', function () {
 });
 
 it('can generate language specific slugs', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingLanguage('en');
@@ -241,7 +241,7 @@ it('can generate language specific slugs', function () {
 
     expect($model->url)->toEqual('gute-nacht');
 
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingLanguage('de');
@@ -275,7 +275,7 @@ it('will save a unique slug by default when replicating a model', function () {
 });
 
 it('will save a unique slug when replicating a model that does not generates slugs on update', function () {
-    $model = new class() extends TestModel {
+    $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
