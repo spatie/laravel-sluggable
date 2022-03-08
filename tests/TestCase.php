@@ -28,7 +28,7 @@ abstract class TestCase extends Orchestra
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite', [
             'driver' => 'sqlite',
-            'database' => $this->getTempDirectory().'/database.sqlite',
+            'database' => $this->getTempDirectory() . '/database.sqlite',
             'prefix' => '',
         ]);
     }
@@ -38,7 +38,7 @@ abstract class TestCase extends Orchestra
      */
     protected function setUpDatabase(Application $app)
     {
-        file_put_contents($this->getTempDirectory().'/database.sqlite', null);
+        file_put_contents($this->getTempDirectory() . '/database.sqlite', null);
 
         Schema::create('test_models', function (Blueprint $table) {
             $table->increments('id');
@@ -61,6 +61,16 @@ abstract class TestCase extends Orchestra
             $table->text('other_field')->nullable();
             $table->text('non_translatable_field')->nullable();
             $table->text('slug')->nullable();
+            $table->foreignId('test_model_id')->nullable()->index();
+        });
+
+        Schema::create('translatable_model_soft_deletes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->text('name')->nullable();
+            $table->text('other_field')->nullable();
+            $table->text('non_translatable_field')->nullable();
+            $table->text('slug')->nullable();
+            $table->softDeletes();
         });
 
         Schema::create('scopeable_models', function (Blueprint $table) {
@@ -81,6 +91,6 @@ abstract class TestCase extends Orchestra
 
     protected function getTempDirectory(): string
     {
-        return __DIR__.'/temp';
+        return __DIR__ . '/temp';
     }
 }

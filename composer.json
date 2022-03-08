@@ -17,13 +17,12 @@
     ],
     "require": {
         "php": "^8.0",
-        "illuminate/database": "^7.30|^8.0",
-        "illuminate/support": "^7.30|^8.0"
+        "illuminate/database": "^8.0|^9.0",
+        "illuminate/support": "^8.0|^9.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^5.16|^6.11",
-        "spatie/laravel-translatable": "^4.6",
-        "friendsofphp/php-cs-fixer": "^2.18",
+        "orchestra/testbench": "^6.23|^7.0",
+        "spatie/laravel-translatable": "^5.0",
         "pestphp/pest": "^1.20"
     },
     "autoload": {

@@ -3,6 +3,7 @@
 namespace Spatie\Sluggable\Tests\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -42,5 +43,10 @@ class TestModel extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('url');
+    }
+
+    public function translatableModels(): HasMany
+    {
+        return $this->hasMany(TranslatableModel::class);
     }
 }
