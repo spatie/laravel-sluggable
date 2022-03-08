@@ -212,7 +212,7 @@ it('can handle overwrites for one item when updating a model with custom slugs',
     expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
 });
 
-it('it can handle duplicates when overwriting a slug', function () {
+it('can handle duplicates when overwriting a slug', function () {
     $this->testModel->setTranslation('name', 'en', 'Test value EN');
     $this->testModel->setTranslation('name', 'nl', 'Test value NL');
     $this->testModel->save();
