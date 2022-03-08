@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sluggable\Tests;
+namespace Spatie\Sluggable\Tests\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,5 +32,10 @@ class TranslatableModel extends Model
         return $this->customSlugOptions ?: SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
+    }
+
+    public function testModel(): BelongsTo
+    {
+        return $this->belongsTo(TestModel::class);
     }
 }

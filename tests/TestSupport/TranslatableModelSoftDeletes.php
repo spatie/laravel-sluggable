@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sluggable\Tests;
+namespace Spatie\Sluggable\Tests\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,11 +19,11 @@ class TranslatableModelSoftDeletes extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    protected $translatable = ['name', 'other_field', 'slug'];
+    protected array $translatable = ['name', 'other_field', 'slug'];
 
-    protected $customSlugOptions;
+    protected ?SlugOptions $customSlugOptions = null;
 
-    public function useSlugOptions($slugOptions)
+    public function useSlugOptions(SlugOptions $slugOptions)
     {
         $this->customSlugOptions = $slugOptions;
     }

@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\Sluggable\Tests;
-
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
+use Spatie\Sluggable\Tests\TestSupport\TranslatableModelSoftDeletes;
 
 beforeEach(function () {
     $this->testModel = new TranslatableModel();
@@ -267,102 +267,95 @@ it('can update slug with non unique names multiple', function () {
     }
 });
 
-    /** @test */
-    public function it_can_resolve_route_binding()
-    {
-        $model = new TranslatableModel();
+it('can resolve route binding', function () {
+    $model = new TranslatableModel();
 
+    $model->setTranslation('name', 'en', 'Test value EN');
+    $model->setTranslation('name', 'nl', 'Test value NL');
+    $model->setTranslation('slug', 'en', 'updated-value-en');
+    $model->setTranslation('slug', 'nl', 'updated-value-nl');
+    $model->save();
+
+    // Test for en locale
+    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-en', 'slug');
+
+    expect($result)->not->toBeNull();
+    expect($result->id)->toEqual($model->id);
+
+    // Test for nl locale
+    $this->app->setLocale('nl');
+
+    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
+
+    expect($result)->not->toBeNull();
+    expect($result->id)->toEqual($model->id);
+
+    // Test for fr locale - should fail
+    app()->setLocale('fr');
+    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
+
+    expect($result)->toBeNull();
+});
+
+it('can resolve route binding even when soft deletes are on', function () {
+    foreach (range(1, 10) as $i) {
+        $model = new TranslatableModelSoftDeletes();
         $model->setTranslation('name', 'en', 'Test value EN');
-        $model->setTranslation('name', 'nl', 'Test value NL');
-        $model->setTranslation('slug', 'en', 'updated-value-en');
-        $model->setTranslation('slug', 'nl', 'updated-value-nl');
+        $model->setTranslation('slug', 'en', 'updated-value-en-' . $i);
         $model->save();
+        $model->delete();
 
-        // Test for en locale
-        $result = (new TranslatableModel())->resolveRouteBinding('updated-value-en', 'slug');
+        $result = (new TranslatableModelSoftDeletes())->resolveSoftDeletableRouteBinding(
+            'updated-value-en-' . $i,
+            'slug'
+        );
 
-        $this->assertNotNull($result);
-        $this->assertEquals($model->id, $result->id);
-
-        // Test for nl locale
-        $this->app->setLocale('nl');
-
-        $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
-
-        $this->assertNotNull($result);
-        $this->assertEquals($model->id, $result->id);
-
-        // Test for fr locale - should fail
-        $this->app->setLocale('fr');
-        $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
-        $this->assertNull($result);
+        expect($result)->not->toBeNull();
+        expect($result->id)->toEqual($model->id);
     }
+});
 
-    /** @test */
-    public function it_can_resolve_route_binding_even_when_soft_deletes_are_on()
-    {
-        foreach (range(1, 10) as $i) {
-            $model = new TranslatableModelSoftDeletes();
-            $model->setTranslation('name', 'en', 'Test value EN');
-            $model->setTranslation('slug', 'en', 'updated-value-en-' . $i);
-            $model->save();
-            $model->delete();
+it('can bind route model implicit', function () {
+    $model = new TranslatableModel();
+    $model->setTranslation('name', 'en', 'Test value EN');
+    $model->setTranslation('slug', 'en', 'updated-value-en');
+    $model->save();
 
-            $result = (new TranslatableModelSoftDeletes())->resolveSoftDeletableRouteBinding(
-                'updated-value-en-' . $i,
-                'slug'
-            );
-
-            $this->assertNotNull($result);
-            $this->assertEquals($model->id, $result->id);
+    Route::get(
+        '/translatable-model/{test:slug}',
+        function (TranslatableModel $test) use ($model) {
+            expect($test)->not->toBeNull();
+            expect($test->id)->toEqual($model->id);
         }
-    }
-    /** @test */
-    public function it_can_bind_route_model_implicit()
-    {
-        $model = new TranslatableModel();
-        $model->setTranslation('name', 'en', 'Test value EN');
-        $model->setTranslation('slug', 'en', 'updated-value-en');
-        $model->save();
+    )->middleware(SubstituteBindings::class);
 
-        Route::get(
-            '/translatable-model/{test:slug}',
-            function (TranslatableModel $test) use ($model) {
-                $this->assertNotNull($test);
-                $this->assertEquals($model->id, $test->id);
-            }
-        )->middleware(SubstituteBindings::class);
+    $response = $this->get("/translatable-model/updated-value-en");
 
-        $response = $this->get("/translatable-model/updated-value-en");
+    $response->assertStatus(200);
+});
 
-        $response->assertStatus(200);
-    }
+it('can bind child route model implicit', function () {
+    $model = new TranslatableModel();
+    $model->setTranslation('name', 'en', 'Test value EN');
+    $model->setTranslation('slug', 'en', 'updated-value-en');
+    $model->test_model_id = 1;
+    $model->save();
 
-    /** @test */
-    public function it_can_bind_child_route_model_implicit()
-    {
-        $model = new TranslatableModel();
-        $model->setTranslation('name', 'en', 'Test value EN');
-        $model->setTranslation('slug', 'en', 'updated-value-en');
-        $model->test_model_id = 1;
-        $model->save();
+    $parent = new TestModel();
+    $parent->name = 'parent';
+    $parent->save();
 
-        $parent = new TestModel();
-        $parent->name = 'parent';
-        $parent->save();
+    Route::get(
+        '/test-model/{test_model:url}/translatable-model/{translatable_model:slug}',
+        function (TestModel $testModel, TranslatableModel $translatableModel) use ($parent, $model) {
+            $this->assertNotNull($parent);
+            $this->assertNotNull($translatableModel);
+            $this->assertEquals($parent->id, $testModel->id);
+            $this->assertEquals($model->id, $translatableModel->id);
+        }
+    )->middleware(SubstituteBindings::class);
 
-        Route::get(
-            '/test-model/{test_model:url}/translatable-model/{translatable_model:slug}',
-            function (TestModel $testModel, TranslatableModel $translatableModel) use ($parent, $model) {
-                $this->assertNotNull($parent);
-                $this->assertNotNull($translatableModel);
-                $this->assertEquals($parent->id, $testModel->id);
-                $this->assertEquals($model->id, $translatableModel->id);
-            }
-        )->middleware(SubstituteBindings::class);
+    $response = $this->get("/test-model/parent/translatable-model/updated-value-en");
 
-        $response = $this->get("/test-model/parent/translatable-model/updated-value-en");
-
-        $response->assertStatus(200);
-    }
-}
+    $response->assertStatus(200);
+});
