@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.3.1 - 2022-03-09
+
+## What's Changed
+
+- Add support for spatie/laravel-translatable:^6.0 by @mziraki in https://github.com/spatie/laravel-sluggable/pull/224
+
+## New Contributors
+
+- @mziraki made their first contribution in https://github.com/spatie/laravel-sluggable/pull/224
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.3.0...3.3.1
+
 ## 3.3.0 - 2022-01-13
 
 - support Laravel 9
