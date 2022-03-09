@@ -22,7 +22,7 @@
     },
     "require-dev": {
         "orchestra/testbench": "^6.23|^7.0",
-        "spatie/laravel-translatable": "^5.0",
+        "spatie/laravel-translatable": "^5.0|^6.0",      
         "pestphp/pest": "^1.20"
     },
     "autoload": {
