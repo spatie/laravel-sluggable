@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sluggable\Tests;
+namespace Spatie\Sluggable\Tests\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
@@ -15,7 +15,7 @@ class ScopeableModel extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public $translatable = ['name', 'slug', 'scope_id'];
+    public array $translatable = ['name', 'slug', 'scope_id'];
 
     public function getSlugOptions(): SlugOptions
     {
