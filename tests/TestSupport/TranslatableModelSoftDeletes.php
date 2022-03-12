@@ -1,28 +1,29 @@
 <?php
 
-namespace Spatie\Sluggable\Tests;
+namespace Spatie\Sluggable\Tests\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasTranslatableSlug;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Translatable\HasTranslations;
 
-class TranslatableModel extends Model
+class TranslatableModelSoftDeletes extends Model
 {
     use HasTranslations;
     use HasTranslatableSlug;
+    use SoftDeletes;
 
-    protected $table = 'translatable_models';
+    protected $table = 'translatable_model_soft_deletes';
 
     protected $guarded = [];
     public $timestamps = false;
 
-    protected $translatable = ['name', 'other_field', 'slug'];
+    protected array $translatable = ['name', 'other_field', 'slug'];
 
-    protected $customSlugOptions;
+    protected ?SlugOptions $customSlugOptions = null;
 
-    public function useSlugOptions($slugOptions)
+    public function useSlugOptions(SlugOptions $slugOptions)
     {
         $this->customSlugOptions = $slugOptions;
     }
@@ -32,10 +33,5 @@ class TranslatableModel extends Model
         return $this->customSlugOptions ?: SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
-    }
-
-    public function testModel(): BelongsTo
-    {
-        return $this->belongsTo(TestModel::class);
     }
 }

@@ -1,18 +1,17 @@
 <?php
 
-namespace Spatie\Sluggable\Tests;
+namespace Spatie\Sluggable\Tests\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-class TestModelSoftDeletes extends Model
+class TestModel extends Model
 {
-    use SoftDeletes;
     use HasSlug;
 
-    protected $table = 'test_model_soft_deletes';
+    protected $table = 'test_models';
 
     protected $guarded = [];
 
@@ -44,5 +43,10 @@ class TestModelSoftDeletes extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('url');
+    }
+
+    public function translatableModels(): HasMany
+    {
+        return $this->hasMany(TranslatableModel::class);
     }
 }

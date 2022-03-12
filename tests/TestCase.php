@@ -10,10 +10,7 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
-    /** @var \Spatie\Sluggable\Tests\TestModel */
-    protected $testModel;
-
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -91,7 +88,7 @@ abstract class TestCase extends Orchestra
         File::makeDirectory($directory);
     }
 
-    public function getTempDirectory(): string
+    protected function getTempDirectory(): string
     {
         return __DIR__ . '/temp';
     }
