@@ -8,7 +8,28 @@ use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModelSoftDeletes;
 
 beforeEach(function () {
-    $this->testModel = new class () extends TranslatableModel {
+    $this->translatableTestModel = new class () extends TranslatableModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->arabicable();
+        }
+    };
+
+    $this->secTranslatableTestModel = new class () extends TranslatableModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->arabicable();
+        }
+    };
+
+    $this->testModel = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->arabicable();
+        }
+    };
+
+    $this->translatableModelSoftDeletes = new class () extends TranslatableModelSoftDeletes {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->arabicable();
@@ -17,106 +38,106 @@ beforeEach(function () {
 });
 
 it('generates a slug for each translation', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص عربي للاختبار للغة الانجليزية');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص عربي للاختبار للغة الالمانية');
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('test-value-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('test-value-nl');
+    expect($this->translatableTestModel->slug)->toBe('نص-عربي-للاختبار-للغة-الانجليزية');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('نص-عربي-للاختبار-للغة-الالمانية');
 });
 
 it('can update one of the translations', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص عربي للاختبار للغة الانجليزية');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص عربي للاختبار للغة الالمانية');
+    $this->translatableTestModel->save();
 
-    $this->testModel->setTranslation('name', 'en', 'Updated value EN');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص عربي معدل للغة الانجليزية');
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('updated-value-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('test-value-nl');
+    expect($this->translatableTestModel->slug)->toBe('نص-عربي-معدل-للغة-الانجليزية');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('نص-عربي-للاختبار-للغة-الالمانية');
 });
 
 it('can update all translations', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص عربي للاختبار للغة الانجليزية');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص عربي للاختبار للغة الالمانية');
+    $this->translatableTestModel->save();
 
-    $this->testModel->setTranslation('name', 'en', 'Updated value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Updated value NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص عربي معدل للغة الانجليزية');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص عربي معدل للغة الالمانية');
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('updated-value-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+    expect($this->translatableTestModel->slug)->toBe('نص-عربي-معدل-للغة-الانجليزية');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('نص-عربي-معدل-للغة-الالمانية');
 });
 
 it('can make the slug unique for each language', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص عربي للاختبار للغة الانجليزية');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص عربي للاختبار للغة الالمانية');
+    $this->translatableTestModel->save();
 
-    $secondTestModel = TranslatableModel::create([
+    $secondTestModel = $this->secTranslatableTestModel->create([
         'name' => [
-            'en' => 'Test value EN',
-            'nl' => 'Test value NL',
+            'en' => 'نص عربي للاختبار للغة الانجليزية',
+            'nl' => 'نص عربي للاختبار للغة الالمانية',
         ],
     ]);
 
-    expect($secondTestModel->slug)->toBe('test-value-en-1');
-    expect($secondTestModel->getTranslation('slug', 'nl'))->toBe('test-value-nl-1');
+    expect($secondTestModel->slug)->toBe('نص-عربي-للاختبار-للغة-الانجليزية-1');
+    expect($secondTestModel->getTranslation('slug', 'nl'))->toBe('نص-عربي-للاختبار-للغة-الالمانية-1');
 });
 
 it('can generate a slug based on multiple fields', function () {
-    $this->testModel->useSlugOptions(
+    $this->translatableTestModel->useSlugOptions(
         SlugOptions::create()
             ->generateSlugsFrom(['name', 'other_field'])
             ->saveSlugsTo('slug')
     );
 
-    $this->testModel->setTranslation('name', 'en', 'Name EN');
-    $this->testModel->setTranslation('name', 'nl', 'Name NL');
-    $this->testModel->setTranslation('other_field', 'en', 'Other EN');
-    $this->testModel->setTranslation('other_field', 'nl', 'Other NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'اسم بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'اسم بالالماني');
+    $this->translatableTestModel->setTranslation('other_field', 'en', 'اسم اخر بالانجليزي');
+    $this->translatableTestModel->setTranslation('other_field', 'nl', 'اسم اخر بالالماني');
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('name-en-other-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-other-nl');
+    expect($this->translatableTestModel->slug)->toBe('اسم-بالانجليزي-اسم-اخر-بالانجليزي');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('اسم-بالالماني-اسم-اخر-بالالماني');
 });
 
 it('handles fields that are not translatable', function () {
-    $this->testModel->useSlugOptions(
+    $this->translatableTestModel->useSlugOptions(
         SlugOptions::create()
             ->generateSlugsFrom(['name', 'non_translatable_field'])
             ->saveSlugsTo('slug')
     );
 
-    $this->testModel->setTranslation('name', 'en', 'Name EN');
-    $this->testModel->setTranslation('name', 'nl', 'Name NL');
-    $this->testModel->non_translatable_field = 'awesome';
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'اسم بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'اسم بالالماني');
+    $this->translatableTestModel->non_translatable_field = 'رائع';
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('name-en-awesome');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-awesome');
+    expect($this->translatableTestModel->slug)->toBe('اسم-بالانجليزي-رائع');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('اسم-بالالماني-رائع');
 });
 
 it('uses the fallback language if one of the fields is not translated', function () {
-    $this->testModel->useSlugOptions(
+    $this->translatableTestModel->useSlugOptions(
         SlugOptions::create()
             ->generateSlugsFrom(['name', 'other_field'])
             ->saveSlugsTo('slug')
     );
 
-    $this->testModel->setTranslation('name', 'en', 'Name EN');
-    $this->testModel->setTranslation('name', 'nl', 'Name NL');
-    $this->testModel->setTranslation('other_field', 'en', 'Other EN');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'اسم بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'اسم بالالماني');
+    $this->translatableTestModel->setTranslation('other_field', 'en', 'اسم اخر بالانجليزي');
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('name-en-other-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-other-en');
+    expect($this->translatableTestModel->slug)->toBe('اسم-بالانجليزي-اسم-اخر-بالانجليزي');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('اسم-بالالماني-اسم-اخر-بالانجليزي');
 });
 
 it('can use a callback to generate a slug per language', function () {
-    $this->testModel->useSlugOptions(
+    $this->translatableTestModel->useSlugOptions(
         SlugOptions::createWithLocales(['en', 'nl'])
             ->generateSlugsFrom(function ($model, $locale) {
                 return implode(' ', [
@@ -127,19 +148,19 @@ it('can use a callback to generate a slug per language', function () {
             ->saveSlugsTo('slug')
     );
 
-    $this->testModel->setTranslation('name', 'en', 'Name EN');
-    $this->testModel->setTranslation('name', 'nl', 'Name NL');
-    $this->testModel->setTranslation('other_field', 'en', 'Other EN');
-    $this->testModel->setTranslation('other_field', 'nl', 'Other NL');
+    $this->translatableTestModel->setTranslation('name', 'en', 'اسم بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'اسم بالالماني');
+    $this->translatableTestModel->setTranslation('other_field', 'en', 'اسم اخر بالانجليزي');
+    $this->translatableTestModel->setTranslation('other_field', 'nl', 'اسم اخر بالالماني');
 
-    $this->testModel->save();
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('name-en-other-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-other-nl');
+    expect($this->translatableTestModel->slug)->toBe('اسم-بالانجليزي-اسم-اخر-بالانجليزي');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('اسم-بالالماني-اسم-اخر-بالالماني');
 });
 
 it('can use a callback to update the slug per language', function () {
-    $this->testModel->useSlugOptions(
+    $this->translatableTestModel->useSlugOptions(
         SlugOptions::createWithLocales(['en', 'nl'])
             ->generateSlugsFrom(function ($model, $locale) {
                 return implode(' ', [
@@ -150,112 +171,112 @@ it('can use a callback to update the slug per language', function () {
             ->saveSlugsTo('slug')
     );
 
-    $this->testModel->setTranslation('name', 'en', 'Name EN');
-    $this->testModel->setTranslation('name', 'nl', 'Name NL');
-    $this->testModel->setTranslation('other_field', 'en', '1');
-    $this->testModel->setTranslation('other_field', 'nl', '1');
+    $this->translatableTestModel->setTranslation('name', 'en', 'اسم بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'اسم بالالماني');
+    $this->translatableTestModel->setTranslation('other_field', 'en', '1');
+    $this->translatableTestModel->setTranslation('other_field', 'nl', '1');
 
-    $this->testModel->save();
+    $this->translatableTestModel->save();
 
-    $this->testModel->setTranslation('other_field', 'en', '2');
-    $this->testModel->setTranslation('other_field', 'nl', '2');
+    $this->translatableTestModel->setTranslation('other_field', 'en', '2');
+    $this->translatableTestModel->setTranslation('other_field', 'nl', '2');
 
-    $this->testModel->save();
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('name-en-2');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-2');
+    expect($this->translatableTestModel->slug)->toBe('اسم-بالانجليزي-2');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('اسم-بالالماني-2');
 });
 
 it('can handle overwrites when creating a model', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
-    $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص عربي للاختبار للغة الانجليزية');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص عربي للاختبار للغة الالمانية');
+    $this->translatableTestModel->setTranslation('slug', 'en', 'نص عربي معدل للغة الانجليزية');
+    $this->translatableTestModel->setTranslation('slug', 'nl', 'نص عربي معدل للغة الالمانية');
 
-    $this->testModel->save();
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('updated-value-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+    expect($this->translatableTestModel->slug)->toBe('نص-عربي-معدل-للغة-الانجليزية');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('نص-عربي-معدل-للغة-الالمانية');
 });
 
 it('can handle overwrites when updating a model', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص بالالماني');
+    $this->translatableTestModel->save();
 
-    $this->testModel->setTranslation('slug', 'en', 'updated-value-en');
-    $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('slug', 'en', 'نص-معدل-بالانجليزي');
+    $this->translatableTestModel->setTranslation('slug', 'nl', 'نص-معدل-بالالماني');
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('updated-value-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+    expect($this->translatableTestModel->slug)->toBe('نص-معدل-بالانجليزي');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('نص-معدل-بالالماني');
 });
 
 it('can handle overwrites for one item when updating a model', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص بالالماني');
+    $this->translatableTestModel->save();
 
-    $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('slug', 'nl', 'نص-معدل-بالالماني');
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('test-value-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+    expect($this->translatableTestModel->slug)->toBe('نص-بالانجليزي');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('نص-معدل-بالالماني');
 });
 
 it('can handle overwrites for one item when updating a model with custom slugs', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->setTranslation('slug', 'en', 'Test slug EN');
-    $this->testModel->setTranslation('slug', 'nl', 'Test slug NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص بالالماني');
+    $this->translatableTestModel->setTranslation('slug', 'en', 'رابط بالانجليزي');
+    $this->translatableTestModel->setTranslation('slug', 'nl', 'رابط بالالماني');
+    $this->translatableTestModel->save();
 
-    $this->testModel->setTranslation('slug', 'nl', 'updated-value-nl');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('slug', 'nl', 'نص-معدل-بالالماني');
+    $this->translatableTestModel->save();
 
-    expect($this->testModel->slug)->toBe('test-slug-en');
-    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+    expect($this->translatableTestModel->slug)->toBe('رابط-بالانجليزي');
+    expect($this->translatableTestModel->getTranslation('slug', 'nl'))->toBe('نص-معدل-بالالماني');
 });
 
 it('can handle duplicates when overwriting a slug', function () {
-    $this->testModel->setTranslation('name', 'en', 'Test value EN');
-    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
-    $this->testModel->save();
+    $this->translatableTestModel->setTranslation('name', 'en', 'نص بالانجليزي');
+    $this->translatableTestModel->setTranslation('name', 'nl', 'نص بالالماني');
+    $this->translatableTestModel->save();
 
-    $newModel = new $this->testModel();
-    $newModel->setTranslation('name', 'en', 'Test value 2 EN');
-    $newModel->setTranslation('name', 'nl', 'Test value 2 NL');
+    $newModel = new $this->translatableTestModel();
+    $newModel->setTranslation('name', 'en', 'نص اخر بالانجليزي');
+    $newModel->setTranslation('name', 'nl', 'نص اخر بالالماني');
     $newModel->save();
 
-    $newModel->setTranslation('slug', 'en', 'test-value-en');
-    $newModel->setTranslation('slug', 'nl', 'test-value-nl');
+    $newModel->setTranslation('slug', 'en', 'نص-بالانجليزي');
+    $newModel->setTranslation('slug', 'nl', 'نص-بالالماني');
     $newModel->save();
 
-    expect($newModel->slug)->toBe('test-value-en-1');
-    expect($newModel->getTranslation('slug', 'nl'))->toBe('test-value-nl-1');
+    expect($newModel->slug)->toBe('نص-بالانجليزي-1');
+    expect($newModel->getTranslation('slug', 'nl'))->toBe('نص-بالالماني-1');
 });
 
 it('can update slug with non unique names', function () {
-    $model1 = new TranslatableModel();
-    $model1->setTranslation('name', 'en', 'Test Value');
+    $model1 = new $this->translatableTestModel();
+    $model1->setTranslation('name', 'en', 'نص للاختبار');
     $model1->save();
 
-    $model2 = new TranslatableModel();
-    $model2->setTranslation('name', 'en', 'Test Value');
+    $model2 = new $this->secTranslatableTestModel();
+    $model2->setTranslation('name', 'en', 'نص للاختبار');
     $model2->save();
 
-    $model2->setTranslation('name', 'en', 'Changed Value');
+    $model2->setTranslation('name', 'en', 'نص متغيير للاختبار');
     $model2->save();
 
-    expect($model2->getTranslation('slug', 'en'))->toBe('changed-value');
+    expect($model2->getTranslation('slug', 'en'))->toBe('نص-متغيير-للاختبار');
 });
 
 it('can update slug with non unique names multiple', function () {
     $testModels = [];
     foreach (range(0, 15) as $i) {
-        $model = new TranslatableModel();
-        $model->setTranslation('name', 'en', 'Test Value');
-        $model->setTranslation('name', 'nl', 'Test Value');
+        $model = new $this->translatableTestModel();
+        $model->setTranslation('name', 'en', 'نص اختبار');
+        $model->setTranslation('name', 'nl', 'نص اختبار');
         $model->save();
 
         $testModels[] = $model;
@@ -263,26 +284,26 @@ it('can update slug with non unique names multiple', function () {
 
     foreach (range(0, 15) as $i) {
         $model = $testModels[$i];
-        $model->setTranslation('name', 'en', 'Changed Value');
+        $model->setTranslation('name', 'en', 'نص معدل');
         $model->save();
 
-        $expectedSlug = 'changed-value' . ($i === 0 ? '' : '-' . $i);
+        $expectedSlug = 'نص-معدل' . ($i === 0 ? '' : '-' . $i);
 
         expect($model->getTranslation('slug', 'en'))->toBe($expectedSlug);
     }
 });
 
 it('can resolve route binding', function () {
-    $model = new TranslatableModel();
+    $model = new $this->translatableTestModel();
 
-    $model->setTranslation('name', 'en', 'Test value EN');
-    $model->setTranslation('name', 'nl', 'Test value NL');
-    $model->setTranslation('slug', 'en', 'updated-value-en');
-    $model->setTranslation('slug', 'nl', 'updated-value-nl');
+    $model->setTranslation('name', 'en', 'نص عربي للاختبار للغة الانجليزية');
+    $model->setTranslation('name', 'nl', 'نص عربي للاختبار للغة الالمانية');
+    $model->setTranslation('slug', 'en', 'نص-عربي-معدل-للغة-الانجليزية');
+    $model->setTranslation('slug', 'nl', 'نص-عربي-معدل-للغة-الالمانية');
     $model->save();
 
     // Test for en locale
-    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-en', 'slug');
+    $result = (new $this->translatableTestModel())->resolveRouteBinding('نص-عربي-معدل-للغة-الانجليزية', 'slug');
 
     expect($result)->not->toBeNull();
     expect($result->id)->toEqual($model->id);
@@ -290,28 +311,28 @@ it('can resolve route binding', function () {
     // Test for nl locale
     $this->app->setLocale('nl');
 
-    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
+    $result = (new $this->translatableTestModel())->resolveRouteBinding('نص-عربي-معدل-للغة-الالمانية', 'slug');
 
     expect($result)->not->toBeNull();
     expect($result->id)->toEqual($model->id);
 
     // Test for fr locale - should fail
     app()->setLocale('fr');
-    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
+    $result = (new $this->translatableTestModel())->resolveRouteBinding('نص-عربي-معدل-للغة-الالمانية', 'slug');
 
     expect($result)->toBeNull();
 });
 
 it('can resolve route binding even when soft deletes are on', function () {
     foreach (range(1, 10) as $i) {
-        $model = new TranslatableModelSoftDeletes();
-        $model->setTranslation('name', 'en', 'Test value EN');
-        $model->setTranslation('slug', 'en', 'updated-value-en-' . $i);
+        $model = new $this->translatableModelSoftDeletes();
+        $model->setTranslation('name', 'en', 'نص انجليزي');
+        $model->setTranslation('slug', 'en', 'نص-محدث-انجليزي-' . $i);
         $model->save();
         $model->delete();
 
-        $result = (new TranslatableModelSoftDeletes())->resolveSoftDeletableRouteBinding(
-            'updated-value-en-' . $i,
+        $result = (new $this->translatableModelSoftDeletes())->resolveSoftDeletableRouteBinding(
+            'نص-محدث-انجليزي-' . $i,
             'slug'
         );
 
@@ -321,9 +342,9 @@ it('can resolve route binding even when soft deletes are on', function () {
 });
 
 it('can bind route model implicit', function () {
-    $model = new TranslatableModel();
-    $model->setTranslation('name', 'en', 'Test value EN');
-    $model->setTranslation('slug', 'en', 'updated-value-en');
+    $model = new $this->translatableTestModel();
+    $model->setTranslation('name', 'en', 'نص انجليزي');
+    $model->setTranslation('slug', 'en', 'نص-محدث-انجليزي');
     $model->save();
 
     Route::get(
@@ -334,15 +355,15 @@ it('can bind route model implicit', function () {
         }
     )->middleware(SubstituteBindings::class);
 
-    $response = $this->get("/translatable-model/updated-value-en");
+    $response = $this->get("/translatable-model/نص-محدث-انجليزي");
 
     $response->assertStatus(200);
 });
 
 it('can bind child route model implicit', function () {
-    $model = new TranslatableModel();
-    $model->setTranslation('name', 'en', 'Test value EN');
-    $model->setTranslation('slug', 'en', 'updated-value-en');
+    $model = new $this->translatableTestModel();
+    $model->setTranslation('name', 'en', 'نص انجليزي');
+    $model->setTranslation('slug', 'en', 'نص-محدث-انجليزي');
     $model->test_model_id = 1;
     $model->save();
 
@@ -360,7 +381,7 @@ it('can bind child route model implicit', function () {
         }
     )->middleware(SubstituteBindings::class);
 
-    $response = $this->get("/test-model/parent/translatable-model/updated-value-en");
+    $response = $this->get("/test-model/parent/translatable-model/نص-محدث-انجليزي");
 
     $response->assertStatus(200);
 });
