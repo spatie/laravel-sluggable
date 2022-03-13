@@ -71,6 +71,10 @@ trait HasTranslatableSlug
             $slugString = $slug;
         }
 
+        if ($this->slugOptions->arabicable) {
+            return $this->arabicSlug($slugString,$this->slugOptions->slugSeparator);
+        }
+
         return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
     }
 
@@ -84,6 +88,10 @@ trait HasTranslatableSlug
         $slugField = $this->slugOptions->slugField;
         $titleSlug = Str::slug($this->getOriginalSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
         $currentSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+
+        if ($this->slugOptions->arabicable) {
+            $titleSlug =  $this->arabicSlug($this->getOriginalSourceString(),$this->slugOptions->slugSeparator);
+        }
 
         if (! str_starts_with($currentSlug, $titleSlug) || $titleSlug === '') {
             return false;
