@@ -2,6 +2,19 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.4.0 - 2022-03-28
+
+## What's Changed
+
+- Converts Test cases to Pest tests by @marvin-wtt in https://github.com/spatie/laravel-sluggable/pull/223
+- Add ability to skip the slug generation by a condition by @masterix21 in https://github.com/spatie/laravel-sluggable/pull/227
+
+## New Contributors
+
+- @masterix21 made their first contribution in https://github.com/spatie/laravel-sluggable/pull/227
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.3.1...3.4.0
+
 ## 3.3.1 - 2022-03-09
 
 ## What's Changed
