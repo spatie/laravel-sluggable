@@ -156,8 +156,32 @@ it('can handle duplicates when overwriting a slug', function () {
     expect($model->url)->toEqual('this-is-an-other-1');
 });
 
+it('has a method that prevents a slug being generated on condition', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()
+                ->skipGenerateWhen(fn () => $this->name === 'draft');
+        }
+    };
 
-it('has an method that prevents a slug being generated on creation', function () {
+    $model->name = 'draft';
+    $model->save();
+
+    expect($model->url)->toBeNull();
+
+    $model->other_field = 'Spatie';
+    $model->save();
+
+    expect($model->url)->toBeNull();
+
+    $model->name = 'this is not a draft';
+    $model->save();
+
+    expect($model->url)->toEqual('this-is-not-a-draft');
+});
+
+it('has a method that prevents a slug being generated on creation', function () {
     $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
@@ -171,7 +195,7 @@ it('has an method that prevents a slug being generated on creation', function ()
     expect($model->url)->toBeNull();
 });
 
-it('has an method that prevents a slug being generated on update', function () {
+it('has a method that prevents a slug being generated on update', function () {
     $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {

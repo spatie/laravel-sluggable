@@ -212,6 +212,20 @@ $model->slug = 'my-custom-url';
 $model->save(); //slug is now "my-custom-url";
 ```
 
+## Prevents slugs from being generated on some conditions
+
+If you don't want to create the slug when the model has a state, you can use the `skipGenerateWhen` function.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->skipGenerateWhen(fn () => $this->state === 'draft');
+}
+```
+
 ### Prevent slugs from being generated on creation
 
 If you don't want to create the slug when the model is initially created you can set use the `doNotGenerateSlugsOnCreate()` function.

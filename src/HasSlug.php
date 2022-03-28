@@ -27,6 +27,10 @@ trait HasSlug
     {
         $this->slugOptions = $this->getSlugOptions();
 
+        if ($this->slugOptions->skipGenerate) {
+            return;
+        }
+
         if (! $this->slugOptions->generateSlugsOnCreate) {
             return;
         }
@@ -43,6 +47,10 @@ trait HasSlug
     protected function generateSlugOnUpdate(): void
     {
         $this->slugOptions = $this->getSlugOptions();
+
+        if ($this->slugOptions->skipGenerate) {
+            return;
+        }
 
         if (! $this->slugOptions->generateSlugsOnUpdate) {
             return;
