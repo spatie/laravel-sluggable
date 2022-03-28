@@ -16,6 +16,8 @@ class SlugOptions
 
     public int $maximumLength = 250;
 
+    public bool $skipGenerate = false;
+
     public bool $generateSlugsOnCreate = true;
 
     public bool $generateSlugsOnUpdate = true;
@@ -70,6 +72,13 @@ class SlugOptions
     public function slugsShouldBeNoLongerThan(int $maximumLength): self
     {
         $this->maximumLength = $maximumLength;
+
+        return $this;
+    }
+
+    public function skipGenerateWhen(callable $callable): self
+    {
+        $this->skipGenerate = $callable() === true;
 
         return $this;
     }
