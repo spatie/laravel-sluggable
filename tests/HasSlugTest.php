@@ -161,11 +161,11 @@ it('has a method that prevents a slug being generated on condition', function ()
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()
-                ->skipGenerateWhen(fn () => $this->name === 'Skip me');
+                ->skipGenerateWhen(fn () => $this->name === 'draft');
         }
     };
 
-    $model->name = 'Skip me';
+    $model->name = 'draft';
     $model->save();
 
     expect($model->url)->toBeNull();
@@ -175,10 +175,10 @@ it('has a method that prevents a slug being generated on condition', function ()
 
     expect($model->url)->toBeNull();
 
-    $model->name = 'this is a test';
+    $model->name = 'this is not a draft';
     $model->save();
 
-    expect($model->url)->toEqual('this-is-a-test');
+    expect($model->url)->toEqual('this-is-not-a-draft');
 });
 
 it('has a method that prevents a slug being generated on creation', function () {
