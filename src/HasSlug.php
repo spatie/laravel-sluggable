@@ -181,7 +181,7 @@ trait HasSlug
      * Helper function to handle multi-bytes strings if the module mb_substr is present,
      * default to substr otherwise.
      */
-    protected function generateSubstring($slugSourceString)
+    protected function generateSubstring($slugSourceString): string
     {
         if (function_exists('mb_substr')) {
             return mb_substr($slugSourceString, 0, $this->slugOptions->maximumLength);
