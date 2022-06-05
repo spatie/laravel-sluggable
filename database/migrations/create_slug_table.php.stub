@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateSlugTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('slugs', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('locale');
+            $table->morphs('sluggable');
+
+            $table->unique(['name', 'sluggable_type']); // Unique slugs per model type
+            $table->unique(['locale', 'sluggable_type', 'sluggable_id']); // Unique locale per model id
+        });
+    }
+
+    public function down()
+    {
+        Schema::drop('slugs');
+    }
+}

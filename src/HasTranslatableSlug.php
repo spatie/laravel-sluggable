@@ -5,13 +5,19 @@ namespace Spatie\Sluggable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Localizable;
 
 trait HasTranslatableSlug
 {
     use HasSlug;
     use Localizable;
+
+    protected function getTranslatedSlug(string $locale): string|null
+    {
+        $slugField = $this->slugOptions->slugField;
+
+        return $this->getTranslations($slugField)[$locale] ?? null;
+    }
 
     protected function getLocalesForSlug(): Collection
     {
@@ -40,7 +46,7 @@ trait HasTranslatableSlug
                 $slugField = $this->slugOptions->slugField;
 
                 if ($this->slugOptions->generateUniqueSlugs) {
-                    // temporarly change the 'slugField' of the SlugOptions
+                    // temporarily change the 'slugField' of the SlugOptions
                     // so the 'otherRecordExistsWithSlug' method queries
                     // the locale JSON column instead of the 'slugField'.
                     $this->slugOptions->saveSlugsTo("{$slugField}->{$locale}");
@@ -58,10 +64,9 @@ trait HasTranslatableSlug
 
     protected function generateNonUniqueSlug(): string
     {
-        $slugField = $this->slugOptions->slugField;
         $slugString = $this->getSlugSourceString();
 
-        $slug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+        $slug = $this->getTranslatedSlug($this->getLocale());
 
         $slugGeneratedFromCallable = is_callable($this->slugOptions->generateSlugFrom);
         $hasCustomSlug = $this->hasCustomSlugBeenUsed() && ! empty($slug);
@@ -71,7 +76,7 @@ trait HasTranslatableSlug
             $slugString = $slug;
         }
 
-        return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        return $this->generateNonUniqueSlugFromString($slugString);
     }
 
     protected function getSlugSourceStringFromCallable(): string
@@ -81,9 +86,8 @@ trait HasTranslatableSlug
 
     protected function slugIsBasedOnTitle(): bool
     {
-        $slugField = $this->slugOptions->slugField;
-        $titleSlug = Str::slug($this->getOriginalSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
-        $currentSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+        $titleSlug = $this->generateNonUniqueSlugFromString($this->getOriginalSourceString());
+        $currentSlug = $this->getTranslatedSlug($this->getLocale());
 
         if (! str_starts_with($currentSlug, $titleSlug) || $titleSlug === '') {
             return false;
@@ -118,8 +122,7 @@ trait HasTranslatableSlug
     {
         $slugField = $this->slugOptions->slugField;
         $originalSlug = $this->getOriginal($slugField)[$this->getLocale()] ?? null;
-        $newSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
-
+        $newSlug = $this->getTranslatedSlug($this->getLocale());
         return $originalSlug !== $newSlug;
     }
 
@@ -131,6 +134,11 @@ trait HasTranslatableSlug
             return parent::resolveRouteBindingQuery($query, $value, $field);
         }
 
+        return $this->queryModel($query, $value, $field);
+    }
+
+    protected function queryModel($query, $value, $field): Builder|Relation
+    {
         return $query->where("{$field}->{$this->getLocale()}", $value);
     }
 }

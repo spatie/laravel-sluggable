@@ -78,6 +78,26 @@ abstract class TestCase extends Orchestra
             $table->text('slug')->nullable();
             $table->unsignedInteger('scope_id')->nullable();
         });
+
+        require_once __DIR__.'/../database/migrations/create_slug_table.php.stub';
+        (new \CreateSlugTable())->up();
+
+        Schema::create('translatable_shareable_models', function (Blueprint $table) {
+            $table->increments('id');
+            $table->text('name')->nullable();
+            $table->text('other_field')->nullable();
+            $table->text('non_translatable_field')->nullable();
+            $table->foreignId('test_model_id')->nullable()->index();
+        });
+
+        Schema::create('translatable_shareable_models_soft_deletes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->text('name')->nullable();
+            $table->text('other_field')->nullable();
+            $table->text('non_translatable_field')->nullable();
+            $table->foreignId('test_model_id')->nullable()->index();
+            $table->softDeletes();
+        });
     }
 
     protected function initializeDirectory(string $directory)

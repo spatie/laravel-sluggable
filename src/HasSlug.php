@@ -35,10 +35,8 @@ trait HasSlug
             return;
         }
 
-        if ($this->slugOptions->preventOverwrite) {
-            if ($this->{$this->slugOptions->slugField} !== null) {
-                return;
-            }
+        if ($this->slugOptions->preventOverwrite && $this->isSlugFieldEmpty()) {
+            return;
         }
 
         $this->addSlug();
@@ -56,13 +54,16 @@ trait HasSlug
             return;
         }
 
-        if ($this->slugOptions->preventOverwrite) {
-            if ($this->{$this->slugOptions->slugField} !== null) {
-                return;
-            }
+        if ($this->slugOptions->preventOverwrite && $this->isSlugFieldEmpty()) {
+            return;
         }
 
         $this->addSlug();
+    }
+
+    protected function isSlugFieldEmpty(): bool
+    {
+        return $this->{$this->slugOptions->slugField} !== null;
     }
 
     public function generateSlug(): void
@@ -95,7 +96,12 @@ trait HasSlug
             return $this->$slugField;
         }
 
-        return Str::slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        return $this->generateNonUniqueSlugFromString($this->getSlugSourceString());
+    }
+
+    protected function generateNonUniqueSlugFromString(string $slugString): string
+    {
+        return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
     }
 
     protected function hasCustomSlugBeenUsed(): bool

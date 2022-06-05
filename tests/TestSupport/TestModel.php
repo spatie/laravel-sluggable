@@ -49,4 +49,9 @@ class TestModel extends Model
     {
         return $this->hasMany(TranslatableModel::class);
     }
+
+    public function translatableShareableModels(): HasMany
+    {
+        return $this->hasMany(TranslatableShareableModel::class);
+    }
 }
