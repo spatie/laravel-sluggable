@@ -126,7 +126,7 @@ trait HasShareableTranslatableSlug
         }
 
         return Collection::wrap($generateSlugFrom)
-            ->filter(fn ($fieldName) => $this->isTranslatableAttribute($fieldName))
+            ->filter(fn($fieldName) => $this->isTranslatableAttribute($fieldName))
             ->flatMap(function (string $fieldName) {
                 return Collection::wrap($this->getTranslations($fieldName))
                     ->diff($this->getOriginal($fieldName))
@@ -194,7 +194,7 @@ trait HasShareableTranslatableSlug
     {
         $query = Slug::where('name', $slug)
             ->where('sluggable_type', static::class)
-            ->whereNot('sluggable_id', $this->getKey());
+            ->where('sluggable_id', '!=', $this->getKey()); // Can be replaced by whereNot in Laravel 9.3.0+
 
         if ($this->slugOptions->extraScopeCallback) {
             $query->where($this->slugOptions->extraScopeCallback);
