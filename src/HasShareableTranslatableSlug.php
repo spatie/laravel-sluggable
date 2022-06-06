@@ -124,7 +124,7 @@ trait HasShareableTranslatableSlug
         }
 
         return Collection::wrap($generateSlugFrom)
-            ->filter(fn($fieldName) => $this->isTranslatableAttribute($fieldName))
+            ->filter(fn ($fieldName) => $this->isTranslatableAttribute($fieldName))
             ->flatMap(function (string $fieldName) {
                 return Collection::wrap($this->getTranslations($fieldName))
                     ->diff($this->getOriginal($fieldName))
