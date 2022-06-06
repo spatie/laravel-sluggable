@@ -13,7 +13,6 @@ beforeEach(function () {
 });
 
 it('generates a slug for each translation', function () {
-
     $this->testModel->setTranslation('name', 'en', 'Test value EN');
     $this->testModel->setTranslation('name', 'nl', 'Test value NL');
 
@@ -194,7 +193,7 @@ it('can handle overwrites for one item when updating a model', function () {
     $this->testModel->setTranslation('name', 'nl', 'Test value NL');
     $this->testModel->save();
 
-    $this->testModel->setSlug( 'updated-value-nl', 'nl');
+    $this->testModel->setSlug('updated-value-nl', 'nl');
 
     expect($this->testModel->getSlug())->toBe('test-value-en')
         ->and($this->testModel->getSlug('nl'))->toBe('updated-value-nl');
@@ -207,7 +206,7 @@ it('can handle overwrites for one item when updating a model with custom slugs',
     $this->testModel->setSlug('Test slug EN', 'en');
     $this->testModel->save();
 
-    $this->testModel->setSlug( 'updated-value-nl', 'nl');
+    $this->testModel->setSlug('updated-value-nl', 'nl');
 
     expect($this->testModel->getSlug())->toBe('test-slug-en')
         ->and($this->testModel->getSlug('nl'))->toBe('updated-value-nl');

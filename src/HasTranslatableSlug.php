@@ -123,6 +123,7 @@ trait HasTranslatableSlug
         $slugField = $this->slugOptions->slugField;
         $originalSlug = $this->getOriginal($slugField)[$this->getLocale()] ?? null;
         $newSlug = $this->getTranslatedSlug($this->getLocale());
+
         return $originalSlug !== $newSlug;
     }
 

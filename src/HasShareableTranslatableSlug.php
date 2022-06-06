@@ -73,7 +73,7 @@ trait HasShareableTranslatableSlug
         $this->overrideSlugs->each(function (string $name, string $locale) {
             $this->slugs()->create([
                 'name' => $name,
-                'locale' => $locale
+                'locale' => $locale,
             ]);
         });
     }
@@ -90,9 +90,7 @@ trait HasShareableTranslatableSlug
         $this->deleteForgottenSlugs();
 
         $this->getModifiedLocalesForSlug()->unique()->each(function ($locale) {
-
             $this->withLocale($locale, function () use ($locale) {
-
                 $slug = $this->generateNonUniqueSlug();
 
                 if ($this->slugOptions->generateUniqueSlugs) {
@@ -176,13 +174,13 @@ trait HasShareableTranslatableSlug
         $locale = $locale ?? $this->getLocale();
 
         $this->withLocale($locale, function () use ($slug) {
-
             if ($this->slugOptions->generateUniqueSlugs) {
                 $slug = $this->makeSlugUnique($slug);
             }
 
-            if (!$this->exists) {
+            if (! $this->exists) {
                 $this->setOverrideSlug($slug);
+
                 return;
             }
 
@@ -209,5 +207,4 @@ trait HasShareableTranslatableSlug
             $query->where('name', $value);
         });
     }
-
 }

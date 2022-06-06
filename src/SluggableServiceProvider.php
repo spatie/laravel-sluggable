@@ -2,8 +2,8 @@
 
 namespace Spatie\Sluggable;
 
-use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class SluggableServiceProvider extends PackageServiceProvider
 {
