@@ -240,6 +240,22 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+### Prevent slugs from generating with a forbidden list
+
+You can pass an `array` of string to `forbiddenSlugs`.
+
+If you don't want to create slugs from a list of forbidden words or strings, you can specify them here.  Use cases would involve preventing route collisions or banned keywords.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->forbiddenSlugs(['trashed', 'do-not-generate-this-slug']);
+}
+```
+
 ### Prevent slug updates
 
 Similarly, if you want to prevent the slug from being updated on model updates, call `doNotGenerateSlugsOnUpdate()`.
