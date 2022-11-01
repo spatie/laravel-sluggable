@@ -242,7 +242,7 @@ public function getSlugOptions() : SlugOptions
 
 ### Prevent slugs from generating with a forbidden list
 
-You can pass an `array` of string to `forbiddenSlugs`.
+You can pass an `array` of strings to `forbiddenSlugs`.
 
 If you don't want to create slugs from a list of forbidden words or strings, you can specify them here.  Use cases would involve preventing route collisions or banned keywords.
 
