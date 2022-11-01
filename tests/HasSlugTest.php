@@ -338,7 +338,7 @@ it('will generate slug that is not forbidden', function () {
         }
     };
 
-    $model->name = 'forbidden';
+    $model->name = 'Forbidden';
     $model->save();
 
     expect($model->url)->not->toEqual('forbidden');

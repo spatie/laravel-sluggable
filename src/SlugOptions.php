@@ -129,7 +129,7 @@ class SlugOptions
 
     public function forbiddenSlugs(array $slugs = []): self
     {
-        $this->forbiddenSlugs = $slugs;
+        $this->forbiddenSlugs = array_map('strtolower', $slugs);
 
         return $this;
     }
