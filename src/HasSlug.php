@@ -82,6 +82,10 @@ trait HasSlug
             $slug = $this->makeSlugUnique($slug);
         }
 
+        if(count($this->slugOptions->forbiddenSlugs)) {
+            $slug = $this->makePermissableSlug($slug);
+        }
+
         $slugField = $this->slugOptions->slugField;
 
         $this->$slugField = $slug;
@@ -130,7 +134,19 @@ trait HasSlug
         $originalSlug = $slug;
         $i = 1;
 
-        while ($this->otherRecordExistsWithSlug($slug) || $slug === '') {
+        while ($this->otherRecordExistsWithSlug($slug) || $slug === '' || in_array($slug, $this->slugOptions->forbiddenSlugs)) {
+            $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;
+        }
+
+        return $slug;
+    }
+
+    protected function makePermissableSlug(string $slug): string
+    {
+        $originalSlug = $slug;
+        $i = 1;
+
+        while (in_array($slug, $this->slugOptions->forbiddenSlugs)) {
             $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;
         }
 

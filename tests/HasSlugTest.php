@@ -212,7 +212,7 @@ it('has a method that prevents a slug being generated on update', function () {
     expect($model->url)->toEqual('this-is-a-test');
 });
 
-it('has an method that prevents a slug beign generated if already present', function () {
+it('has an method that prevents a slug being generated if already present', function () {
     $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
@@ -314,4 +314,32 @@ it('will save a unique slug when replicating a model that does not generates slu
 
     expect($model->url)->toEqual('this-is-a-test');
     expect($replica->url)->toEqual('this-is-a-test-1');
+});
+
+it('will generate slug when forbidden slug option is not specified', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->forbiddenSlugs();
+        }
+    };
+
+    $model->name = 'forbidden';
+    $model->save();
+
+    expect($model->url)->toEqual('forbidden');
+});
+
+it('will generate slug that is not forbidden', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->forbiddenSlugs(['prohibited', 'forbidden', 'banned']);
+        }
+    };
+
+    $model->name = 'forbidden';
+    $model->save();
+
+    expect($model->url)->not->toEqual('forbidden');
 });

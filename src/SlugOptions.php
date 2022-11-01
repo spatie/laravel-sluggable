@@ -30,6 +30,8 @@ class SlugOptions
 
     public array $translatableLocales = [];
 
+    public array $forbiddenSlugs = [];
+
     public static function create(): static
     {
         return new static();
@@ -121,6 +123,13 @@ class SlugOptions
     public function extraScope(callable $callbackMethod): self
     {
         $this->extraScopeCallback = $callbackMethod;
+
+        return $this;
+    }
+
+    public function forbiddenSlugs(array $slugs = []): self
+    {
+        $this->forbiddenSlugs = $slugs;
 
         return $this;
     }
