@@ -334,7 +334,7 @@ it('will generate slug that is not forbidden', function () {
     $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
-            return parent::getSlugOptions()->forbiddenSlugs(['prohibited', 'forbidden', 'banned']);
+            return parent::getSlugOptions()->forbiddenSlugs(['prohibited', 'forbidden', 'banned', 'FoRbiDDen']);
         }
     };
 

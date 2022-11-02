@@ -134,7 +134,7 @@ trait HasSlug
         $originalSlug = $slug;
         $i = 1;
 
-        while ($this->otherRecordExistsWithSlug($slug) || $slug === '' || in_array($slug, $this->slugOptions->forbiddenSlugs)) {
+        while ($this->isExistingOrForbiddenSlug($slug)) {
             $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;
         }
 
@@ -146,7 +146,7 @@ trait HasSlug
         $originalSlug = $slug;
         $i = 1;
 
-        while (in_array($slug, $this->slugOptions->forbiddenSlugs)) {
+        while ($this->isExistingOrForbiddenSlug($slug)) {
             $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;
         }
 
@@ -171,6 +171,15 @@ trait HasSlug
         }
 
         return $query->exists();
+    }
+
+    protected function isExistingOrForbiddenSlug(string $slug) : bool
+    {
+        if($this->otherRecordExistsWithSlug($slug)) return true;
+        if($slug === '') return true;
+        if(in_array($slug, $this->slugOptions->forbiddenSlugs)) return true;
+
+        return false;
     }
 
     protected function usesSoftDeletes(): bool
