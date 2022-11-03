@@ -4,7 +4,6 @@ use Illuminate\Support\Str;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModelSoftDeletes;
-use Spatie\Sluggable\Tests\TestSupport\TestModelWithDictionary;
 
 it('will save a slug when saving a model', function () {
     $model = TestModel::create(['name' => 'this is a test']);
