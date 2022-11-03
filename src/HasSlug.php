@@ -95,7 +95,7 @@ trait HasSlug
             return $this->$slugField;
         }
 
-        return Str::slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        return Str::slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage, $this->slugOptions->dictionary);
     }
 
     protected function hasCustomSlugBeenUsed(): bool

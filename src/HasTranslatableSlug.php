@@ -71,7 +71,7 @@ trait HasTranslatableSlug
             $slugString = $slug;
         }
 
-        return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage, $this->slugOptions->dictionary);
     }
 
     protected function getSlugSourceStringFromCallable(): string
