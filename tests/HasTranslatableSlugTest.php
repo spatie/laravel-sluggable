@@ -359,3 +359,17 @@ it('can bind child route model implicit', function () {
 
     $response->assertStatus(200);
 });
+
+it('will replace characters using a dictionary', function () {
+    $model = new class () extends TranslatableModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->dictionary(['$' => 'dollar']);
+        }
+    };
+
+    $model->setTranslation('name', 'en', '500$ bill');
+    $model->save();
+
+    expect($model->slug)->toEqual('500-dollar-bill');
+});

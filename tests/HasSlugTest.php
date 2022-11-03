@@ -4,6 +4,7 @@ use Illuminate\Support\Str;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModelSoftDeletes;
+use Spatie\Sluggable\Tests\TestSupport\TestModelWithDictionary;
 
 it('will save a slug when saving a model', function () {
     $model = TestModel::create(['name' => 'this is a test']);
@@ -314,4 +315,18 @@ it('will save a unique slug when replicating a model that does not generates slu
 
     expect($model->url)->toEqual('this-is-a-test');
     expect($replica->url)->toEqual('this-is-a-test-1');
+});
+
+it('will replace characters using a dictionary', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->dictionary(['$' => 'dollar']);
+        }
+    };
+
+    $model->name = '500$ bill';
+    $model->save();
+
+    expect($model->url)->toEqual('500-dollar-bill');
 });
