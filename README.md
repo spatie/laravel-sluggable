@@ -188,6 +188,24 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+### Handling special characters
+
+To change how characters are replaced by `Str::slug` you may call `dictionary`
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->dictionary([
+            '@' => 'at',
+            '$' => 'dollar',
+            '&' => 'and',
+        ]);
+}
+```
+
 ### Setting the slug language
 
 To set the language used by `Str::slug` you may call `usingLanguage`
