@@ -315,3 +315,21 @@ it('will save a unique slug when replicating a model that does not generates slu
     expect($model->url)->toEqual('this-is-a-test');
     expect($replica->url)->toEqual('this-is-a-test-1');
 });
+
+it('can generate slug suffix starting from given number', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->slugSuffixStartFrom(2);
+        }
+    };
+
+    $model->name = 'this is a test';
+    $model->save();
+
+    $replica = $model->replicate();
+    $replica->save();
+
+    expect($model->url)->toEqual('this-is-a-test');
+    expect($replica->url)->toEqual('this-is-a-test-2');
+});

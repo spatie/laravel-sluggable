@@ -30,6 +30,8 @@ class SlugOptions
 
     public array $translatableLocales = [];
 
+    public int $slugSuffixStartFrom = 1;
+
     public static function create(): static
     {
         return new static();
@@ -121,6 +123,13 @@ class SlugOptions
     public function extraScope(callable $callbackMethod): self
     {
         $this->extraScopeCallback = $callbackMethod;
+
+        return $this;
+    }
+
+    public function slugSuffixStartFrom(int $slugSuffixStartFrom): self
+    {
+        $this->slugSuffixStartFrom = max(1, $slugSuffixStartFrom);
 
         return $this;
     }
