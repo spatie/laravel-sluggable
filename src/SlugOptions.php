@@ -30,7 +30,7 @@ class SlugOptions
 
     public array $translatableLocales = [];
 
-    public int $slugSuffixStartFrom = 1;
+    public int $startSlugSuffixFrom = 1;
 
     public static function create(): static
     {
@@ -127,9 +127,9 @@ class SlugOptions
         return $this;
     }
 
-    public function slugSuffixStartFrom(int $slugSuffixStartFrom): self
+    public function startSlugSuffixFrom(int $startSlugSuffixFrom): self
     {
-        $this->slugSuffixStartFrom = max(1, $slugSuffixStartFrom);
+        $this->startSlugSuffixFrom = max(1, $startSlugSuffixFrom);
 
         return $this;
     }

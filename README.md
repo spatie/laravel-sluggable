@@ -307,7 +307,7 @@ public function getSlugOptions() : SlugOptions
     return SlugOptions::create()
         ->generateSlugsFrom('name')
         ->saveSlugsTo('slug')
-        ->slugSuffixStartFrom(2);
+        ->startSlugSuffixFrom(2);
 }
 ```
 

@@ -128,7 +128,7 @@ trait HasSlug
     protected function makeSlugUnique(string $slug): string
     {
         $originalSlug = $slug;
-        $i = $this->slugOptions->slugSuffixStartFrom;
+        $i = $this->slugOptions->startSlugSuffixFrom;
 
         while ($this->otherRecordExistsWithSlug($slug) || $slug === '') {
             $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;

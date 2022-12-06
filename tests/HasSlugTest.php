@@ -320,7 +320,7 @@ it('can generate slug suffix starting from given number', function () {
     $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions
         {
-            return parent::getSlugOptions()->slugSuffixStartFrom(2);
+            return parent::getSlugOptions()->startSlugSuffixFrom(2);
         }
     };
 
