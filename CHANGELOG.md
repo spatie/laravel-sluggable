@@ -2,6 +2,27 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.4.1 - 2022-12-07
+
+### What's Changed
+
+- Update README.md by @furiouskj in https://github.com/spatie/laravel-sluggable/pull/240
+- composer allow-plugins config by @hotsaucejake in https://github.com/spatie/laravel-sluggable/pull/241
+- Normalize composer.json by @patinthehat in https://github.com/spatie/laravel-sluggable/pull/247
+- Add Dependabot Automation by @patinthehat in https://github.com/spatie/laravel-sluggable/pull/246
+- Add PHP 8.2 Support by @patinthehat in https://github.com/spatie/laravel-sluggable/pull/245
+- Bump actions/checkout from 2 to 3 by @dependabot in https://github.com/spatie/laravel-sluggable/pull/248
+- Allow set slug suffix starting number by @Vediovis in https://github.com/spatie/laravel-sluggable/pull/249
+
+### New Contributors
+
+- @furiouskj made their first contribution in https://github.com/spatie/laravel-sluggable/pull/240
+- @hotsaucejake made their first contribution in https://github.com/spatie/laravel-sluggable/pull/241
+- @dependabot made their first contribution in https://github.com/spatie/laravel-sluggable/pull/248
+- @Vediovis made their first contribution in https://github.com/spatie/laravel-sluggable/pull/249
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.4.0...3.4.1
+
 ## 3.4.0 - 2022-03-28
 
 ## What's Changed
