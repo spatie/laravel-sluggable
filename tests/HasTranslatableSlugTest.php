@@ -359,3 +359,19 @@ it('can bind child route model implicit', function () {
 
     $response->assertStatus(200);
 });
+
+it('can find models using findBySlug alias', function () {
+    $model = new class () extends TranslatableModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->saveSlugsTo('slug');
+        }
+    };
+
+    $model->name = 'my custom url';
+    $model->save();
+
+    $savedModel = $model::findBySlug('my-custom-url');
+
+    expect($savedModel->id)->toEqual($model->id);
+});

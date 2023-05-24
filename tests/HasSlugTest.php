@@ -333,3 +333,19 @@ it('can generate slug suffix starting from given number', function () {
     expect($model->url)->toEqual('this-is-a-test');
     expect($replica->url)->toEqual('this-is-a-test-2');
 });
+
+it('can find models using findBySlug alias', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->saveSlugsTo('url');
+        }
+    };
+
+    $model->name = 'my custom url';
+    $model->save();
+
+    $savedModel = $model::findBySlug('my-custom-url');
+
+    expect($savedModel->id)->toEqual($model->id);
+});
