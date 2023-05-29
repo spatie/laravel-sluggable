@@ -2,6 +2,22 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.5.0 - 2023-05-29
+
+### What's Changed
+
+- Bump dependabot/fetch-metadata from 1.3.5 to 1.3.6 by @dependabot in https://github.com/spatie/laravel-sluggable/pull/250
+- Fix badge with `build` status in `README.md` by @gomzyakov in https://github.com/spatie/laravel-sluggable/pull/252
+- Bump dependabot/fetch-metadata from 1.3.6 to 1.4.0 by @dependabot in https://github.com/spatie/laravel-sluggable/pull/255
+- feat: add findBySlug alias by @IsraelOrtuno in https://github.com/spatie/laravel-sluggable/pull/256
+
+### New Contributors
+
+- @gomzyakov made their first contribution in https://github.com/spatie/laravel-sluggable/pull/252
+- @IsraelOrtuno made their first contribution in https://github.com/spatie/laravel-sluggable/pull/256
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.4.2...3.5.0
+
 ## 3.4.2 - 2023-01-23
 
 - update for Laravel 10
