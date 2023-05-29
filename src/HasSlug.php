@@ -5,7 +5,6 @@ namespace Spatie\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Spatie\Sluggable\Exceptions\InvalidOption;
-use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
 
 trait HasSlug
 {
@@ -193,7 +192,7 @@ trait HasSlug
 
     public static function findBySlug(string $slug, array $columns = ['*'])
     {
-        $modelInstance = new static;
+        $modelInstance = new static();
         $field = $modelInstance->getSlugOptions()->slugField;
 
         $field = in_array(HasTranslatableSlug::class, class_uses_recursive(static::class))
