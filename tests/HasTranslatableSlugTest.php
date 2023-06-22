@@ -375,3 +375,19 @@ it('can find models using findBySlug alias', function () {
 
     expect($savedModel->id)->toEqual($model->id);
 });
+
+it('can find models using findBySlugOrFail alias', function () {
+    $model = new class () extends TranslatableModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->saveSlugsTo('slug');
+        }
+    };
+
+    $model->name = 'my custom url';
+    $model->save();
+
+    $savedModel = $model::findBySlugOrFail('my-custom-url');
+
+    expect($savedModel->id)->toEqual($model->id);
+});
