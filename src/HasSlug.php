@@ -201,4 +201,16 @@ trait HasSlug
 
         return static::where($field, $slug)->first($columns);
     }
+
+    public static function findBySlugOrFail(string $slug, array $columns = ['*'])
+    {
+        $modelInstance = new static();
+        $field = $modelInstance->getSlugOptions()->slugField;
+
+        $field = in_array(HasTranslatableSlug::class, class_uses_recursive(static::class))
+            ? "{$field}->{$modelInstance->getLocale()}"
+            : $field;
+
+        return static::where($field, $slug)->firstOrFail($columns);
+    }
 }
