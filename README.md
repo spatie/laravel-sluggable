@@ -423,13 +423,14 @@ $model = Article::findBySlug('my-article');
 For convenience, you can use the alias `findBySlugOr` to retrieve a model. The query will compare against the field passed to `saveSlugsTo` when defining the `SlugOptions`. If the model does not exist, the callable will be executed and the result will be returned.
 
 ```php
-$model = Article::findBySlugOr('my-article', function () {
+$model = Article::findBySlugOr('my-article', ['*'], function () {
     return Article::create(['name' => 'my-article']);
 });
 
 // or
-$model = Article::findBySlugOr('my-article', fn () => throw new \Exception('Article not found'));
+$model = Article::findBySlugOr('my-article', ['*'],fn () => throw new \Exception('Article not found'));
 ```
+
 
 ## Changelog
 
