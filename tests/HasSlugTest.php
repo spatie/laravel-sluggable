@@ -349,3 +349,22 @@ it('can find models using findBySlug alias', function () {
 
     expect($savedModel->id)->toEqual($model->id);
 });
+
+it('can use a callable using findBySlugOr alias', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()
+                ->saveSlugsTo('url');
+        }
+    };
+
+    $model->name = 'my custom url';
+    $model->save();
+
+    $savedModel = $model::findBySlugOr('my-custom-url1', ['*'], function () {
+        return 'not found';
+    });
+
+    expect($savedModel)->toEqual('not found');
+});
