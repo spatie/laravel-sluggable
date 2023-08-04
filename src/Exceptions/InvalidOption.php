@@ -20,4 +20,9 @@ class InvalidOption extends Exception
     {
         return new static('Maximum length should be greater than zero');
     }
+
+    public static function missingCallback(): static
+    {
+        return new static('Could not determine which callback should be used');
+    }
 }

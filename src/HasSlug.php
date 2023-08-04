@@ -201,4 +201,19 @@ trait HasSlug
 
         return static::where($field, $slug)->first($columns);
     }
+
+    public static function findBySlugOr(string $slug, array $columns = ['*'], ?callable $callback = null)
+    {
+        if (!is_callable($callback) && $callback !== null) {
+            throw InvalidOption::missingCallback();
+        }
+        
+        $result = static::findBySlug($slug, $columns);
+
+        if (!$result && is_callable($callback)) {
+            return $callback($slug);
+        }
+
+        return $result;
+    }
 }
