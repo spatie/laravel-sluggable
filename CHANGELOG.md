@@ -2,6 +2,21 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.6.0 - 2024-02-26
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 1.4.0 to 1.5.1 by @dependabot in https://github.com/spatie/laravel-sluggable/pull/257
+* Bump dependabot/fetch-metadata from 1.5.1 to 1.6.0 by @dependabot in https://github.com/spatie/laravel-sluggable/pull/261
+* Bump actions/checkout from 3 to 4 by @dependabot in https://github.com/spatie/laravel-sluggable/pull/264
+* Add laravel 11 support by @mokhosh in https://github.com/spatie/laravel-sluggable/pull/271
+
+### New Contributors
+
+* @mokhosh made their first contribution in https://github.com/spatie/laravel-sluggable/pull/271
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.5.0...3.6.0
+
 ## 3.5.0 - 2023-05-29
 
 ### What's Changed
