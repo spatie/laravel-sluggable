@@ -308,6 +308,20 @@ public function getSlugOptions() : SlugOptions
 }
 ```
 
+### Reserving slugs
+
+If you have words that you wish to avoid having as slugs you can reserve them. Common when preventing collission with existing routes (eg. `admin`, `api` etc).
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->slugsShouldNotEqual(['admin', 'api']);
+}
+```
+
 ### Integration with laravel-translatable
 
 You can use this package along with [laravel-translatable](https://github.com/spatie/laravel-translatable) to generate a slug for each locale. Instead of using the `HasSlug` trait, you must use the `HasTranslatableSlug` trait, and add the name of the slug field to the `$translatable` array. For slugs that are generated from a single field _or_ multiple fields, you don't have to change anything else.

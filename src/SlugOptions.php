@@ -32,6 +32,10 @@ class SlugOptions
 
     public int $startSlugSuffixFrom = 1;
 
+    public array $reservedSlugs = [];
+
+    public array $reservedSlugsForLocales = [];
+
     public static function create(): static
     {
         return new static();
@@ -130,6 +134,26 @@ class SlugOptions
     public function startSlugSuffixFrom(int $startSlugSuffixFrom): self
     {
         $this->startSlugSuffixFrom = max(1, $startSlugSuffixFrom);
+
+        return $this;
+    }
+
+    public function slugsShouldNotEqual(string | array $slugs): self
+    {
+        if (is_string($slugs)) {
+            $slugs = [$slugs];
+        }
+        $this->reservedSlugs = $slugs;
+
+        return $this;
+    }
+
+    public function slugsShouldNotEqualForLocale(string $locale, string | array $slugs): self
+    {
+        if (is_string($slugs)) {
+            $slugs = [$slugs];
+        }
+        $this->reservedSlugsForLocales[$locale] = $slugs;
 
         return $this;
     }

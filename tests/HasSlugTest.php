@@ -349,3 +349,36 @@ it('can find models using findBySlug alias', function () {
 
     expect($savedModel->id)->toEqual($model->id);
 });
+
+it('can reserve a slug', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->slugsShouldNotEqual('reserved');
+        }
+    };
+
+    $model->name = 'reserved';
+    $model->save();
+
+    expect($model->url)->toEqual('reserved-1');
+});
+
+it('can reserve multiple slugs', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->slugsShouldNotEqual(['reserved', 'admin']);
+        }
+    };
+
+    $model->name = 'reserved';
+    $model->save();
+
+    expect($model->url)->toEqual('reserved-1');
+
+    $model->name = 'admin';
+    $model->save();
+
+    expect($model->url)->toEqual('admin-1');
+});

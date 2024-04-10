@@ -37,6 +37,14 @@ trait HasTranslatableSlug
             $this->withLocale($locale, function () use ($locale) {
                 $slug = $this->generateNonUniqueSlug();
 
+                if (!empty($this->slugOptions->reservedSlugs)) {
+                    $slug = $this->ensureSlugIsNotReserved($slug, $this->slugOptions->reservedSlugs);
+                }
+
+                if (array_key_exists($locale, $this->slugOptions->reservedSlugsForLocales) && !empty($this->slugOptions->reservedSlugsForLocales[$locale])) {
+                    $slug = $this->ensureSlugIsNotReserved($slug, $this->slugOptions->reservedSlugsForLocales[$locale]);
+                }
+
                 $slugField = $this->slugOptions->slugField;
 
                 if ($this->slugOptions->generateUniqueSlugs) {

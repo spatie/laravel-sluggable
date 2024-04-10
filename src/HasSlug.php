@@ -78,6 +78,10 @@ trait HasSlug
 
         $slug = $this->generateNonUniqueSlug();
 
+        if (!empty($this->slugOptions->reservedSlugs)) {
+            $slug = $this->ensureSlugIsNotReserved($slug, $this->slugOptions->reservedSlugs);
+        }
+
         if ($this->slugOptions->generateUniqueSlugs) {
             $slug = $this->makeSlugUnique($slug);
         }
@@ -123,6 +127,18 @@ trait HasSlug
     protected function getSlugSourceStringFromCallable(): string
     {
         return call_user_func($this->slugOptions->generateSlugFrom, $this);
+    }
+
+    protected function ensureSlugIsNotReserved(string $slug, array $reservedSlugs): string
+    {
+        $originalSlug = $slug;
+        $i = $this->slugOptions->startSlugSuffixFrom;
+
+        while (in_array($slug, $reservedSlugs)) {
+            $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;
+        }
+
+        return $slug;
     }
 
     protected function makeSlugUnique(string $slug): string

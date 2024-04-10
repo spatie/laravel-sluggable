@@ -161,6 +161,25 @@ it('can use a callback to update the slug per language', function () {
     expect($this->testModel->getTranslation('slug', 'nl'))->toBe('name-nl-2');
 });
 
+it('can reserve slugs for a certain locale', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->slugsShouldNotEqual('reserved')
+            ->slugsShouldNotEqualForLocale('nl', 'gereserveerd')
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'reserved');
+    $this->testModel->setTranslation('name', 'nl', 'gereserveerd');
+    $this->testModel->setTranslation('name', 'sv', 'gereserveerd');
+    $this->testModel->save();
+
+    expect($this->testModel->getTranslation('slug', 'en'))->toBe('reserved-1');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('gereserveerd-1');
+    expect($this->testModel->getTranslation('slug', 'sv'))->toBe('gereserveerd');
+});
+
 it('can handle overwrites when creating a model', function () {
     $this->testModel->setTranslation('name', 'en', 'Test value EN');
     $this->testModel->setTranslation('name', 'nl', 'Test value NL');
