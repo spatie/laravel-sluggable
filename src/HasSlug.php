@@ -195,12 +195,12 @@ trait HasSlug
         $modelInstance = new static();
         $field = $modelInstance->getSlugOptions()->slugField;
 
-        $currentLocale = $modelInstance->getLocale();
-        $fallbackLocale = config('app.fallback_locale');
-
         $query = static::query();
 
         if (in_array(HasTranslatableSlug::class, class_uses_recursive(static::class))) {
+            $currentLocale = $modelInstance->getLocale();
+            $fallbackLocale = config('app.fallback_locale');
+
             $currentField = "{$field}->{$currentLocale}";
             $fallbackField = "{$field}->{$fallbackLocale}";
 
