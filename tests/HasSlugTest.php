@@ -4,6 +4,7 @@ use Illuminate\Support\Str;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModelSoftDeletes;
+use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
 
 it('will save a slug when saving a model', function () {
     $model = TestModel::create(['name' => 'this is a test']);
@@ -348,4 +349,62 @@ it('can find models using findBySlug alias', function () {
     $savedModel = $model::findBySlug('my-custom-url');
 
     expect($savedModel->id)->toEqual($model->id);
+});
+
+it('can customize query using additionalQuery parameter in findBySlug', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->saveSlugsTo('url');
+        }
+    };
+
+    $model->url = 'custom-slug';
+    $model->other_field = 'active';
+    $model->save();
+
+    $savedModel = $model::findBySlug('custom-slug', ['*'], function ($query) {
+        $query->where('other_field', 'active');
+    });
+
+    expect($savedModel)
+        ->not->toBeNull()
+        ->and($savedModel->id)
+        ->toEqual($model->id);
+
+    $noMatch = $model::findBySlug('custom-slug', ['*'], function ($query) {
+        $query->where('status', 'inactive');
+    });
+
+    expect($noMatch)->toBeNull();
+});
+
+it('can find models using findBySlug with fallback locale', function () {
+    config()->set('app.fallback_locale', 'en');
+    app()->setLocale('tr');
+
+    $model = new class () extends TranslatableModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->saveSlugsTo('slug');
+        }
+    };
+
+    $model->slug = ['en' => 'english-slug', 'tr' => 'turkish-slug'];
+    $model->name = ['en' => 'English Name', 'tr' => 'Turkish Name'];
+    $model->save();
+
+    $foundModelInCurrentLocale = $model::findBySlug('turkish-slug');
+
+    expect($foundModelInCurrentLocale)
+        ->not->toBeNull()
+        ->and($foundModelInCurrentLocale->id)
+        ->toEqual($model->id);
+
+    $foundModelInFallbackLocale = $model::findBySlug('english-slug');
+
+    expect($foundModelInFallbackLocale)
+        ->not->toBeNull()
+        ->and($foundModelInFallbackLocale->id)
+        ->toEqual($model->id);
 });

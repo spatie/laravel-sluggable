@@ -190,15 +190,31 @@ trait HasSlug
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
     }
 
-    public static function findBySlug(string $slug, array $columns = ['*'])
+    public static function findBySlug(string $slug, array $columns = ['*'], callable $additionalQuery = null)
     {
         $modelInstance = new static();
         $field = $modelInstance->getSlugOptions()->slugField;
 
-        $field = in_array(HasTranslatableSlug::class, class_uses_recursive(static::class))
-            ? "{$field}->{$modelInstance->getLocale()}"
-            : $field;
+        $query = static::query();
 
-        return static::where($field, $slug)->first($columns);
+        if (in_array(HasTranslatableSlug::class, class_uses_recursive(static::class))) {
+            $currentLocale = $modelInstance->getLocale();
+            $fallbackLocale = config('app.fallback_locale');
+
+            $currentField = "{$field}->{$currentLocale}";
+            $fallbackField = "{$field}->{$fallbackLocale}";
+
+            $query->where($currentField, $slug);
+
+            $query->orWhere($fallbackField, $slug);
+        } else {
+            $query->where($field, $slug);
+        }
+
+        if (is_callable($additionalQuery)) {
+            $additionalQuery($query);
+        }
+
+        return $query->first($columns);
     }
 }
