@@ -2,6 +2,22 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.7.0 - 2024-12-09
+
+### What's Changed
+
+* Changing reference to Laravel docs without Laravel version by @abishekrsrikaanth in https://github.com/spatie/laravel-sluggable/pull/274
+* Bump dependabot/fetch-metadata from 1.6.0 to 2.1.0 by @dependabot in https://github.com/spatie/laravel-sluggable/pull/278
+* Bump dependabot/fetch-metadata from 2.1.0 to 2.2.0 by @dependabot in https://github.com/spatie/laravel-sluggable/pull/281
+* Add Fallback Locale and Additional Query Support to `findBySlug` by @mkeremcansev in https://github.com/spatie/laravel-sluggable/pull/284
+
+### New Contributors
+
+* @abishekrsrikaanth made their first contribution in https://github.com/spatie/laravel-sluggable/pull/274
+* @mkeremcansev made their first contribution in https://github.com/spatie/laravel-sluggable/pull/284
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.6.0...3.7.0
+
 ## 3.6.0 - 2024-02-26
 
 ### What's Changed
