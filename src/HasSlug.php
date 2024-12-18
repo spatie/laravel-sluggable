@@ -190,7 +190,7 @@ trait HasSlug
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
     }
 
-    public static function findBySlug(string $slug, array $columns = ['*'], callable $additionalQuery = null)
+    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null)
     {
         $modelInstance = new static();
         $field = $modelInstance->getSlugOptions()->slugField;
@@ -204,9 +204,7 @@ trait HasSlug
             $currentField = "{$field}->{$currentLocale}";
             $fallbackField = "{$field}->{$fallbackLocale}";
 
-            $query->where($currentField, $slug);
-
-            $query->orWhere($fallbackField, $slug);
+            $query->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
         } else {
             $query->where($field, $slug);
         }
