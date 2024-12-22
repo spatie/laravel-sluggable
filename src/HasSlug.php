@@ -190,7 +190,7 @@ trait HasSlug
         return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
     }
 
-    public static function findBySlug(string $slug, array $columns = ['*'], callable $additionalQuery = null)
+    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null)
     {
         $modelInstance = new static();
         $field = $modelInstance->getSlugOptions()->slugField;
