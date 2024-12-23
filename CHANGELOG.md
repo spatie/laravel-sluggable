@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.7.1 - 2024-12-23
+
+### What's Changed
+
+* Add explicit nullable type for additionalQuery parameter by @RomkaLTU in https://github.com/spatie/laravel-sluggable/pull/286
+
+### New Contributors
+
+* @RomkaLTU made their first contribution in https://github.com/spatie/laravel-sluggable/pull/286
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.7.0...3.7.1
+
 ## 3.7.0 - 2024-12-09
 
 ### What's Changed
