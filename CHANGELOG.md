@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.7.2 - 2024-12-30
+
+### What's Changed
+
+* Fix query for translatable slug by @andrii-trush in https://github.com/spatie/laravel-sluggable/pull/285
+
+### New Contributors
+
+* @andrii-trush made their first contribution in https://github.com/spatie/laravel-sluggable/pull/285
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.7.1...3.7.2
+
 ## 3.7.1 - 2024-12-23
 
 ### What's Changed
