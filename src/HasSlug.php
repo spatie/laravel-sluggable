@@ -204,9 +204,7 @@ trait HasSlug
             $currentField = "{$field}->{$currentLocale}";
             $fallbackField = "{$field}->{$fallbackLocale}";
 
-            $query->where($currentField, $slug);
-
-            $query->orWhere($fallbackField, $slug);
+            $query->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
         } else {
             $query->where($field, $slug);
         }
