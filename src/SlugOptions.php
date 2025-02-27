@@ -10,6 +10,9 @@ class SlugOptions
     /** @var callable */
     public $extraScopeCallback;
 
+    /** @var callable|null */
+    public $suffixGenerator;
+
     public string $slugField;
 
     public bool $generateUniqueSlugs = true;
@@ -31,6 +34,8 @@ class SlugOptions
     public array $translatableLocales = [];
 
     public int $startSlugSuffixFrom = 1;
+
+    public bool $useSuffixOnFirstOccurrence = false;
 
     public static function create(): static
     {
@@ -130,6 +135,20 @@ class SlugOptions
     public function startSlugSuffixFrom(int $startSlugSuffixFrom): self
     {
         $this->startSlugSuffixFrom = max(1, $startSlugSuffixFrom);
+
+        return $this;
+    }
+
+    public function useSuffixOnFirstOccurrence(): self
+    {
+        $this->useSuffixOnFirstOccurrence = true;
+
+        return $this;
+    }
+
+    public function usingSuffixGenerator(callable $generator): self
+    {
+        $this->suffixGenerator = $generator;
 
         return $this;
     }
