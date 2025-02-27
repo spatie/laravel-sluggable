@@ -10,7 +10,7 @@ class SlugOptions
     /** @var callable */
     public $extraScopeCallback;
 
-    /** @var callable|null */
+    /** @var (callable(string $slug, int $iteration): string)|null */
     public $suffixGenerator;
 
     public string $slugField;
@@ -146,6 +146,10 @@ class SlugOptions
         return $this;
     }
 
+
+    /**
+     * @param callable(string $slug, int $iteration): string $generator
+     */
     public function usingSuffixGenerator(callable $generator): self
     {
         $this->suffixGenerator = $generator;

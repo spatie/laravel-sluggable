@@ -148,7 +148,7 @@ trait HasSlug
             return call_user_func($this->slugOptions->suffixGenerator, $originalSlug, $iteration);
         }
 
-        return $this->slugOptions->startSlugSuffixFrom + $iteration;
+        return strval($this->slugOptions->startSlugSuffixFrom + $iteration);
     }
 
     protected function otherRecordExistsWithSlug(string $slug): bool
