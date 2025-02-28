@@ -128,13 +128,27 @@ trait HasSlug
     protected function makeSlugUnique(string $slug): string
     {
         $originalSlug = $slug;
-        $i = $this->slugOptions->startSlugSuffixFrom;
+        $iteration = 0;
 
-        while ($this->otherRecordExistsWithSlug($slug) || $slug === '') {
-            $slug = $originalSlug.$this->slugOptions->slugSeparator.$i++;
+        while (
+            $slug === '' ||
+            $this->otherRecordExistsWithSlug($slug) ||
+            ($this->slugOptions->useSuffixOnFirstOccurrence && $iteration === 0)
+        ) {
+            $suffix = $this->generateSuffix($originalSlug, $iteration++);
+            $slug = $originalSlug . $this->slugOptions->slugSeparator . $suffix;
         }
 
         return $slug;
+    }
+
+    protected function generateSuffix(string $originalSlug, int $iteration): string
+    {
+        if ($this->slugOptions->suffixGenerator) {
+            return call_user_func($this->slugOptions->suffixGenerator, $originalSlug, $iteration);
+        }
+
+        return strval($this->slugOptions->startSlugSuffixFrom + $iteration);
     }
 
     protected function otherRecordExistsWithSlug(string $slug): bool

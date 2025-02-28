@@ -335,6 +335,40 @@ it('can generate slug suffix starting from given number', function () {
     expect($replica->url)->toEqual('this-is-a-test-2');
 });
 
+it('can generate slug suffix on first occurrence', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->useSuffixOnFirstOccurrence();
+        }
+    };
+
+    $model->name = 'this is a test';
+    $model->save();
+
+    expect($model->url)->toEqual('this-is-a-test-1');
+});
+
+it('can generate a custom slug suffix using a callable', function () {
+    $model = new class () extends TestModel {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->usingSuffixGenerator(
+                fn(string $slug, int $iteration) => 'random-with-access-base-slug-(' . $slug[0] . '_' . $iteration . ')'
+            );
+        }
+    };
+
+    $model->name = 'this is a test';
+    $model->save();
+
+    $replica = $model->replicate();
+    $replica->save();
+
+    expect($model->url)->toEqual('this-is-a-test');
+    expect($replica->url)->toEqual('this-is-a-test-random-with-access-base-slug-(t_0)');
+});
+
 it('can find models using findBySlug alias', function () {
     $model = new class () extends TestModel {
         public function getSlugOptions(): SlugOptions

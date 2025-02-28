@@ -30,7 +30,8 @@ We highly appreciate you sending us a postcard from your hometown, mentioning wh
 ## Installation
 
 You can install the package via composer:
-``` bash
+
+```bash
 composer require spatie/laravel-sluggable
 ```
 
@@ -281,7 +282,6 @@ public function getSlugOptions() : SlugOptions
 
 ### Using scopes
 
-
 If you have a global scope that should be taken into account, you can define this as well with `extraScope`. For example if you have a pages table containing pages of multiple websites and every website has it's own unique slugs.
 
 ```php
@@ -305,6 +305,40 @@ public function getSlugOptions() : SlugOptions
         ->generateSlugsFrom('name')
         ->saveSlugsTo('slug')
         ->startSlugSuffixFrom(2);
+}
+```
+
+### Generating slug suffix on first occurrence
+
+With the default behavior (assuming that we haven't disabled slug uniqueness with `allowDuplicateSlugs`), the generated slugs for two records with the same source values would be `this-is-an-example` and `this-is-an-example-1`.
+
+When using this option, we are forcing the first occurence to also have a suffix so, even if the slug is unique as it is, it will be suffixed, resulting in `this-is-an-example-1` and `this-is-an-example-2`.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->useSuffixOnFirstOccurrence();
+}
+```
+
+### Generating a custom slug suffix
+
+By default, the mechanism to make slugs unique is to append an autoincremental value to the slug. You can generate a custom slug suffix such as a random string or hash with `usingSuffixGenerator`.
+
+It accepts a callable that receives the base slug (without any suffix) and the iteration number, which represents how many times the suffix generation process has been run to ensure uniqueness. This number could be useful to monitor the collision rate of the generation process.
+
+```php
+public function getSlugOptions() : SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
+        ->usingSuffixGenerator(
+            fn(string $slug, int $iteration) => bin2hex(random_bytes(4))
+        ); // Sample dummy method to generate a random hex code of length 8
 }
 ```
 
@@ -418,7 +452,6 @@ $model = Article::findBySlug('my-article');
 ```
 
 `findBySlug` also accepts a second parameter `$columns` just like the default Eloquent `find` method.
-
 
 ## Changelog
 
