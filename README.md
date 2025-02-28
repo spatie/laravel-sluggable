@@ -316,6 +316,8 @@ By default, the first occurence of a slug will not have a suffix. You can force 
 public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
         ->useSuffixOnFirstOccurrence();
 }
 ```
@@ -330,6 +332,8 @@ It accepts a callable that receives the base slug (without any suffix) and the i
 public function getSlugOptions() : SlugOptions
 {
     return SlugOptions::create()
+        ->generateSlugsFrom('name')
+        ->saveSlugsTo('slug')
         ->usingSuffixGenerator(
             fn(string $slug, int $iteration) => bin2hex(random_bytes(4))
         ); // Sample dummy method to generate a random hex code of length 8
