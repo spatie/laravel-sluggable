@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.7.4 - 2025-02-28
+
+### What's Changed
+
+* Allow to generate custom suffixes by @josepdecid in https://github.com/spatie/laravel-sluggable/pull/289
+
+### New Contributors
+
+* @josepdecid made their first contribution in https://github.com/spatie/laravel-sluggable/pull/289
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.7.3...3.7.4
+
 ## 3.7.3 - 2025-02-20
 
 ### What's Changed
