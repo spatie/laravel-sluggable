@@ -354,7 +354,7 @@ it('can generate a custom slug suffix using a callable', function () {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingSuffixGenerator(
-                fn(string $slug, int $iteration) => 'random-with-access-base-slug-(' . $slug[0] . '_' . $iteration . ')'
+                fn (string $slug, int $iteration) => 'random-with-access-base-slug-(' . $slug[0] . '_' . $iteration . ')'
             );
         }
     };

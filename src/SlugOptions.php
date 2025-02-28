@@ -10,7 +10,7 @@ class SlugOptions
     /** @var callable */
     public $extraScopeCallback;
 
-    /** @var (callable(string $slug, int $iteration): string)|null */
+    /** @var (callable(string, int): string)|null */
     public $suffixGenerator;
 
     public string $slugField;
