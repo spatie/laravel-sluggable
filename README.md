@@ -310,7 +310,9 @@ public function getSlugOptions() : SlugOptions
 
 ### Generating slug suffix on first occurrence
 
-By default, the first occurence of a slug will not have a suffix. You can force the first occurence to also have a suffix so, even if the slug is unique as it is, it will be suffixed.
+With the default behavior (assuming that we haven't disabled slug uniqueness with `allowDuplicateSlugs`), the generated slugs for two records with the same source values would be `this-is-an-example` and `this-is-an-example-1`.
+
+When using this option, we are forcing the first occurence to also have a suffix so, even if the slug is unique as it is, it will be suffixed, resulting in `this-is-an-example-1` and `this-is-an-example-2`.
 
 ```php
 public function getSlugOptions() : SlugOptions
