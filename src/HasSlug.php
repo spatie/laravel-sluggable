@@ -216,9 +216,16 @@ trait HasSlug
             $fallbackLocale = config('app.fallback_locale');
 
             $currentField = "{$field}->{$currentLocale}";
-            $fallbackField = "{$field}->{$fallbackLocale}";
-
-            $query->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
+            
+            // The user can disable the fallback locale for this model,
+            // so the script should not rely on it in the query.
+            // @see https://spatie.be/docs/laravel-translatable/v6/basic-usage/handling-missing-translations#content-disabling-fallbacks-on-a-per-model-basis
+            if($modelInstance->useFallbackLocale()) {
+                $fallbackField = "{$field}->{$fallbackLocale}";
+                $query->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
+            }else{
+                $query->where($currentField, $slug);
+            }
         } else {
             $query->where($field, $slug);
         }
