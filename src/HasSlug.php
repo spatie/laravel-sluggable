@@ -223,7 +223,7 @@ trait HasSlug
             if(! method_exists($modelInstance, 'useFallbackLocale') || $modelInstance->useFallbackLocale()) {
                 $fallbackField = "{$field}->{$fallbackLocale}";
                 $query->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
-            }else{
+            } else {
                 $query->where($currentField, $slug);
             }
         } else {
