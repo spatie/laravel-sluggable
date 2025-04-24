@@ -3,7 +3,6 @@
 namespace Spatie\Sluggable\Tests\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Sluggable\HasTranslatableSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -34,4 +33,3 @@ class Project extends Model
         return $this->belongsToMany(Category::class);
     }
 }
-
