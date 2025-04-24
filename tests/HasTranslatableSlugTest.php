@@ -3,6 +3,8 @@
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Sluggable\Tests\TestSupport\Category;
+use Spatie\Sluggable\Tests\TestSupport\Project;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModelSoftDeletes;
@@ -374,4 +376,19 @@ it('can find models using findBySlug alias', function () {
     $savedModel = $model::findBySlug('my-custom-url');
 
     expect($savedModel->id)->toEqual($model->id);
+});
+
+it('can resolve related child model when its scoped to the parent model using a many-to-many relationship', function () {
+    Route::get('categories/{category:slug}/projects/{project:slug}', function (Category $category, Project $project) {
+        expect($category->name)->toBe('Spatie');
+        expect($project->name)->toBe('Front Line PHP');
+    })->middleware(SubstituteBindings::class)->scopeBindings();
+
+    $category = Category::create(['name' => ['en' => 'Spatie']]);
+    $project = Project::create(['name' => ['en' => 'Front Line PHP']]);
+    $category->projects()->attach($project);
+
+    $response = $this->get('categories/spatie/projects/front-line-php');
+
+    $response->assertOk();
 });
