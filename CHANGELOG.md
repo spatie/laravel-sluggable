@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.7.5 - 2025-04-24
+
+### What's Changed
+
+* Also account for HasManyThrough / BelongsToMany relations by @mabdullahsari in https://github.com/spatie/laravel-sluggable/pull/291
+
+### New Contributors
+
+* @mabdullahsari made their first contribution in https://github.com/spatie/laravel-sluggable/pull/291
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/3.7.4...3.7.5
+
 ## 3.7.4 - 2025-02-28
 
 ### What's Changed
