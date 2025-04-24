@@ -78,6 +78,25 @@ abstract class TestCase extends Orchestra
             $table->text('slug')->nullable();
             $table->unsignedInteger('scope_id')->nullable();
         });
+
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->text('name')->nullable();
+            $table->text('slug')->nullable();
+        });
+
+        Schema::create('projects', function (Blueprint $table) {
+            $table->id();
+            $table->text('name')->nullable();
+            $table->text('slug')->nullable();
+        });
+
+        Schema::create('category_project', function (Blueprint $table) {
+            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('project_id');
+
+            $table->primary(['category_id', 'project_id']);
+        });
     }
 
     protected function initializeDirectory(string $directory)
