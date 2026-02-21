@@ -2,6 +2,13 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.8.0 - 2026-02-21
+
+### What's Changed
+
+- Add Laravel 13 and PHP 8.5 support
+- Drop Laravel 8/9 and PHP 8.0/8.1 (EOL)
+
 ## 3.7.5 - 2025-04-24
 
 ### What's Changed
