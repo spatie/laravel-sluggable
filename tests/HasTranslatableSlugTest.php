@@ -378,6 +378,56 @@ it('can find models using findBySlug alias', function () {
     expect($savedModel->id)->toEqual($model->id);
 });
 
+it('generates slug on update when slug was empty and preventOverwrite is enabled', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->preventOverwrite()
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
+
+    // Clear slugs to simulate a record with empty slugs
+    $this->testModel->setTranslation('slug', 'en', null);
+    $this->testModel->setTranslation('slug', 'nl', null);
+    $this->testModel->saveQuietly();
+
+    $this->testModel->setTranslation('name', 'en', 'Updated value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Updated value NL');
+    $this->testModel->save();
+
+    expect($this->testModel->getTranslation('slug', 'en'))->toBe('updated-value-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+});
+
+it('generates slug for empty locale while preserving existing locale with preventOverwrite', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->preventOverwrite()
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'Test value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Test value NL');
+    $this->testModel->save();
+
+    // Clear only the nl slug
+    $this->testModel->setTranslation('slug', 'nl', null);
+    $this->testModel->saveQuietly();
+
+    $this->testModel->setTranslation('name', 'en', 'Updated value EN');
+    $this->testModel->setTranslation('name', 'nl', 'Updated value NL');
+    $this->testModel->save();
+
+    // en slug should be preserved, nl slug should be generated
+    expect($this->testModel->getTranslation('slug', 'en'))->toBe('test-value-en');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('updated-value-nl');
+});
+
 it('can resolve related child model when its scoped to the parent model using a many-to-many relationship', function () {
     Route::get('categories/{category:slug}/projects/{project:slug}', function (Category $category, Project $project) {
         expect($category->name)->toBe('Spatie');
