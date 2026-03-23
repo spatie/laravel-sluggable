@@ -29,15 +29,60 @@ trait HasTranslatableSlug
             ->flatMap(fn ($fieldName) => $this->getTranslatedLocales($fieldName));
     }
 
+    protected function generateSlugOnCreate(): void
+    {
+        $this->slugOptions = $this->getSlugOptions();
+
+        if ($this->slugOptions->skipGenerate) {
+            return;
+        }
+
+        if (! $this->slugOptions->generateSlugsOnCreate) {
+            return;
+        }
+
+        $this->addSlug();
+    }
+
+    protected function generateSlugOnUpdate(): void
+    {
+        $this->slugOptions = $this->getSlugOptions();
+
+        if ($this->slugOptions->skipGenerate) {
+            return;
+        }
+
+        if (! $this->slugOptions->generateSlugsOnUpdate) {
+            return;
+        }
+
+        $this->addSlug();
+    }
+
+    public function generateSlug(): void
+    {
+        $this->slugOptions = $this->getSlugOptions();
+
+        $this->slugOptions->preventOverwrite = false;
+
+        $this->addSlug();
+    }
+
     protected function addSlug(): void
     {
         $this->ensureValidSlugOptions();
 
-        $this->getLocalesForSlug()->unique()->each(function ($locale) {
-            $this->withLocale($locale, function () use ($locale) {
-                $slug = $this->generateNonUniqueSlug();
+        $slugField = $this->slugOptions->slugField;
 
-                $slugField = $this->slugOptions->slugField;
+        $this->getLocalesForSlug()->unique()->each(function ($locale) use ($slugField) {
+            if ($this->slugOptions->preventOverwrite) {
+                if (filled($this->getTranslation($slugField, $locale, false))) {
+                    return;
+                }
+            }
+
+            $this->withLocale($locale, function () use ($slugField, $locale) {
+                $slug = $this->generateNonUniqueSlug();
 
                 if ($this->slugOptions->generateUniqueSlugs) {
                     // temporarly change the 'slugField' of the SlugOptions
