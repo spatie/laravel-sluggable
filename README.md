@@ -75,18 +75,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateYourEloquentModelTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('your_eloquent_models', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('slug'); // Field name same as your `saveSlugsTo`
+            $table->id();
+            $table->string('slug');
             $table->string('name');
             $table->timestamps();
         });
     }
-}
+};
 
 ```
 
