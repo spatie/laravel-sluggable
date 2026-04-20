@@ -37,9 +37,36 @@ composer require spatie/laravel-sluggable
 
 ## Usage
 
-Your Eloquent models should use the `Spatie\Sluggable\HasSlug` trait and the `Spatie\Sluggable\SlugOptions` class.
+This package exposes two ways to configure slug generation on an Eloquent model: a PHP attribute for simple cases, and the `HasSlug` trait plus `SlugOptions` for anything more advanced.
 
-The trait contains an abstract method `getSlugOptions()` that you must implement yourself.
+### Quick start with the `#[Sluggable]` attribute
+
+For simple models, place the `#[Sluggable]` attribute on the class. No trait, no method override, no base class.
+
+```php
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\Attributes\Sluggable;
+
+#[Sluggable(from: 'title', to: 'slug')]
+class Post extends Model
+{
+}
+```
+
+```php
+$post = Post::create(['title' => 'Hello World']);
+$post->slug; // "hello-world"
+```
+
+The attribute supports the common options: `from`, `to`, `separator`, `language`, `maxLength`, `unique`, `onCreate`, `onUpdate`, `preventOverwrite`, `scope`, `selfHealing`, `selfHealingSeparator`.
+
+Use the trait when you need any of: callables for slug sources, dynamic scopes via closures, `skipGenerateWhen`, custom suffix generators, translatable slugs, `findBySlug`, or self-healing URLs. Self-healing specifically requires the trait (the attribute alone cannot override `getRouteKey` / `resolveRouteBinding`). Mixing the two is fine: when the trait is present the attribute is ignored and `getSlugOptions()` wins.
+
+### Using the `HasSlug` trait
+
+Your Eloquent models should use the `Spatie\Sluggable\HasSlug` trait and the `Spatie\Sluggable\SlugOptions` class. The trait contains an abstract method `getSlugOptions()` that you must implement yourself.
 
 Your models' migrations should have a field to save the generated slug to.
 

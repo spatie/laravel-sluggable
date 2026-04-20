@@ -7,7 +7,7 @@ class SlugOptions
     /** @var array|callable */
     public $generateSlugFrom;
 
-    /** @var callable */
+    /** @var callable|null */
     public $extraScopeCallback;
 
     /** @var (callable(string, int): string)|null */
