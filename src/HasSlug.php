@@ -3,6 +3,7 @@
 namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Spatie\Sluggable\Exceptions\InvalidOption;
 
@@ -122,7 +123,7 @@ trait HasSlug
 
     protected function getSlugSourceStringFromCallable(): string
     {
-        return call_user_func($this->slugOptions->generateSlugFrom, $this);
+        return ($this->slugOptions->generateSlugFrom)($this);
     }
 
     protected function makeSlugUnique(string $slug): string
@@ -145,10 +146,10 @@ trait HasSlug
     protected function generateSuffix(string $originalSlug, int $iteration): string
     {
         if ($this->slugOptions->suffixGenerator) {
-            return call_user_func($this->slugOptions->suffixGenerator, $originalSlug, $iteration);
+            return ($this->slugOptions->suffixGenerator)($originalSlug, $iteration);
         }
 
-        return strval($this->slugOptions->startSlugSuffixFrom + $iteration);
+        return (string) ($this->slugOptions->startSlugSuffixFrom + $iteration);
     }
 
     protected function otherRecordExistsWithSlug(string $slug): bool
@@ -173,7 +174,7 @@ trait HasSlug
 
     protected function usesSoftDeletes(): bool
     {
-        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this), true);
+        return in_array(SoftDeletes::class, class_uses_recursive($this), true);
     }
 
     protected function ensureValidSlugOptions(): void
@@ -182,7 +183,7 @@ trait HasSlug
             throw InvalidOption::missingFromField();
         }
 
-        if (! strlen($this->slugOptions->slugField)) {
+        if ($this->slugOptions->slugField === '') {
             throw InvalidOption::missingSlugField();
         }
 
@@ -191,20 +192,12 @@ trait HasSlug
         }
     }
 
-    /**
-     * Helper function to handle multi-bytes strings if the module mb_substr is present,
-     * default to substr otherwise.
-     */
-    protected function generateSubstring($slugSourceString)
+    protected function generateSubstring(string $slugSourceString): string
     {
-        if (function_exists('mb_substr')) {
-            return mb_substr($slugSourceString, 0, $this->slugOptions->maximumLength);
-        }
-
-        return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
+        return mb_substr($slugSourceString, 0, $this->slugOptions->maximumLength);
     }
 
-    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null)
+    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
     {
         $modelInstance = new static();
         $field = $modelInstance->getSlugOptions()->slugField;

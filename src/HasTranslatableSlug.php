@@ -121,7 +121,7 @@ trait HasTranslatableSlug
 
     protected function getSlugSourceStringFromCallable(): string
     {
-        return call_user_func($this->slugOptions->generateSlugFrom, $this, $this->getLocale());
+        return ($this->slugOptions->generateSlugFrom)($this, $this->getLocale());
     }
 
     protected function slugIsBasedOnTitle(): bool
