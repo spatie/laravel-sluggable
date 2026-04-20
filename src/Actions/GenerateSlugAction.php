@@ -13,18 +13,12 @@ class GenerateSlugAction
 {
     public function onCreate(Model $model, SlugOptions $options): void
     {
-        if ($options->skipGenerate) {
-            return;
-        }
-
         if (! $options->generateSlugsOnCreate) {
             return;
         }
 
-        if ($options->preventOverwrite) {
-            if ($model->{$options->slugField} !== null) {
-                return;
-            }
+        if ($this->shouldSkipGeneration($model, $options)) {
+            return;
         }
 
         $this->addSlug($model, $options);
@@ -32,21 +26,28 @@ class GenerateSlugAction
 
     public function onUpdate(Model $model, SlugOptions $options): void
     {
-        if ($options->skipGenerate) {
-            return;
-        }
-
         if (! $options->generateSlugsOnUpdate) {
             return;
         }
 
-        if ($options->preventOverwrite) {
-            if ($model->{$options->slugField} !== null) {
-                return;
-            }
+        if ($this->shouldSkipGeneration($model, $options)) {
+            return;
         }
 
         $this->addSlug($model, $options);
+    }
+
+    protected function shouldSkipGeneration(Model $model, SlugOptions $options): bool
+    {
+        if ($options->skipGenerate) {
+            return true;
+        }
+
+        if (! $options->preventOverwrite) {
+            return false;
+        }
+
+        return $model->{$options->slugField} !== null;
     }
 
     public function generate(Model $model, SlugOptions $options): void
@@ -71,8 +72,10 @@ class GenerateSlugAction
     {
         $slugField = $options->slugField;
 
-        if ($this->hasCustomSlugBeenUsed($model, $options) && ! empty($model->{$slugField})) {
-            return $model->{$slugField};
+        if ($this->hasCustomSlugBeenUsed($model, $options)) {
+            if (! empty($model->{$slugField})) {
+                return $model->{$slugField};
+            }
         }
 
         return Str::slug(
@@ -151,8 +154,10 @@ class GenerateSlugAction
 
     public function ensureValidOptions(SlugOptions $options): void
     {
-        if (is_array($options->generateSlugFrom) && ! count($options->generateSlugFrom)) {
-            throw InvalidOption::missingFromField();
+        if (is_array($options->generateSlugFrom)) {
+            if (count($options->generateSlugFrom) === 0) {
+                throw InvalidOption::missingFromField();
+            }
         }
 
         if ($options->slugField === '') {

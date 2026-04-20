@@ -23,7 +23,7 @@ class TranslatableModel extends Model
 
     private ?SlugOptions $customSlugOptions = null;
 
-    public function useSlugOptions(SlugOptions $slugOptions)
+    public function useSlugOptions(SlugOptions $slugOptions): void
     {
         $this->customSlugOptions = $slugOptions;
     }

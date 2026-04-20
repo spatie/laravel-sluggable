@@ -24,7 +24,7 @@ class TranslatableModelSoftDeletes extends Model
 
     protected ?SlugOptions $customSlugOptions = null;
 
-    public function useSlugOptions(SlugOptions $slugOptions)
+    public function useSlugOptions(SlugOptions $slugOptions): void
     {
         $this->customSlugOptions = $slugOptions;
     }

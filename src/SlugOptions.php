@@ -49,7 +49,6 @@ class SlugOptions
     public static function createWithLocales(array $locales): static
     {
         $slugOptions = static::create();
-
         $slugOptions->translatableLocales = $locales;
 
         return $slugOptions;

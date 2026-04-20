@@ -17,13 +17,8 @@ trait HasSlug
 
     protected static function bootHasSlug(): void
     {
-        static::creating(function (Model $model) {
-            $model->generateSlugOnCreate();
-        });
-
-        static::updating(function (Model $model) {
-            $model->generateSlugOnUpdate();
-        });
+        static::creating(fn (Model $model) => $model->generateSlugOnCreate());
+        static::updating(fn (Model $model) => $model->generateSlugOnUpdate());
     }
 
     protected function generateSlugOnCreate(): void
@@ -89,7 +84,7 @@ trait HasSlug
 
         $model = $this->newQuery()->whereKey($identifier)->first();
 
-        if (! $model) {
+        if ($model === null) {
             return null;
         }
 
@@ -107,12 +102,11 @@ trait HasSlug
 
     public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
     {
-        $modelInstance = new static;
-        $field = $modelInstance->getSlugOptions()->slugField;
+        $field = (new static)->getSlugOptions()->slugField;
 
         $query = static::query()->where($field, $slug);
 
-        if (is_callable($additionalQuery)) {
+        if ($additionalQuery !== null) {
             $additionalQuery($query);
         }
 
