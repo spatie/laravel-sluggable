@@ -37,6 +37,10 @@ class SlugOptions
 
     public bool $useSuffixOnFirstOccurrence = false;
 
+    public bool $selfHealingUrls = false;
+
+    public string $selfHealingSeparator = '-';
+
     public static function create(): static
     {
         return new static();
@@ -51,7 +55,7 @@ class SlugOptions
         return $slugOptions;
     }
 
-    public function generateSlugsFrom(string | array | callable $fieldName): self
+    public function generateSlugsFrom(string|array|callable $fieldName): self
     {
         if (is_string($fieldName)) {
             $fieldName = [$fieldName];
@@ -146,6 +150,13 @@ class SlugOptions
         return $this;
     }
 
+    public function selfHealing(string $separator = '-'): self
+    {
+        $this->selfHealingUrls = true;
+        $this->selfHealingSeparator = $separator;
+
+        return $this;
+    }
 
     /**
      * @param callable(string $slug, int $iteration): string $generator

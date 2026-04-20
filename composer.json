@@ -42,6 +42,16 @@
             "pestphp/pest-plugin": true
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Spatie\\Sluggable\\SluggableServiceProvider"
+            ],
+            "aliases": {
+                "Sluggable": "Spatie\\Sluggable\\Facades\\Sluggable"
+            }
+        }
+    },
     "scripts": {
         "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes",
         "test": "vendor/bin/pest"

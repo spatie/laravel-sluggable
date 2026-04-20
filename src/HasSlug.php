@@ -5,7 +5,11 @@ namespace Spatie\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
+use Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Exceptions\InvalidOption;
+use Spatie\Sluggable\Exceptions\StaleSelfHealingUrl;
+use Spatie\Sluggable\Support\Config;
 
 trait HasSlug
 {
@@ -195,6 +199,61 @@ trait HasSlug
     protected function generateSubstring(string $slugSourceString): string
     {
         return mb_substr($slugSourceString, 0, $this->slugOptions->maximumLength);
+    }
+
+    public function getRouteKey(): mixed
+    {
+        $slugOptions = $this->getSlugOptions();
+
+        if (! $slugOptions->selfHealingUrls) {
+            return parent::getRouteKey();
+        }
+
+        $action = Config::getAction('build_self_healing_route_key', BuildSelfHealingRouteKeyAction::class);
+
+        return $action->execute(
+            $this->getSelfHealingSlugValue(),
+            $this->getKey(),
+            $slugOptions->selfHealingSeparator,
+        );
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $slugOptions = $this->getSlugOptions();
+
+        if (! $slugOptions->selfHealingUrls) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        $action = Config::getAction(
+            'extract_identifier_from_self_healing_route_key',
+            ExtractIdentifierFromSelfHealingRouteKeyAction::class,
+        );
+
+        $routeKey = (string) $value;
+        $identifier = $action->execute($routeKey, $slugOptions->selfHealingSeparator)['identifier'];
+
+        if ($identifier === null) {
+            return null;
+        }
+
+        $model = $this->newQuery()->whereKey($identifier)->first();
+
+        if (! $model) {
+            return null;
+        }
+
+        if ($routeKey !== (string) $model->getRouteKey()) {
+            throw new StaleSelfHealingUrl($model, $routeKey);
+        }
+
+        return $model;
+    }
+
+    protected function getSelfHealingSlugValue(): string
+    {
+        return (string) ($this->{$this->getSlugOptions()->slugField} ?? '');
     }
 
     public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model

@@ -443,6 +443,99 @@ class YourEloquentModel extends Model
 }
 ```
 
+### Self-healing URLs
+
+Self-healing URLs combine the slug with the model's primary key (for example, `hello-world-5`) so that the slug part can change freely without breaking existing links. Route model binding resolves the model by its primary key, and if the slug portion is stale the package redirects the request to the canonical URL with a `301`.
+
+Enable the feature on your `SlugOptions`:
+
+```php
+public function getSlugOptions(): SlugOptions
+{
+    return SlugOptions::create()
+        ->generateSlugsFrom('title')
+        ->saveSlugsTo('slug')
+        ->selfHealing();
+}
+```
+
+With the default `-` separator, a model named "Hello World" with primary key `5` exposes a route key of `hello-world-5`:
+
+```php
+$post = Post::create(['title' => 'Hello World']);
+$post->getRouteKey(); // "hello-world-5"
+```
+
+Implicit route model binding now resolves the model by its primary key:
+
+```php
+Route::get('/posts/{post}', fn (Post $post) => $post);
+// GET /posts/hello-world-5   → 200 OK
+// GET /posts/outdated-slug-5 → 301 redirect to /posts/hello-world-5
+// GET /posts/hello-world-99  → 404 when id 99 does not exist
+```
+
+#### Choosing a separator
+
+If your slugs can contain single hyphens followed by numbers (which would look like an identifier), use a separator that cannot collide with slug values. Pass a custom value to `selfHealing()`:
+
+```php
+SlugOptions::create()
+    ->generateSlugsFrom('title')
+    ->saveSlugsTo('slug')
+    ->selfHealing(separator: '--');
+
+// route key: "hello-world--5"
+```
+
+#### Customizing the redirect behavior
+
+When the URL's slug is stale, the package throws a `Spatie\Sluggable\Exceptions\StaleSelfHealingUrl` exception. Its `render()` method delegates to the `SelfHealingManager`, which by default issues a `301` redirect to the canonical URL.
+
+Replace the default behavior by registering a closure via the `Sluggable` facade (typically from a service provider's `boot` method):
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Spatie\Sluggable\Facades\Sluggable;
+
+Sluggable::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
+    return redirect()->route('posts.show', $model, status: 302);
+});
+```
+
+#### Translatable slugs
+
+Self-healing URLs work with `HasTranslatableSlug`. The route key uses the slug for the current locale:
+
+```php
+$post->setLocale('en');
+$post->getRouteKey(); // "english-title-5"
+
+$post->setLocale('nl');
+$post->getRouteKey(); // "nederlandse-titel-5"
+```
+
+#### Overriding the underlying actions
+
+Two actions drive self-healing URLs: `BuildSelfHealingRouteKeyAction` composes the route key and `ExtractIdentifierFromSelfHealingRouteKeyAction` splits an incoming value back into a slug and an identifier. Publish the config file and swap either action with your own class:
+
+```bash
+php artisan vendor:publish --tag=sluggable-config
+```
+
+```php
+// config/sluggable.php
+return [
+    'actions' => [
+        'build_self_healing_route_key' => App\Sluggable\MyRouteKeyAction::class,
+        'extract_identifier_from_self_healing_route_key' => Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction::class,
+    ],
+];
+```
+
+Your replacement class must extend the package's default action so the package knows it implements the expected `execute()` signature.
+
 ### Find models by slug
 
 For convenience, you can use the alias `findBySlug` to retrieve a model. The query will compare against the field passed to `saveSlugsTo` when defining the `SlugOptions`.

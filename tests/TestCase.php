@@ -7,6 +7,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Spatie\Sluggable\SluggableServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
@@ -15,6 +16,13 @@ abstract class TestCase extends Orchestra
         parent::setUp();
 
         $this->setUpDatabase($this->app);
+    }
+
+    protected function getPackageProviders($app): array
+    {
+        return [
+            SluggableServiceProvider::class,
+        ];
     }
 
     protected function getEnvironmentSetUp($app): void
