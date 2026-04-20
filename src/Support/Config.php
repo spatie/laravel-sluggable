@@ -7,7 +7,7 @@ use Spatie\Sluggable\Exceptions\InvalidConfig;
 class Config
 {
     /**
-     * @template T
+     * @template T of object
      *
      * @param  class-string<T>  $mustBeOrExtend
      * @return class-string<T>
@@ -32,7 +32,7 @@ class Config
     }
 
     /**
-     * @template T
+     * @template T of object
      *
      * @param  class-string<T>  $mustBeOrExtend
      * @return T

@@ -13,6 +13,7 @@ class ScopeableModel extends Model
     protected $table = 'scopeable_models';
 
     protected $guarded = [];
+
     public $timestamps = false;
 
     public array $translatable = ['name', 'slug', 'scope_id'];

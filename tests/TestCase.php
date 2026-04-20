@@ -32,14 +32,14 @@ abstract class TestCase extends Orchestra
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite', [
             'driver' => 'sqlite',
-            'database' => $this->getTempDirectory() . '/database.sqlite',
+            'database' => $this->getTempDirectory().'/database.sqlite',
             'prefix' => '',
         ]);
     }
 
     protected function setUpDatabase(Application $app): void
     {
-        file_put_contents($this->getTempDirectory() . '/database.sqlite', '');
+        file_put_contents($this->getTempDirectory().'/database.sqlite', '');
 
         Schema::create('test_models', function (Blueprint $table) {
             $table->increments('id');
@@ -112,6 +112,6 @@ abstract class TestCase extends Orchestra
 
     protected function getTempDirectory(): string
     {
-        return __DIR__ . '/temp';
+        return __DIR__.'/temp';
     }
 }

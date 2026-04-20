@@ -141,7 +141,7 @@ trait HasSlug
             ($this->slugOptions->useSuffixOnFirstOccurrence && $iteration === 0)
         ) {
             $suffix = $this->generateSuffix($originalSlug, $iteration++);
-            $slug = $originalSlug . $this->slugOptions->slugSeparator . $suffix;
+            $slug = $originalSlug.$this->slugOptions->slugSeparator.$suffix;
         }
 
         return $slug;
@@ -258,7 +258,7 @@ trait HasSlug
 
     public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
     {
-        $modelInstance = new static();
+        $modelInstance = new static;
         $field = $modelInstance->getSlugOptions()->slugField;
 
         $query = static::query();

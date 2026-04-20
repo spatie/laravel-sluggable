@@ -6,49 +6,49 @@ use Spatie\Sluggable\Exceptions\InvalidConfig;
 use Spatie\Sluggable\Support\Config;
 
 it('builds a self-healing route key by joining slug and identifier with the separator', function () {
-    $key = (new BuildSelfHealingRouteKeyAction())->execute('hello-world', 5, '-');
+    $key = (new BuildSelfHealingRouteKeyAction)->execute('hello-world', 5, '-');
 
     expect($key)->toBe('hello-world-5');
 });
 
 it('builds a self-healing route key with a custom separator', function () {
-    $key = (new BuildSelfHealingRouteKeyAction())->execute('hello-world', 5, '--');
+    $key = (new BuildSelfHealingRouteKeyAction)->execute('hello-world', 5, '--');
 
     expect($key)->toBe('hello-world--5');
 });
 
 it('falls back to the identifier when the slug is empty', function () {
-    $key = (new BuildSelfHealingRouteKeyAction())->execute('', 42, '-');
+    $key = (new BuildSelfHealingRouteKeyAction)->execute('', 42, '-');
 
     expect($key)->toBe('42');
 });
 
 it('builds a self-healing route key for a string identifier', function () {
-    $key = (new BuildSelfHealingRouteKeyAction())->execute('my-post', '550e8400', '-');
+    $key = (new BuildSelfHealingRouteKeyAction)->execute('my-post', '550e8400', '-');
 
     expect($key)->toBe('my-post-550e8400');
 });
 
 it('extracts the identifier using the last occurrence of the separator', function () {
-    $parts = (new ExtractIdentifierFromSelfHealingRouteKeyAction())->execute('hello-world-5', '-');
+    $parts = (new ExtractIdentifierFromSelfHealingRouteKeyAction)->execute('hello-world-5', '-');
 
     expect($parts)->toBe(['slug' => 'hello-world', 'identifier' => '5']);
 });
 
 it('extracts the identifier with a multi-character separator', function () {
-    $parts = (new ExtractIdentifierFromSelfHealingRouteKeyAction())->execute('hello-world--5', '--');
+    $parts = (new ExtractIdentifierFromSelfHealingRouteKeyAction)->execute('hello-world--5', '--');
 
     expect($parts)->toBe(['slug' => 'hello-world', 'identifier' => '5']);
 });
 
 it('returns a null identifier when the separator is not present', function () {
-    $parts = (new ExtractIdentifierFromSelfHealingRouteKeyAction())->execute('plainvalue', '-');
+    $parts = (new ExtractIdentifierFromSelfHealingRouteKeyAction)->execute('plainvalue', '-');
 
     expect($parts)->toBe(['slug' => 'plainvalue', 'identifier' => null]);
 });
 
 it('returns a null identifier when the value ends with the separator', function () {
-    $parts = (new ExtractIdentifierFromSelfHealingRouteKeyAction())->execute('hello-world-', '-');
+    $parts = (new ExtractIdentifierFromSelfHealingRouteKeyAction)->execute('hello-world-', '-');
 
     expect($parts)->toBe(['slug' => 'hello-world-', 'identifier' => null]);
 });

@@ -30,18 +30,18 @@ it('falls back to the parent route key when self-healing is disabled', function 
 it('resolves a model by identifier when the slug matches the canonical value', function () {
     $model = SelfHealingModel::create(['name' => 'Hello World']);
 
-    $resolved = (new SelfHealingModel())->resolveRouteBinding($model->getRouteKey());
+    $resolved = (new SelfHealingModel)->resolveRouteBinding($model->getRouteKey());
 
     expect($resolved)->not->toBeNull();
     expect($resolved->id)->toBe($model->id);
 });
 
 it('returns null when the identifier cannot be found', function () {
-    expect((new SelfHealingModel())->resolveRouteBinding('missing-999'))->toBeNull();
+    expect((new SelfHealingModel)->resolveRouteBinding('missing-999'))->toBeNull();
 });
 
 it('returns null when the value contains no identifier separator', function () {
-    expect((new SelfHealingModel())->resolveRouteBinding('noseparator'))->toBeNull();
+    expect((new SelfHealingModel)->resolveRouteBinding('noseparator'))->toBeNull();
 });
 
 it('throws a StaleSelfHealingUrl exception when the slug is stale', function () {
@@ -50,7 +50,7 @@ it('throws a StaleSelfHealingUrl exception when the slug is stale', function () 
     $staleKey = "old-title-{$model->id}";
 
     try {
-        (new SelfHealingModel())->resolveRouteBinding($staleKey);
+        (new SelfHealingModel)->resolveRouteBinding($staleKey);
     } catch (StaleSelfHealingUrl $exception) {
         expect($exception->model->id)->toBe($model->id);
         expect($exception->staleRouteKey)->toBe($staleKey);
@@ -68,7 +68,7 @@ it('respects a custom separator', function () {
 
     expect($model->getRouteKey())->toBe("hello-world--{$model->id}");
 
-    $resolved = (new SelfHealingModel())->resolveRouteBinding($model->getRouteKey());
+    $resolved = (new SelfHealingModel)->resolveRouteBinding($model->getRouteKey());
 
     expect($resolved->id)->toBe($model->id);
 });
@@ -125,7 +125,7 @@ it('uses a custom action class registered in config', function () {
 });
 
 it('builds a self-healing route key per locale on translatable models', function () {
-    $model = new SelfHealingTranslatableModel();
+    $model = new SelfHealingTranslatableModel;
     $model->setTranslation('name', 'en', 'English Title');
     $model->setTranslation('name', 'nl', 'Nederlandse Titel');
     $model->save();
@@ -138,7 +138,7 @@ it('builds a self-healing route key per locale on translatable models', function
 });
 
 it('redirects stale translatable URLs to the current locale canonical URL', function () {
-    $model = new SelfHealingTranslatableModel();
+    $model = new SelfHealingTranslatableModel;
     $model->setTranslation('name', 'en', 'Fresh English');
     $model->save();
 

@@ -1,0 +1,18 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - config
+    tmpDir: build/phpstan
+    checkOctaneCompatibility: true
+
+    ignoreErrors:
+        - identifier: new.static
+          path: src/SlugOptions.php
+        - identifier: trait.unused
+          paths:
+              - src/HasSlug.php
+              - src/HasTranslatableSlug.php

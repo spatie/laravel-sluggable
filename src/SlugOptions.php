@@ -43,7 +43,7 @@ class SlugOptions
 
     public static function create(): static
     {
-        return new static();
+        return new static;
     }
 
     public static function createWithLocales(array $locales): static
@@ -159,7 +159,7 @@ class SlugOptions
     }
 
     /**
-     * @param callable(string $slug, int $iteration): string $generator
+     * @param  callable(string $slug, int $iteration): string  $generator
      */
     public function usingSuffixGenerator(callable $generator): self
     {

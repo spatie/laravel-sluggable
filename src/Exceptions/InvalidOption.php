@@ -6,18 +6,18 @@ use Exception;
 
 class InvalidOption extends Exception
 {
-    public static function missingFromField(): static
+    public static function missingFromField(): self
     {
-        return new static('Could not determine which fields should be sluggified');
+        return new self('Could not determine which fields should be sluggified');
     }
 
-    public static function missingSlugField(): static
+    public static function missingSlugField(): self
     {
-        return new static('Could not determine in which field the slug should be saved');
+        return new self('Could not determine in which field the slug should be saved');
     }
 
-    public static function invalidMaximumLength(): static
+    public static function invalidMaximumLength(): self
     {
-        return new static('Maximum length should be greater than zero');
+        return new self('Maximum length should be greater than zero');
     }
 }

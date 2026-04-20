@@ -56,7 +56,8 @@ it('will save a unique slug by default', function () {
 });
 
 it('can generate slugs from multiple source fields', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->generateSlugsFrom(['name', 'other_field']);
@@ -71,11 +72,12 @@ it('can generate slugs from multiple source fields', function () {
 });
 
 it('can generate slugs from a callable', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->generateSlugsFrom(function (TestModel $model): string {
-                return 'foo-' . Str::slug($model->name);
+                return 'foo-'.Str::slug($model->name);
             });
         }
     };
@@ -88,7 +90,8 @@ it('can generate slugs from a callable', function () {
 
 it('can generate duplicate slugs', function () {
     foreach (range(1, 10) as $ignored) {
-        $model = new class () extends TestModel {
+        $model = new class extends TestModel
+        {
             public function getSlugOptions(): SlugOptions
             {
                 return parent::getSlugOptions()->allowDuplicateSlugs();
@@ -103,7 +106,8 @@ it('can generate duplicate slugs', function () {
 });
 
 it('can generate slugs with a maximum length', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->slugsShouldBeNoLongerThan(5);
@@ -128,7 +132,6 @@ it('can handle weird characters when generating the slug', function (string $wei
     ['ß', 'ss'],
     ['a/ ', 'a'],
 ]);
-
 
 it('can handle multibytes characters cutting when generating the slug', function () {
     $model = TestModel::create(['name' => 'là']);
@@ -158,7 +161,8 @@ it('can handle duplicates when overwriting a slug', function () {
 });
 
 it('has a method that prevents a slug being generated on condition', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()
@@ -183,7 +187,8 @@ it('has a method that prevents a slug being generated on condition', function ()
 });
 
 it('has a method that prevents a slug being generated on creation', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->doNotGenerateSlugsOnCreate();
@@ -197,7 +202,8 @@ it('has a method that prevents a slug being generated on creation', function () 
 });
 
 it('has a method that prevents a slug being generated on update', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
@@ -214,7 +220,8 @@ it('has a method that prevents a slug being generated on update', function () {
 });
 
 it('has an method that prevents a slug beign generated if already present', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->preventOverwrite();
@@ -229,7 +236,8 @@ it('has an method that prevents a slug beign generated if already present', func
 });
 
 it('will use separator option for slug generation', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingSeparator('_');
@@ -243,7 +251,8 @@ it('will use separator option for slug generation', function () {
 });
 
 it('will use language option for slug generation', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingLanguage('nl');
@@ -254,7 +263,8 @@ it('will use language option for slug generation', function () {
 });
 
 it('can generate language specific slugs', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingLanguage('en');
@@ -266,7 +276,8 @@ it('can generate language specific slugs', function () {
 
     expect($model->url)->toEqual('gute-nacht');
 
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingLanguage('de');
@@ -300,7 +311,8 @@ it('will save a unique slug by default when replicating a model', function () {
 });
 
 it('will save a unique slug when replicating a model that does not generates slugs on update', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->doNotGenerateSlugsOnUpdate();
@@ -318,7 +330,8 @@ it('will save a unique slug when replicating a model that does not generates slu
 });
 
 it('can generate slug suffix starting from given number', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->startSlugSuffixFrom(2);
@@ -336,7 +349,8 @@ it('can generate slug suffix starting from given number', function () {
 });
 
 it('can generate slug suffix on first occurrence', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->useSuffixOnFirstOccurrence();
@@ -350,11 +364,12 @@ it('can generate slug suffix on first occurrence', function () {
 });
 
 it('can generate a custom slug suffix using a callable', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->usingSuffixGenerator(
-                fn (string $slug, int $iteration) => 'random-with-access-base-slug-(' . $slug[0] . '_' . $iteration . ')'
+                fn (string $slug, int $iteration) => 'random-with-access-base-slug-('.$slug[0].'_'.$iteration.')'
             );
         }
     };
@@ -370,7 +385,8 @@ it('can generate a custom slug suffix using a callable', function () {
 });
 
 it('can find models using findBySlug alias', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->saveSlugsTo('url');
@@ -386,7 +402,8 @@ it('can find models using findBySlug alias', function () {
 });
 
 it('can customize query using additionalQuery parameter in findBySlug', function () {
-    $model = new class () extends TestModel {
+    $model = new class extends TestModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->saveSlugsTo('url');
@@ -417,7 +434,8 @@ it('can find models using findBySlug with fallback locale', function () {
     config()->set('app.fallback_locale', 'en');
     app()->setLocale('tr');
 
-    $model = new class () extends TranslatableModel {
+    $model = new class extends TranslatableModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->saveSlugsTo('slug');

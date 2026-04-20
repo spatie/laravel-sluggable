@@ -10,13 +10,14 @@ use Spatie\Translatable\HasTranslations;
 
 class TranslatableModelSoftDeletes extends Model
 {
-    use HasTranslations;
     use HasTranslatableSlug;
+    use HasTranslations;
     use SoftDeletes;
 
     protected $table = 'translatable_model_soft_deletes';
 
     protected $guarded = [];
+
     public $timestamps = false;
 
     protected array $translatable = ['name', 'other_field', 'slug'];
