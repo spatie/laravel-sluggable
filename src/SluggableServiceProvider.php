@@ -35,37 +35,43 @@ class SluggableServiceProvider extends ServiceProvider
         $events = $this->app->make('events');
 
         $events->listen('eloquent.creating: *', function (string $event, array $payload): void {
-            $this->dispatchIfAttributed($payload, 'onCreate');
+            $options = $this->resolveAttributeOptions($payload);
+
+            if ($options === null) {
+                return;
+            }
+
+            Config::getAction('generate_slug', GenerateSlugAction::class)
+                ->onCreate($payload[0], $options);
         });
 
         $events->listen('eloquent.updating: *', function (string $event, array $payload): void {
-            $this->dispatchIfAttributed($payload, 'onUpdate');
+            $options = $this->resolveAttributeOptions($payload);
+
+            if ($options === null) {
+                return;
+            }
+
+            Config::getAction('generate_slug', GenerateSlugAction::class)
+                ->onUpdate($payload[0], $options);
         });
     }
 
     /**
      * @param  array<int, mixed>  $payload
      */
-    protected function dispatchIfAttributed(array $payload, string $hook): void
+    protected function resolveAttributeOptions(array $payload): ?SlugOptions
     {
         $model = $payload[0] ?? null;
 
         if (! $model instanceof Model) {
-            return;
+            return null;
         }
 
         if (in_array(HasSlug::class, class_uses_recursive($model), true)) {
-            return;
+            return null;
         }
 
-        $sluggable = SluggableAttributeResolver::resolve($model::class);
-
-        if ($sluggable === null) {
-            return;
-        }
-
-        $options = SluggableAttributeResolver::toSlugOptions($sluggable);
-
-        Config::getAction('generate_slug', GenerateSlugAction::class)->$hook($model, $options);
+        return SluggableAttributeResolver::resolveOptions($model::class);
     }
 }

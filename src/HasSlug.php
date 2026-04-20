@@ -110,19 +110,7 @@ trait HasSlug
         $modelInstance = new static;
         $field = $modelInstance->getSlugOptions()->slugField;
 
-        $query = static::query();
-
-        if (in_array(HasTranslatableSlug::class, class_uses_recursive(static::class))) {
-            $currentLocale = $modelInstance->getLocale();
-            $fallbackLocale = config('app.fallback_locale');
-
-            $currentField = "{$field}->{$currentLocale}";
-            $fallbackField = "{$field}->{$fallbackLocale}";
-
-            $query->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
-        } else {
-            $query->where($field, $slug);
-        }
+        $query = static::query()->where($field, $slug);
 
         if (is_callable($additionalQuery)) {
             $additionalQuery($query);

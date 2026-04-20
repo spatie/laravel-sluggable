@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\Attributes\Sluggable;
 use Spatie\Sluggable\Exceptions\SelfHealingRequiresTrait;
 use Spatie\Sluggable\Support\SluggableAttributeResolver;
@@ -67,6 +69,26 @@ it('does not generate a slug on create when onCreate is false', function () {
     $model = AttributeModelNoCreate::create(['name' => 'Hello World']);
 
     expect($model->url)->toBeNull();
+});
+
+it('still generates a slug on update when onCreate is false', function () {
+    $model = AttributeModelNoCreate::create(['name' => 'Hello World']);
+    $model->name = 'Different Title';
+    $model->save();
+
+    expect($model->url)->toBe('different-title');
+});
+
+it('resolves an attribute-only model through Laravel implicit route binding on the slug field', function () {
+    $model = AttributeModel::create(['name' => 'Hello World']);
+
+    Route::get('/posts/{post:url}', fn (AttributeModel $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+
+    $response = $this->get("/posts/{$model->url}");
+
+    $response->assertStatus(200);
+    $response->assertSee('Hello World');
 });
 
 it('uses a custom separator when configured on the attribute', function () {

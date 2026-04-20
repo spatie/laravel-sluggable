@@ -86,7 +86,7 @@ class GenerateSlugAction
     {
         $slugField = $options->slugField;
 
-        return $model->getOriginal($slugField) != $model->{$slugField};
+        return $model->getOriginal($slugField) !== $model->{$slugField};
     }
 
     public function getSlugSourceString(Model $model, SlugOptions $options): string

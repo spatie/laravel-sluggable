@@ -11,26 +11,44 @@ use Spatie\Sluggable\SlugOptions;
 class SluggableAttributeResolver
 {
     /** @var array<class-string, ?Sluggable> */
-    protected static array $cache = [];
+    protected static array $attributeCache = [];
+
+    /** @var array<class-string, ?SlugOptions> */
+    protected static array $optionsCache = [];
 
     public static function resolve(string $class): ?Sluggable
     {
-        if (array_key_exists($class, self::$cache)) {
-            return self::$cache[$class];
+        if (array_key_exists($class, self::$attributeCache)) {
+            return self::$attributeCache[$class];
         }
 
         $reflection = new ReflectionClass($class);
         $attributes = $reflection->getAttributes(Sluggable::class);
 
         if ($attributes === []) {
-            return self::$cache[$class] = null;
+            return self::$attributeCache[$class] = null;
         }
 
         $sluggable = $attributes[0]->newInstance();
 
         self::ensureSelfHealingHasTrait($class, $sluggable);
 
-        return self::$cache[$class] = $sluggable;
+        return self::$attributeCache[$class] = $sluggable;
+    }
+
+    public static function resolveOptions(string $class): ?SlugOptions
+    {
+        if (array_key_exists($class, self::$optionsCache)) {
+            return self::$optionsCache[$class];
+        }
+
+        $sluggable = self::resolve($class);
+
+        if ($sluggable === null) {
+            return self::$optionsCache[$class] = null;
+        }
+
+        return self::$optionsCache[$class] = self::toSlugOptions($sluggable);
     }
 
     public static function toSlugOptions(Sluggable $sluggable): SlugOptions
@@ -62,21 +80,13 @@ class SluggableAttributeResolver
             $options->selfHealing($sluggable->selfHealingSeparator);
         }
 
-        if ($sluggable->scope !== []) {
-            $scopeFields = (array) $sluggable->scope;
-            $options->extraScope(function ($query) use ($scopeFields) {
-                foreach ($scopeFields as $field) {
-                    $query->where($field, request()->input($field));
-                }
-            });
-        }
-
         return $options;
     }
 
     public static function flushCache(): void
     {
-        self::$cache = [];
+        self::$attributeCache = [];
+        self::$optionsCache = [];
     }
 
     protected static function ensureSelfHealingHasTrait(string $class, Sluggable $sluggable): void

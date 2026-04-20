@@ -3,6 +3,7 @@
 namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -118,17 +119,9 @@ trait HasTranslatableSlug
 
     protected function getSlugSourceString(): string
     {
-        if (is_callable($this->slugOptions->generateSlugFrom)) {
-            $sourceString = ($this->slugOptions->generateSlugFrom)($this, $this->getLocale());
-
-            return mb_substr($sourceString, 0, $this->slugOptions->maximumLength);
-        }
-
-        $sourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(fn (string $fieldName): string => data_get($this, $fieldName, ''))
-            ->implode($this->slugOptions->slugSeparator);
-
-        return mb_substr($sourceString, 0, $this->slugOptions->maximumLength);
+        return $this->buildTranslatableSourceString(
+            fn (string $fieldName): string => data_get($this, $fieldName, ''),
+        );
     }
 
     protected function slugIsBasedOnTitle(): bool
@@ -153,6 +146,13 @@ trait HasTranslatableSlug
 
     protected function getOriginalSourceString(): string
     {
+        return $this->buildTranslatableSourceString(
+            fn (string $fieldName): string => $this->getOriginal($fieldName)[$this->getLocale()] ?? '',
+        );
+    }
+
+    protected function buildTranslatableSourceString(callable $fieldReader): string
+    {
         if (is_callable($this->slugOptions->generateSlugFrom)) {
             $sourceString = ($this->slugOptions->generateSlugFrom)($this, $this->getLocale());
 
@@ -160,7 +160,7 @@ trait HasTranslatableSlug
         }
 
         $sourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(fn (string $fieldName): string => $this->getOriginal($fieldName)[$this->getLocale()] ?? '')
+            ->map(fn (string $fieldName): string => $fieldReader($fieldName))
             ->implode($this->slugOptions->slugSeparator);
 
         return mb_substr($sourceString, 0, $this->slugOptions->maximumLength);
@@ -180,6 +180,27 @@ trait HasTranslatableSlug
         $slugField = $this->getSlugOptions()->slugField;
 
         return (string) ($this->getTranslation($slugField, $this->getLocale(), false) ?? '');
+    }
+
+    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
+    {
+        $modelInstance = new static;
+        $field = $modelInstance->getSlugOptions()->slugField;
+
+        $currentLocale = $modelInstance->getLocale();
+        $fallbackLocale = config('app.fallback_locale');
+
+        $currentField = "{$field}->{$currentLocale}";
+        $fallbackField = "{$field}->{$fallbackLocale}";
+
+        $query = static::query()
+            ->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
+
+        if (is_callable($additionalQuery)) {
+            $additionalQuery($query);
+        }
+
+        return $query->first($columns);
     }
 
     public function resolveRouteBindingQuery($query, $value, $field = null): Builder|Relation

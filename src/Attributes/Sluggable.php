@@ -9,7 +9,6 @@ class Sluggable
 {
     /**
      * @param  string|array<int, string>  $from
-     * @param  string|array<int, string>  $scope
      */
     public function __construct(
         public string|array $from = 'name',
@@ -21,7 +20,6 @@ class Sluggable
         public bool $onCreate = true,
         public bool $onUpdate = true,
         public bool $preventOverwrite = false,
-        public string|array $scope = [],
         public bool $selfHealing = false,
         public string $selfHealingSeparator = '-',
     ) {}
