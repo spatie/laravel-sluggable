@@ -41,7 +41,7 @@ This package exposes two ways to configure slug generation on an Eloquent model:
 
 ### Quick start with the `#[Sluggable]` attribute
 
-For simple models, place the `#[Sluggable]` attribute on the class. No trait, no method override, no base class.
+For simple models, place the `#[Sluggable]` attribute on the class. A wildcard Eloquent event listener in the package's service provider picks up the attribute at runtime and generates slugs when models are created or updated.
 
 ```php
 namespace App;
