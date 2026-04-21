@@ -27,7 +27,9 @@ On top of generation, this package also ships:
 
 ## Self-healing URLs at a glance
 
-Enable self-healing on the slug options, and the model's route key becomes `{slug}-{id}`. Old slugs stay resolvable and redirect to the canonical URL.
+Say you publish a blog post titled "Hello World". Its URL is `/posts/hello-world`. A few days later you realise the title should have been "Hello Universe", so you update it. The slug regenerates to `hello-universe` and the URL becomes `/posts/hello-universe`. Every search engine result, every shared link, every bookmark pointing at `/posts/hello-world` now returns `404`.
+
+Self-healing URLs fix this. Enable it on the slug options, and the model's route key becomes `{slug}-{id}`.
 
 ```php
 use Spatie\Sluggable\HasSlug;
@@ -47,19 +49,25 @@ class Post extends Model
 }
 ```
 
+Creating the post gives you a route key that carries both the slug and the id.
+
 ```php
 $post = Post::create(['title' => 'Hello World']);
 $post->getRouteKey(); // "hello-world-5"
 ```
 
+Wire up a standard implicit route binding.
+
 ```php
 Route::get('/posts/{post}', fn (Post $post) => $post);
 ```
 
+Now rename the post to "Hello Universe". The canonical URL becomes `/posts/hello-universe-5`. The old URL still lands on the right page, with a `301` redirect to the new one.
+
 | Request | Response |
 | --- | --- |
-| `GET /posts/hello-world-5` | `200 OK` |
-| `GET /posts/outdated-slug-5` | `301` redirect to `/posts/hello-world-5` |
+| `GET /posts/hello-universe-5` | `200 OK` |
+| `GET /posts/hello-world-5` | `301` redirect to `/posts/hello-universe-5` |
 | `GET /posts/hello-world-99` | `404` when id `99` does not exist |
 
 Read more in [Self-healing URLs](/docs/laravel-sluggable/v4/self-healing-urls/overview).
