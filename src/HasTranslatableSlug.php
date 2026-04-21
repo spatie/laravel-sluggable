@@ -3,10 +3,13 @@
 namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Localizable;
+use Spatie\Sluggable\Actions\GenerateSlugAction;
+use Spatie\Sluggable\Support\Config;
 
 trait HasTranslatableSlug
 {
@@ -18,12 +21,9 @@ trait HasTranslatableSlug
         $generateSlugFrom = $this->slugOptions->generateSlugFrom;
 
         if (is_callable($generateSlugFrom)) {
-            // returns a collection of locales that were given to the SlugOptions object
-            // when it was instantiated with the 'createWithLocales' method.
             return Collection::make($this->slugOptions->translatableLocales);
         }
 
-        // collects all locales for all translatable fields
         return Collection::wrap($generateSlugFrom)
             ->filter(fn ($fieldName) => $this->isTranslatableAttribute($fieldName))
             ->flatMap(fn ($fieldName) => $this->getTranslatedLocales($fieldName));
@@ -33,11 +33,11 @@ trait HasTranslatableSlug
     {
         $this->slugOptions = $this->getSlugOptions();
 
-        if ($this->slugOptions->skipGenerate) {
+        if (! $this->slugOptions->generateSlugsOnCreate) {
             return;
         }
 
-        if (! $this->slugOptions->generateSlugsOnCreate) {
+        if ($this->slugOptions->skipGenerate) {
             return;
         }
 
@@ -48,11 +48,11 @@ trait HasTranslatableSlug
     {
         $this->slugOptions = $this->getSlugOptions();
 
-        if ($this->slugOptions->skipGenerate) {
+        if (! $this->slugOptions->generateSlugsOnUpdate) {
             return;
         }
 
-        if (! $this->slugOptions->generateSlugsOnUpdate) {
+        if ($this->slugOptions->skipGenerate) {
             return;
         }
 
@@ -70,29 +70,27 @@ trait HasTranslatableSlug
 
     protected function addSlug(): void
     {
-        $this->ensureValidSlugOptions();
+        $action = Config::getAction('generate_slug', GenerateSlugAction::class);
+
+        $action->ensureValidOptions($this->slugOptions);
 
         $slugField = $this->slugOptions->slugField;
 
-        $this->getLocalesForSlug()->unique()->each(function ($locale) use ($slugField) {
+        $this->getLocalesForSlug()->unique()->each(function ($locale) use ($slugField, $action) {
             if ($this->slugOptions->preventOverwrite) {
                 if (filled($this->getTranslation($slugField, $locale, false))) {
                     return;
                 }
             }
 
-            $this->withLocale($locale, function () use ($slugField, $locale) {
+            $this->withLocale($locale, function () use ($slugField, $locale, $action) {
                 $slug = $this->generateNonUniqueSlug();
 
                 if ($this->slugOptions->generateUniqueSlugs) {
-                    // temporarly change the 'slugField' of the SlugOptions
-                    // so the 'otherRecordExistsWithSlug' method queries
-                    // the locale JSON column instead of the 'slugField'.
                     $this->slugOptions->saveSlugsTo("{$slugField}->{$locale}");
 
-                    $slug = $this->makeSlugUnique($slug);
+                    $slug = $action->makeUnique($slug, $this, $this->slugOptions);
 
-                    // revert the change for the next iteration
                     $this->slugOptions->saveSlugsTo($slugField);
                 }
 
@@ -104,24 +102,37 @@ trait HasTranslatableSlug
     protected function generateNonUniqueSlug(): string
     {
         $slugField = $this->slugOptions->slugField;
-        $slugString = $this->getSlugSourceString();
+        $currentSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
 
-        $slug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
-
-        $slugGeneratedFromCallable = is_callable($this->slugOptions->generateSlugFrom);
-        $hasCustomSlug = $this->hasCustomSlugBeenUsed() && ! empty($slug);
-        $hasNonChangedCustomSlug = ! $slugGeneratedFromCallable && ! empty($slug) && ! $this->slugIsBasedOnTitle();
-
-        if ($hasCustomSlug || $hasNonChangedCustomSlug) {
-            $slugString = $slug;
-        }
+        $slugString = $this->shouldPreserveExistingSlug($currentSlug)
+            ? $currentSlug
+            : $this->getSlugSourceString();
 
         return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
     }
 
-    protected function getSlugSourceStringFromCallable(): string
+    protected function shouldPreserveExistingSlug(?string $currentSlug): bool
     {
-        return call_user_func($this->slugOptions->generateSlugFrom, $this, $this->getLocale());
+        if (empty($currentSlug)) {
+            return false;
+        }
+
+        if ($this->hasCustomSlugBeenUsed()) {
+            return true;
+        }
+
+        if (is_callable($this->slugOptions->generateSlugFrom)) {
+            return false;
+        }
+
+        return ! $this->slugIsBasedOnTitle();
+    }
+
+    protected function getSlugSourceString(): string
+    {
+        return $this->buildTranslatableSourceString(
+            fn (string $fieldName): string => data_get($this, $fieldName, ''),
+        );
     }
 
     protected function slugIsBasedOnTitle(): bool
@@ -146,17 +157,22 @@ trait HasTranslatableSlug
 
     protected function getOriginalSourceString(): string
     {
-        if (is_callable($this->slugOptions->generateSlugFrom)) {
-            $slugSourceString = $this->getSlugSourceStringFromCallable();
+        return $this->buildTranslatableSourceString(
+            fn (string $fieldName): string => $this->getOriginal($fieldName)[$this->getLocale()] ?? '',
+        );
+    }
 
-            return $this->generateSubstring($slugSourceString);
+    protected function buildTranslatableSourceString(callable $fieldReader): string
+    {
+        if (is_callable($this->slugOptions->generateSlugFrom)) {
+            $sourceString = ($this->slugOptions->generateSlugFrom)($this, $this->getLocale());
         }
 
-        $slugSourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(fn (string $fieldName): string => $this->getOriginal($fieldName)[$this->getLocale()] ?? '')
+        $sourceString ??= collect($this->slugOptions->generateSlugFrom)
+            ->map(fn (string $fieldName): string => $fieldReader($fieldName))
             ->implode($this->slugOptions->slugSeparator);
 
-        return $this->generateSubstring($slugSourceString);
+        return mb_substr($sourceString, 0, $this->slugOptions->maximumLength);
     }
 
     protected function hasCustomSlugBeenUsed(): bool
@@ -168,16 +184,41 @@ trait HasTranslatableSlug
         return $originalSlug !== $newSlug;
     }
 
-    public function resolveRouteBindingQuery($query, $value, $field = null): Builder|Relation
+    protected function getSelfHealingSlugValue(): string
     {
-        $field = $field ?? $this->getRouteKeyName();
-        $slug = $this->getSlugOptions()->slugField;
+        $slugField = $this->getSlugOptions()->slugField;
 
-        if (str_contains($field, '.') && str_ends_with($field, ".{$slug}")) {
-            return $query->where("{$field}->{$this->getLocale()}", $value);
+        return (string) ($this->getTranslation($slugField, $this->getLocale(), false) ?? '');
+    }
+
+    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
+    {
+        $modelInstance = new static;
+        $field = $modelInstance->getSlugOptions()->slugField;
+
+        $currentField = "{$field}->{$modelInstance->getLocale()}";
+        $fallbackField = "{$field}->".config('app.fallback_locale');
+
+        $query = static::query()
+            ->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
+
+        if ($additionalQuery !== null) {
+            $additionalQuery($query);
         }
 
-        if ($field === $slug) {
+        return $query->first($columns);
+    }
+
+    public function resolveRouteBindingQuery($query, $value, $field = null): Builder|Relation
+    {
+        if ($this->getSlugOptions()->selfHealingUrls) {
+            return parent::resolveRouteBindingQuery($query, $value, $field);
+        }
+
+        $field ??= $this->getRouteKeyName();
+        $slug = $this->getSlugOptions()->slugField;
+
+        if ($field === $slug || str_ends_with($field, ".{$slug}")) {
             return $query->where("{$field}->{$this->getLocale()}", $value);
         }
 

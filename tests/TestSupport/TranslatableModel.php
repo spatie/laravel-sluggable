@@ -10,19 +10,20 @@ use Spatie\Translatable\HasTranslations;
 
 class TranslatableModel extends Model
 {
-    use HasTranslations;
     use HasTranslatableSlug;
+    use HasTranslations;
 
     protected $table = 'translatable_models';
 
     protected $guarded = [];
+
     public $timestamps = false;
 
     protected array $translatable = ['name', 'other_field', 'slug'];
 
     private ?SlugOptions $customSlugOptions = null;
 
-    public function useSlugOptions(SlugOptions $slugOptions)
+    public function useSlugOptions(SlugOptions $slugOptions): void
     {
         $this->customSlugOptions = $slugOptions;
     }

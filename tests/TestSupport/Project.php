@@ -10,8 +10,8 @@ use Spatie\Translatable\HasTranslations;
 
 class Project extends Model
 {
-    use HasTranslations;
     use HasTranslatableSlug;
+    use HasTranslations;
 
     protected $guarded = [];
 

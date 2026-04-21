@@ -10,7 +10,7 @@ use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModelSoftDeletes;
 
 beforeEach(function () {
-    $this->testModel = new TranslatableModel();
+    $this->testModel = new TranslatableModel;
 });
 
 it('generates a slug for each translation', function () {
@@ -219,7 +219,7 @@ it('can handle duplicates when overwriting a slug', function () {
     $this->testModel->setTranslation('name', 'nl', 'Test value NL');
     $this->testModel->save();
 
-    $newModel = new $this->testModel();
+    $newModel = new $this->testModel;
     $newModel->setTranslation('name', 'en', 'Test value 2 EN');
     $newModel->setTranslation('name', 'nl', 'Test value 2 NL');
     $newModel->save();
@@ -233,11 +233,11 @@ it('can handle duplicates when overwriting a slug', function () {
 });
 
 it('can update slug with non unique names', function () {
-    $model1 = new TranslatableModel();
+    $model1 = new TranslatableModel;
     $model1->setTranslation('name', 'en', 'Test Value');
     $model1->save();
 
-    $model2 = new TranslatableModel();
+    $model2 = new TranslatableModel;
     $model2->setTranslation('name', 'en', 'Test Value');
     $model2->save();
 
@@ -250,7 +250,7 @@ it('can update slug with non unique names', function () {
 it('can update slug with non unique names multiple', function () {
     $testModels = [];
     foreach (range(0, 15) as $i) {
-        $model = new TranslatableModel();
+        $model = new TranslatableModel;
         $model->setTranslation('name', 'en', 'Test Value');
         $model->setTranslation('name', 'nl', 'Test Value');
         $model->save();
@@ -263,14 +263,14 @@ it('can update slug with non unique names multiple', function () {
         $model->setTranslation('name', 'en', 'Changed Value');
         $model->save();
 
-        $expectedSlug = 'changed-value' . ($i === 0 ? '' : '-' . $i);
+        $expectedSlug = 'changed-value'.($i === 0 ? '' : '-'.$i);
 
         expect($model->getTranslation('slug', 'en'))->toBe($expectedSlug);
     }
 });
 
 it('can resolve route binding', function () {
-    $model = new TranslatableModel();
+    $model = new TranslatableModel;
 
     $model->setTranslation('name', 'en', 'Test value EN');
     $model->setTranslation('name', 'nl', 'Test value NL');
@@ -279,7 +279,7 @@ it('can resolve route binding', function () {
     $model->save();
 
     // Test for en locale
-    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-en', 'slug');
+    $result = (new TranslatableModel)->resolveRouteBinding('updated-value-en', 'slug');
 
     expect($result)->not->toBeNull();
     expect($result->id)->toEqual($model->id);
@@ -287,28 +287,28 @@ it('can resolve route binding', function () {
     // Test for nl locale
     $this->app->setLocale('nl');
 
-    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
+    $result = (new TranslatableModel)->resolveRouteBinding('updated-value-nl', 'slug');
 
     expect($result)->not->toBeNull();
     expect($result->id)->toEqual($model->id);
 
     // Test for fr locale - should fail
     app()->setLocale('fr');
-    $result = (new TranslatableModel())->resolveRouteBinding('updated-value-nl', 'slug');
+    $result = (new TranslatableModel)->resolveRouteBinding('updated-value-nl', 'slug');
 
     expect($result)->toBeNull();
 });
 
 it('can resolve route binding even when soft deletes are on', function () {
     foreach (range(1, 10) as $i) {
-        $model = new TranslatableModelSoftDeletes();
+        $model = new TranslatableModelSoftDeletes;
         $model->setTranslation('name', 'en', 'Test value EN');
-        $model->setTranslation('slug', 'en', 'updated-value-en-' . $i);
+        $model->setTranslation('slug', 'en', 'updated-value-en-'.$i);
         $model->save();
         $model->delete();
 
-        $result = (new TranslatableModelSoftDeletes())->resolveSoftDeletableRouteBinding(
-            'updated-value-en-' . $i,
+        $result = (new TranslatableModelSoftDeletes)->resolveSoftDeletableRouteBinding(
+            'updated-value-en-'.$i,
             'slug'
         );
 
@@ -318,7 +318,7 @@ it('can resolve route binding even when soft deletes are on', function () {
 });
 
 it('can bind route model implicit', function () {
-    $model = new TranslatableModel();
+    $model = new TranslatableModel;
     $model->setTranslation('name', 'en', 'Test value EN');
     $model->setTranslation('slug', 'en', 'updated-value-en');
     $model->save();
@@ -331,19 +331,19 @@ it('can bind route model implicit', function () {
         }
     )->middleware(SubstituteBindings::class);
 
-    $response = $this->get("/translatable-model/updated-value-en");
+    $response = $this->get('/translatable-model/updated-value-en');
 
     $response->assertStatus(200);
 });
 
 it('can bind child route model implicit', function () {
-    $model = new TranslatableModel();
+    $model = new TranslatableModel;
     $model->setTranslation('name', 'en', 'Test value EN');
     $model->setTranslation('slug', 'en', 'updated-value-en');
     $model->test_model_id = 1;
     $model->save();
 
-    $parent = new TestModel();
+    $parent = new TestModel;
     $parent->name = 'parent';
     $parent->save();
 
@@ -357,13 +357,14 @@ it('can bind child route model implicit', function () {
         }
     )->middleware(SubstituteBindings::class);
 
-    $response = $this->get("/test-model/parent/translatable-model/updated-value-en");
+    $response = $this->get('/test-model/parent/translatable-model/updated-value-en');
 
     $response->assertStatus(200);
 });
 
 it('can find models using findBySlug alias', function () {
-    $model = new class () extends TranslatableModel {
+    $model = new class extends TranslatableModel
+    {
         public function getSlugOptions(): SlugOptions
         {
             return parent::getSlugOptions()->saveSlugsTo('slug');

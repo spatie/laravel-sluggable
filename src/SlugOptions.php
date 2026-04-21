@@ -7,7 +7,7 @@ class SlugOptions
     /** @var array|callable */
     public $generateSlugFrom;
 
-    /** @var callable */
+    /** @var callable|null */
     public $extraScopeCallback;
 
     /** @var (callable(string, int): string)|null */
@@ -37,21 +37,24 @@ class SlugOptions
 
     public bool $useSuffixOnFirstOccurrence = false;
 
+    public bool $selfHealingUrls = false;
+
+    public string $selfHealingSeparator = '-';
+
     public static function create(): static
     {
-        return new static();
+        return new static;
     }
 
     public static function createWithLocales(array $locales): static
     {
         $slugOptions = static::create();
-
         $slugOptions->translatableLocales = $locales;
 
         return $slugOptions;
     }
 
-    public function generateSlugsFrom(string | array | callable $fieldName): self
+    public function generateSlugsFrom(string|array|callable $fieldName): self
     {
         if (is_string($fieldName)) {
             $fieldName = [$fieldName];
@@ -146,9 +149,16 @@ class SlugOptions
         return $this;
     }
 
+    public function selfHealing(string $separator = '-'): self
+    {
+        $this->selfHealingUrls = true;
+        $this->selfHealingSeparator = $separator;
+
+        return $this;
+    }
 
     /**
-     * @param callable(string $slug, int $iteration): string $generator
+     * @param  callable(string $slug, int $iteration): string  $generator
      */
     public function usingSuffixGenerator(callable $generator): self
     {

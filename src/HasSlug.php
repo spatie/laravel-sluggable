@@ -3,8 +3,11 @@
 namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
-use Spatie\Sluggable\Exceptions\InvalidOption;
+use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
+use Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction;
+use Spatie\Sluggable\Actions\GenerateSlugAction;
+use Spatie\Sluggable\Exceptions\StaleSelfHealingUrl;
+use Spatie\Sluggable\Support\Config;
 
 trait HasSlug
 {
@@ -14,216 +17,96 @@ trait HasSlug
 
     protected static function bootHasSlug(): void
     {
-        static::creating(function (Model $model) {
-            $model->generateSlugOnCreate();
-        });
-
-        static::updating(function (Model $model) {
-            $model->generateSlugOnUpdate();
-        });
+        static::creating(fn (Model $model) => $model->generateSlugOnCreate());
+        static::updating(fn (Model $model) => $model->generateSlugOnUpdate());
     }
 
     protected function generateSlugOnCreate(): void
     {
         $this->slugOptions = $this->getSlugOptions();
 
-        if ($this->slugOptions->skipGenerate) {
-            return;
-        }
-
-        if (! $this->slugOptions->generateSlugsOnCreate) {
-            return;
-        }
-
-        if ($this->slugOptions->preventOverwrite) {
-            if ($this->{$this->slugOptions->slugField} !== null) {
-                return;
-            }
-        }
-
-        $this->addSlug();
+        Config::getAction('generate_slug', GenerateSlugAction::class)
+            ->onCreate($this, $this->slugOptions);
     }
 
     protected function generateSlugOnUpdate(): void
     {
         $this->slugOptions = $this->getSlugOptions();
 
-        if ($this->slugOptions->skipGenerate) {
-            return;
-        }
-
-        if (! $this->slugOptions->generateSlugsOnUpdate) {
-            return;
-        }
-
-        if ($this->slugOptions->preventOverwrite) {
-            if ($this->{$this->slugOptions->slugField} !== null) {
-                return;
-            }
-        }
-
-        $this->addSlug();
+        Config::getAction('generate_slug', GenerateSlugAction::class)
+            ->onUpdate($this, $this->slugOptions);
     }
 
     public function generateSlug(): void
     {
         $this->slugOptions = $this->getSlugOptions();
 
-        $this->addSlug();
+        Config::getAction('generate_slug', GenerateSlugAction::class)
+            ->generate($this, $this->slugOptions);
     }
 
-    protected function addSlug(): void
+    public function getRouteKey(): mixed
     {
-        $this->ensureValidSlugOptions();
+        $slugOptions = $this->getSlugOptions();
 
-        $slug = $this->generateNonUniqueSlug();
-
-        if ($this->slugOptions->generateUniqueSlugs) {
-            $slug = $this->makeSlugUnique($slug);
+        if (! $slugOptions->selfHealingUrls) {
+            return parent::getRouteKey();
         }
 
-        $slugField = $this->slugOptions->slugField;
+        $action = Config::getAction('build_self_healing_route_key', BuildSelfHealingRouteKeyAction::class);
 
-        $this->$slugField = $slug;
+        return $action->execute(
+            $this->getSelfHealingSlugValue(),
+            $this->getKey(),
+            $slugOptions->selfHealingSeparator,
+        );
     }
 
-    protected function generateNonUniqueSlug(): string
+    public function resolveRouteBinding($value, $field = null)
     {
-        $slugField = $this->slugOptions->slugField;
+        $slugOptions = $this->getSlugOptions();
 
-        if ($this->hasCustomSlugBeenUsed() && ! empty($this->$slugField)) {
-            return $this->$slugField;
+        if (! $slugOptions->selfHealingUrls) {
+            return parent::resolveRouteBinding($value, $field);
         }
 
-        return Str::slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        $action = Config::getAction(
+            'extract_identifier_from_self_healing_route_key',
+            ExtractIdentifierFromSelfHealingRouteKeyAction::class,
+        );
+
+        $routeKey = (string) $value;
+        $identifier = $action->execute($routeKey, $slugOptions->selfHealingSeparator)['identifier'];
+
+        if ($identifier === null) {
+            return null;
+        }
+
+        $model = $this->newQuery()->whereKey($identifier)->first();
+
+        if ($model === null) {
+            return null;
+        }
+
+        if ($routeKey !== (string) $model->getRouteKey()) {
+            throw new StaleSelfHealingUrl($model, $routeKey);
+        }
+
+        return $model;
     }
 
-    protected function hasCustomSlugBeenUsed(): bool
+    protected function getSelfHealingSlugValue(): string
     {
-        $slugField = $this->slugOptions->slugField;
-
-        return $this->getOriginal($slugField) != $this->$slugField;
+        return (string) ($this->{$this->getSlugOptions()->slugField} ?? '');
     }
 
-    protected function getSlugSourceString(): string
+    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
     {
-        if (is_callable($this->slugOptions->generateSlugFrom)) {
-            $slugSourceString = $this->getSlugSourceStringFromCallable();
+        $field = (new static)->getSlugOptions()->slugField;
 
-            return $this->generateSubstring($slugSourceString);
-        }
+        $query = static::query()->where($field, $slug);
 
-        $slugSourceString = collect($this->slugOptions->generateSlugFrom)
-            ->map(fn (string $fieldName): string => data_get($this, $fieldName, ''))
-            ->implode($this->slugOptions->slugSeparator);
-
-        return $this->generateSubstring($slugSourceString);
-    }
-
-    protected function getSlugSourceStringFromCallable(): string
-    {
-        return call_user_func($this->slugOptions->generateSlugFrom, $this);
-    }
-
-    protected function makeSlugUnique(string $slug): string
-    {
-        $originalSlug = $slug;
-        $iteration = 0;
-
-        while (
-            $slug === '' ||
-            $this->otherRecordExistsWithSlug($slug) ||
-            ($this->slugOptions->useSuffixOnFirstOccurrence && $iteration === 0)
-        ) {
-            $suffix = $this->generateSuffix($originalSlug, $iteration++);
-            $slug = $originalSlug . $this->slugOptions->slugSeparator . $suffix;
-        }
-
-        return $slug;
-    }
-
-    protected function generateSuffix(string $originalSlug, int $iteration): string
-    {
-        if ($this->slugOptions->suffixGenerator) {
-            return call_user_func($this->slugOptions->suffixGenerator, $originalSlug, $iteration);
-        }
-
-        return strval($this->slugOptions->startSlugSuffixFrom + $iteration);
-    }
-
-    protected function otherRecordExistsWithSlug(string $slug): bool
-    {
-        $query = static::where($this->slugOptions->slugField, $slug)
-            ->withoutGlobalScopes();
-
-        if ($this->slugOptions->extraScopeCallback) {
-            $query->where($this->slugOptions->extraScopeCallback);
-        }
-
-        if ($this->exists) {
-            $query->where($this->getKeyName(), '!=', $this->getKey());
-        }
-
-        if ($this->usesSoftDeletes()) {
-            $query->withTrashed();
-        }
-
-        return $query->exists();
-    }
-
-    protected function usesSoftDeletes(): bool
-    {
-        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this), true);
-    }
-
-    protected function ensureValidSlugOptions(): void
-    {
-        if (is_array($this->slugOptions->generateSlugFrom) && ! count($this->slugOptions->generateSlugFrom)) {
-            throw InvalidOption::missingFromField();
-        }
-
-        if (! strlen($this->slugOptions->slugField)) {
-            throw InvalidOption::missingSlugField();
-        }
-
-        if ($this->slugOptions->maximumLength <= 0) {
-            throw InvalidOption::invalidMaximumLength();
-        }
-    }
-
-    /**
-     * Helper function to handle multi-bytes strings if the module mb_substr is present,
-     * default to substr otherwise.
-     */
-    protected function generateSubstring($slugSourceString)
-    {
-        if (function_exists('mb_substr')) {
-            return mb_substr($slugSourceString, 0, $this->slugOptions->maximumLength);
-        }
-
-        return substr($slugSourceString, 0, $this->slugOptions->maximumLength);
-    }
-
-    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null)
-    {
-        $modelInstance = new static();
-        $field = $modelInstance->getSlugOptions()->slugField;
-
-        $query = static::query();
-
-        if (in_array(HasTranslatableSlug::class, class_uses_recursive(static::class))) {
-            $currentLocale = $modelInstance->getLocale();
-            $fallbackLocale = config('app.fallback_locale');
-
-            $currentField = "{$field}->{$currentLocale}";
-            $fallbackField = "{$field}->{$fallbackLocale}";
-
-            $query->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
-        } else {
-            $query->where($field, $slug);
-        }
-
-        if (is_callable($additionalQuery)) {
+        if ($additionalQuery !== null) {
             $additionalQuery($query);
         }
 

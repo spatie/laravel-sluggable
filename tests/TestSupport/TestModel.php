@@ -17,17 +17,11 @@ class TestModel extends Model
 
     public $timestamps = false;
 
-    /**
-     * Get the options for generating the slug.
-     */
     public function getSlugOptions(): SlugOptions
     {
         return $this->slugOptions ?? $this->getDefaultSlugOptions();
     }
 
-    /**
-     * Set the options for generating the slug.
-     */
     public function setSlugOptions(SlugOptions $slugOptions): self
     {
         $this->slugOptions = $slugOptions;
@@ -35,9 +29,6 @@ class TestModel extends Model
         return $this;
     }
 
-    /**
-     * Get the default slug options used in the tests.
-     */
     public function getDefaultSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
