@@ -24,6 +24,7 @@ On top of generation, this package also ships:
 - **Self-healing URLs**: route keys that combine the slug with the primary key so changing a slug never breaks existing links.
 - **Translatable slugs**: integration with `spatie/laravel-translatable` to store one slug per locale.
 - **Overridable actions**: swap the slug generator or the self-healing URL logic for your own class via a config file.
+- **Laravel Boost skill**: a bundled [Boost](https://github.com/laravel/boost) skill that teaches AI assistants how to use this package. See [Laravel Boost skill](/docs/laravel-sluggable/v4/laravel-boost-skill).
 
 ## Self-healing URLs at a glance
 

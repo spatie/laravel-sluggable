@@ -21,6 +21,8 @@ $post->slug; // "activerecord-is-awesome"
 
 Slugs are produced by Laravel's `Str::slug` helper. On top of generation, the package ships uniqueness resolution, translatable slugs (via `spatie/laravel-translatable`), self-healing URLs, and a set of overridable actions for the low-level work.
 
+The package also bundles a [Laravel Boost](https://github.com/laravel/boost) skill so AI assistants know how to use it. Boost discovers the skill automatically once both packages are installed. Read more in the [Laravel Boost skill](https://spatie.be/docs/laravel-sluggable/v4/laravel-boost-skill) docs.
+
 Spatie is a web design agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
 ## Support us
