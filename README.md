@@ -1,9 +1,19 @@
-# Generate slugs when saving Eloquent models
+<div align="left">
+    <a href="https://spatie.be/open-source?utm_source=github&utm_medium=banner&utm_campaign=laravel-sluggable">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://spatie.be/packages/header/laravel-sluggable/html/dark.webp">
+        <img alt="Logo for laravel-sluggable" src="https://spatie.be/packages/header/laravel-sluggable/html/light.webp">
+      </picture>
+    </a>
+
+<h1>Generate slugs when saving Eloquent models</h1>
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-sluggable)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/spatie/laravel-sluggable/run-tests.yml)](https://github.com/spatie/laravel-sluggable/actions)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-sluggable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-sluggable)
+    
+</div>
 
 This package generates a unique slug for any Eloquent model whenever it is created or updated. Configure it with a `#[Sluggable]` attribute on the model, or with the `HasSlug` trait and a `getSlugOptions()` method when you need more control.
 
