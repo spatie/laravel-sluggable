@@ -98,20 +98,16 @@ Use cases include:
 
 ## Under the hood
 
-The `HasSlug` trait overrides two methods from Eloquent's route model binding to make self-healing work.
+Self-healing works by hooking into Laravel's route model binding in two places.
 
-`getRouteKey()` returns `{slug}{separator}{id}` when `selfHealing` is enabled on the slug options. That is the string used by `route()`, `URL::route()`, and implicit model binding when building URLs.
+| Phase | What happens |
+| --- | --- |
+| Building a URL | The primary key is appended to the slug with the separator in between. That combined value is the canonical URL. |
+| Incoming request | The primary key is pulled off the end of the URL, and the model is loaded by that key. The slug portion is not used for the lookup. |
+| Canonical match | If the URL matches the model's current slug, the request continues as normal. |
+| Canonical mismatch | If the URL contains an outdated slug, a stale URL exception fires. By default the package returns a `301` to the canonical URL. A custom closure can replace that behavior. |
 
-`resolveRouteBinding()` handles the other side of the trip. When Laravel resolves a `{post}` parameter, the trait:
+Two consequences follow:
 
-1. Splits the incoming value at the rightmost occurrence of the separator. The right side is treated as the primary key, the left side as the slug.
-2. Loads the model by its primary key (`whereKey($identifier)`). The slug portion is not used for the lookup, so changing a title never orphans an existing URL.
-3. Compares the incoming route key with the model's canonical `getRouteKey()`. If they match, the model is returned as normal. If they differ, a `Spatie\Sluggable\Exceptions\StaleSelfHealingUrl` exception is thrown.
-
-The exception carries the resolved model and the stale route key. Its `render()` method hands off to the `SelfHealingManager`, which either invokes the closure registered via `Sluggable::onStaleSelfHealingUrl(...)` or falls back to a `301` redirect to the canonical URL.
-
-A few consequences follow from this design:
-
-- The primary key must appear at the end of the route key, which is why the default separator is `-` and why a custom separator is needed when slugs can end in `-{number}`.
-- Lookups are always by primary key, so self-healing URLs do not depend on the slug column being unique.
-- Because `resolveRouteBinding()` is on the model, the behavior is scoped to models that use the trait. Other models in the same application are unaffected.
+- Because the model is looked up by primary key, the slug column does not need to be unique. Changing a title never orphans an existing URL.
+- The primary key lives at the end of the URL, so the separator has to be a string that cannot appear at the end of a slug. That is why custom separators matter when slugs can end in a number.
