@@ -71,4 +71,4 @@ Now rename the post to "Hello Universe". The canonical URL becomes `/posts/hello
 | `GET /posts/hello-world-5` | `301` redirect to `/posts/hello-universe-5` |
 | `GET /posts/hello-world-99` | `404` when id `99` does not exist |
 
-Read more in [Self-healing URLs](/docs/laravel-sluggable/v4/self-healing-urls/overview).
+Read more in [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).

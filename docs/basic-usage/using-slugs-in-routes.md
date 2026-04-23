@@ -34,4 +34,4 @@ class Post extends Model
 Route::get('/posts/{post}', fn (Post $post) => $post);
 ```
 
-For slugs that should survive a title change and redirect old URLs to the canonical one, see [Self-healing URLs](/docs/laravel-sluggable/v4/self-healing-urls/overview).
+For slugs that should survive a title change and redirect old URLs to the canonical one, see [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
