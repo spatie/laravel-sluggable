@@ -98,16 +98,10 @@ Use cases include:
 
 ## Under the hood
 
-Self-healing works by hooking into Laravel's route model binding in two places.
+The first time someone visits `/posts/hello-world-5`, the package splits the URL at the last separator. The right side is the primary key, so it goes looking for the post with id `5`. It finds the post, confirms that its current slug is still `hello-world`, and hands the model to your controller. Nothing special happens. The request is served normally.
 
-| Phase | What happens |
-| --- | --- |
-| Building a URL | The primary key is appended to the slug with the separator in between. That combined value is the canonical URL. |
-| Incoming request | The primary key is pulled off the end of the URL, and the model is loaded by that key. The slug portion is not used for the lookup. |
-| Canonical match | If the URL matches the model's current slug, the request continues as normal. |
-| Canonical mismatch | If the URL contains an outdated slug, a stale URL exception fires. By default the package returns a `301` to the canonical URL. A custom closure can replace that behavior. |
+Now imagine you rename the post to "Hello Universe". The slug in the database becomes `hello-universe`, but the old link `/posts/hello-world-5` is still floating around on Twitter, in Google's index, and in somebody's bookmarks. When that old link hits your app, the package again pulls `5` off the end and loads the post. This time the slug in the URL does not match the post's current slug, so the package sends back a `301` redirect to `/posts/hello-universe-5`. The visitor (or the search engine crawler) follows the redirect and lands on the canonical URL.
 
-Two consequences follow:
+The database is never touched by this process. The package only reads. Your slug column is updated the usual way, through Eloquent, when you save the model. Visiting a stale URL doesn't regenerate a slug, doesn't store the old one anywhere, and doesn't leave any trace.
 
-- Because the model is looked up by primary key, the slug column does not need to be unique. Changing a title never orphans an existing URL.
-- The primary key lives at the end of the URL, so the separator has to be a string that cannot appear at the end of a slug. That is why custom separators matter when slugs can end in a number.
+Because the lookup is always by primary key, the slug column doesn't need to be unique, and changing a title never orphans an existing link. The one thing you do need to watch out for is the separator: since the primary key sits at the end of the URL, the separator has to be something that cannot appear at the end of a slug. Otherwise the package cannot tell where the slug stops and the id begins.
