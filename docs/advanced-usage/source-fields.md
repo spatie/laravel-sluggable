@@ -1,5 +1,5 @@
 ---
-title: Source fields
+title: Choosing source fields
 weight: 1
 ---
 

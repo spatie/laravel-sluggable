@@ -1,5 +1,5 @@
 ---
-title: When slugs are generated
+title: Controlling when slugs are generated
 weight: 4
 ---
 

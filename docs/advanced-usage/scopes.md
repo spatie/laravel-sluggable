@@ -1,5 +1,5 @@
 ---
-title: Scoped uniqueness (trait only)
+title: Scoping uniqueness
 weight: 5
 ---
 

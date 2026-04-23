@@ -1,5 +1,5 @@
 ---
-title: Separator, length, and language
+title: Configuring separator, length, and language
 weight: 2
 ---
 

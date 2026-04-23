@@ -1,5 +1,5 @@
 ---
-title: Uniqueness
+title: Ensuring uniqueness
 weight: 3
 ---
 
