@@ -30,25 +30,20 @@ On top of generation, this package also ships:
 
 Say you publish a blog post titled "Hello World". Its URL is `/posts/hello-world`. A few days later you realise the title should have been "Hello Universe", so you update it. The slug regenerates to `hello-universe` and the URL becomes `/posts/hello-universe`. Every search engine result, every shared link, every bookmark pointing at `/posts/hello-world` now returns `404`.
 
-Self-healing URLs fix this. Enable it on the slug options, and the model's route key becomes `{slug}-{id}`.
+Self-healing URLs fix this. Enable it on the `#[Sluggable]` attribute (or the slug options), and the model's route key becomes `{slug}-{id}`.
 
 ```php
+use Spatie\Sluggable\Attributes\Sluggable;
 use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
+#[Sluggable(from: 'title', to: 'slug', selfHealing: true)]
 class Post extends Model
 {
     use HasSlug;
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('title')
-            ->saveSlugsTo('slug')
-            ->selfHealing();
-    }
 }
 ```
+
+The `HasSlug` trait is required because self-healing overrides `getRouteKey()` and `resolveRouteBinding()`, which the attribute alone cannot do.
 
 Creating the post gives you a route key that carries both the slug and the id.
 
