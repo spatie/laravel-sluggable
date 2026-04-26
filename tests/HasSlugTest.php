@@ -55,6 +55,16 @@ it('will save a unique slug by default', function () {
     }
 });
 
+it('reuses the lowest available suffix when earlier ones are vacated', function () {
+    TestModel::create(['name' => 'gap test']);
+    TestModel::create(['name' => 'gap test']);
+    TestModel::create(['name' => 'gap test'])->update(['url' => 'gap-test-9']);
+
+    $model = TestModel::create(['name' => 'gap test']);
+
+    expect($model->url)->toEqual('gap-test-2');
+});
+
 it('can generate slugs from multiple source fields', function () {
     $model = new class extends TestModel
     {

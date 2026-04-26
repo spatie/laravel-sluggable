@@ -68,7 +68,7 @@ SlugOptions::create()
 
 When an incoming URL's slug is stale, the package throws a `Spatie\Sluggable\Exceptions\StaleSelfHealingUrl` exception. Its `render()` method delegates to the `SelfHealingManager`, which by default returns a `301` redirect to the canonical URL.
 
-Register a closure through the `Sluggable` facade in a service provider's `boot()` method. The closure receives the resolved model, the stale route key, and the incoming request, and returns whatever response you want.
+Register a closure through the `SelfHealing` facade in a service provider's `boot()` method. The closure receives the resolved model, the stale route key, and the incoming request, and returns whatever response you want.
 
 ```php
 namespace App\Providers;
@@ -76,13 +76,13 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Spatie\Sluggable\Facades\Sluggable;
+use Spatie\Sluggable\Facades\SelfHealing;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Sluggable::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
+        SelfHealing::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
             return redirect()->route('posts.show', $model, status: 302);
         });
     }

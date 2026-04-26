@@ -50,7 +50,7 @@
                 "Spatie\\Sluggable\\SluggableServiceProvider"
             ],
             "aliases": {
-                "Sluggable": "Spatie\\Sluggable\\Facades\\Sluggable"
+                "SelfHealing": "Spatie\\Sluggable\\Facades\\SelfHealing"
             }
         }
     },

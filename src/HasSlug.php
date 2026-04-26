@@ -11,8 +11,6 @@ use Spatie\Sluggable\Support\Config;
 
 trait HasSlug
 {
-    protected SlugOptions $slugOptions;
-
     abstract public function getSlugOptions(): SlugOptions;
 
     protected static function bootHasSlug(): void
@@ -23,26 +21,22 @@ trait HasSlug
 
     protected function generateSlugOnCreate(): void
     {
-        $this->slugOptions = $this->getSlugOptions();
-
-        Config::getAction('generate_slug', GenerateSlugAction::class)
-            ->onCreate($this, $this->slugOptions);
+        $this->generateSlugAction()->onCreate($this, $this->getSlugOptions());
     }
 
     protected function generateSlugOnUpdate(): void
     {
-        $this->slugOptions = $this->getSlugOptions();
-
-        Config::getAction('generate_slug', GenerateSlugAction::class)
-            ->onUpdate($this, $this->slugOptions);
+        $this->generateSlugAction()->onUpdate($this, $this->getSlugOptions());
     }
 
     public function generateSlug(): void
     {
-        $this->slugOptions = $this->getSlugOptions();
+        $this->generateSlugAction()->generate($this, $this->getSlugOptions());
+    }
 
-        Config::getAction('generate_slug', GenerateSlugAction::class)
-            ->generate($this, $this->slugOptions);
+    protected function generateSlugAction(): GenerateSlugAction
+    {
+        return Config::getAction('generate_slug', GenerateSlugAction::class);
     }
 
     public function getRouteKey(): mixed
@@ -62,7 +56,7 @@ trait HasSlug
         );
     }
 
-    public function resolveRouteBinding($value, $field = null)
+    public function resolveRouteBinding(mixed $value, $field = null): ?Model
     {
         $slugOptions = $this->getSlugOptions();
 

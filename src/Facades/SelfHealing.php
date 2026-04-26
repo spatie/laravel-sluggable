@@ -11,7 +11,7 @@ use Spatie\Sluggable\SelfHealingManager;
  *
  * @see SelfHealingManager
  */
-class Sluggable extends Facade
+class SelfHealing extends Facade
 {
     protected static function getFacadeAccessor(): string
     {

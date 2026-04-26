@@ -44,7 +44,7 @@ $post->slug; // still "my-name"
 
 ## Skip based on model state (trait only)
 
-`skipGenerateWhen()` takes a callable. If it returns `true`, no slug is generated for this save.
+`skipGenerateWhen()` takes a closure. It runs on every save (create or update). If it returns `true`, no slug is generated for that save.
 
 ```php
 SlugOptions::create()
@@ -52,6 +52,8 @@ SlugOptions::create()
     ->saveSlugsTo('slug')
     ->skipGenerateWhen(fn () => $this->state === 'draft');
 ```
+
+Because the closure is defined inside `getSlugOptions()` on the model, `$this` refers to the model and is re-evaluated on every save.
 
 ## Preventing overwrites
 

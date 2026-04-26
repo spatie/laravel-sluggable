@@ -185,14 +185,14 @@ Customize the separator when slugs can end with numbers preceded by a hyphen:
 
 ### Customizing the redirect
 
-Register a closure through the `Sluggable` facade in a service provider's `boot()`:
+Register a closure through the `SelfHealing` facade in a service provider's `boot()`:
 
 ```php
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Spatie\Sluggable\Facades\Sluggable;
+use Spatie\Sluggable\Facades\SelfHealing;
 
-Sluggable::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
+SelfHealing::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
     return redirect()->route('posts.show', $model, status: 302);
 });
 ```

@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Localizable;
-use Spatie\Sluggable\Actions\GenerateSlugAction;
-use Spatie\Sluggable\Support\Config;
 
 trait HasTranslatableSlug
 {
     use HasSlug;
     use Localizable;
+
+    protected SlugOptions $slugOptions;
 
     protected function getLocalesForSlug(): Collection
     {
@@ -37,7 +37,7 @@ trait HasTranslatableSlug
             return;
         }
 
-        if ($this->slugOptions->skipGenerate) {
+        if ($this->shouldSkipGeneration()) {
             return;
         }
 
@@ -52,11 +52,18 @@ trait HasTranslatableSlug
             return;
         }
 
-        if ($this->slugOptions->skipGenerate) {
+        if ($this->shouldSkipGeneration()) {
             return;
         }
 
         $this->addSlug();
+    }
+
+    protected function shouldSkipGeneration(): bool
+    {
+        $skip = $this->slugOptions->skipGenerateWhen;
+
+        return $skip !== null && $skip() === true;
     }
 
     public function generateSlug(): void
@@ -70,28 +77,25 @@ trait HasTranslatableSlug
 
     protected function addSlug(): void
     {
-        $action = Config::getAction('generate_slug', GenerateSlugAction::class);
+        $action = $this->generateSlugAction();
 
         $action->ensureValidOptions($this->slugOptions);
 
         $slugField = $this->slugOptions->slugField;
 
         $this->getLocalesForSlug()->unique()->each(function ($locale) use ($slugField, $action) {
-            if ($this->slugOptions->preventOverwrite) {
-                if (filled($this->getTranslation($slugField, $locale, false))) {
-                    return;
-                }
+            if ($this->slugOptions->preventOverwrite && filled($this->getTranslation($slugField, $locale, false))) {
+                return;
             }
 
             $this->withLocale($locale, function () use ($slugField, $locale, $action) {
                 $slug = $this->generateNonUniqueSlug();
 
                 if ($this->slugOptions->generateUniqueSlugs) {
-                    $this->slugOptions->saveSlugsTo("{$slugField}->{$locale}");
+                    $localeOptions = clone $this->slugOptions;
+                    $localeOptions->slugField = "{$slugField}->{$locale}";
 
-                    $slug = $action->makeUnique($slug, $this, $this->slugOptions);
-
-                    $this->slugOptions->saveSlugsTo($slugField);
+                    $slug = $action->makeUnique($slug, $this, $localeOptions);
                 }
 
                 $this->setTranslation($slugField, $locale, $slug);
@@ -139,9 +143,9 @@ trait HasTranslatableSlug
     {
         $slugField = $this->slugOptions->slugField;
         $titleSlug = Str::slug($this->getOriginalSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
-        $currentSlug = $this->getTranslations($slugField)[$this->getLocale()] ?? null;
+        $currentSlug = (string) ($this->getTranslations($slugField)[$this->getLocale()] ?? '');
 
-        if (! str_starts_with($currentSlug, $titleSlug) || $titleSlug === '') {
+        if ($titleSlug === '' || $currentSlug === '') {
             return false;
         }
 
@@ -149,10 +153,10 @@ trait HasTranslatableSlug
             return true;
         }
 
-        $slugSeparator = $currentSlug[strlen($titleSlug)];
-        $slugIdentifier = substr($currentSlug, strlen($titleSlug) + 1);
+        $separator = preg_quote($this->slugOptions->slugSeparator, '/');
+        $title = preg_quote($titleSlug, '/');
 
-        return $slugSeparator === $this->slugOptions->slugSeparator && is_numeric($slugIdentifier);
+        return preg_match("/^{$title}{$separator}\d+$/", $currentSlug) === 1;
     }
 
     protected function getOriginalSourceString(): string
@@ -166,11 +170,12 @@ trait HasTranslatableSlug
     {
         if (is_callable($this->slugOptions->generateSlugFrom)) {
             $sourceString = ($this->slugOptions->generateSlugFrom)($this, $this->getLocale());
+        } else {
+            $sourceString = implode(
+                $this->slugOptions->slugSeparator,
+                array_map(fn (string $fieldName): string => (string) $fieldReader($fieldName), $this->slugOptions->generateSlugFrom),
+            );
         }
-
-        $sourceString ??= collect($this->slugOptions->generateSlugFrom)
-            ->map(fn (string $fieldName): string => $fieldReader($fieldName))
-            ->implode($this->slugOptions->slugSeparator);
 
         return mb_substr($sourceString, 0, $this->slugOptions->maximumLength);
     }

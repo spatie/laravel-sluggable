@@ -2,24 +2,31 @@
 
 namespace Spatie\Sluggable;
 
+use Closure;
+
 class SlugOptions
 {
-    /** @var array|callable */
-    public $generateSlugFrom;
+    public const DEFAULT_SEPARATOR = '-';
 
-    /** @var callable|null */
-    public $extraScopeCallback;
+    public const DEFAULT_LANGUAGE = 'en';
 
-    /** @var (callable(string, int): string)|null */
-    public $suffixGenerator;
+    public const DEFAULT_MAX_LENGTH = 250;
+
+    /** @var array<int, string>|Closure */
+    public array|Closure $generateSlugFrom;
+
+    public ?Closure $skipGenerateWhen = null;
+
+    public ?Closure $extraScopeCallback = null;
+
+    /** @var (Closure(string, int): string)|null */
+    public ?Closure $suffixGenerator = null;
 
     public string $slugField;
 
     public bool $generateUniqueSlugs = true;
 
-    public int $maximumLength = 250;
-
-    public bool $skipGenerate = false;
+    public int $maximumLength = self::DEFAULT_MAX_LENGTH;
 
     public bool $generateSlugsOnCreate = true;
 
@@ -27,10 +34,11 @@ class SlugOptions
 
     public bool $preventOverwrite = false;
 
-    public string $slugSeparator = '-';
+    public string $slugSeparator = self::DEFAULT_SEPARATOR;
 
-    public string $slugLanguage = 'en';
+    public string $slugLanguage = self::DEFAULT_LANGUAGE;
 
+    /** @var array<int, string> */
     public array $translatableLocales = [];
 
     public int $startSlugSuffixFrom = 1;
@@ -39,13 +47,16 @@ class SlugOptions
 
     public bool $selfHealingUrls = false;
 
-    public string $selfHealingSeparator = '-';
+    public string $selfHealingSeparator = self::DEFAULT_SEPARATOR;
 
     public static function create(): static
     {
         return new static;
     }
 
+    /**
+     * @param  array<int, string>  $locales
+     */
     public static function createWithLocales(array $locales): static
     {
         $slugOptions = static::create();
@@ -54,7 +65,10 @@ class SlugOptions
         return $slugOptions;
     }
 
-    public function generateSlugsFrom(string|array|callable $fieldName): self
+    /**
+     * @param  string|array<int, string>|Closure  $fieldName
+     */
+    public function generateSlugsFrom(string|array|Closure $fieldName): self
     {
         if (is_string($fieldName)) {
             $fieldName = [$fieldName];
@@ -86,9 +100,9 @@ class SlugOptions
         return $this;
     }
 
-    public function skipGenerateWhen(callable $callable): self
+    public function skipGenerateWhen(Closure $callable): self
     {
-        $this->skipGenerate = $callable() === true;
+        $this->skipGenerateWhen = $callable;
 
         return $this;
     }
@@ -128,7 +142,7 @@ class SlugOptions
         return $this;
     }
 
-    public function extraScope(callable $callbackMethod): self
+    public function extraScope(Closure $callbackMethod): self
     {
         $this->extraScopeCallback = $callbackMethod;
 
@@ -149,7 +163,7 @@ class SlugOptions
         return $this;
     }
 
-    public function selfHealing(string $separator = '-'): self
+    public function selfHealing(string $separator = self::DEFAULT_SEPARATOR): self
     {
         $this->selfHealingUrls = true;
         $this->selfHealingSeparator = $separator;
@@ -158,9 +172,9 @@ class SlugOptions
     }
 
     /**
-     * @param  callable(string $slug, int $iteration): string  $generator
+     * @param  Closure(string $slug, int $iteration): string  $generator
      */
-    public function usingSuffixGenerator(callable $generator): self
+    public function usingSuffixGenerator(Closure $generator): self
     {
         $this->suffixGenerator = $generator;
 

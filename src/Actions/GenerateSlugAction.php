@@ -11,6 +11,9 @@ use Spatie\Sluggable\SlugOptions;
 
 class GenerateSlugAction
 {
+    /** @var array<class-string, bool> */
+    protected static array $usesSoftDeletesCache = [];
+
     public function onCreate(Model $model, SlugOptions $options): void
     {
         if (! $options->generateSlugsOnCreate) {
@@ -39,7 +42,7 @@ class GenerateSlugAction
 
     protected function shouldSkipGeneration(Model $model, SlugOptions $options): bool
     {
-        if ($options->skipGenerate) {
+        if ($options->skipGenerateWhen !== null && ($options->skipGenerateWhen)() === true) {
             return true;
         }
 
@@ -55,7 +58,7 @@ class GenerateSlugAction
         $this->addSlug($model, $options);
     }
 
-    public function addSlug(Model $model, SlugOptions $options): void
+    protected function addSlug(Model $model, SlugOptions $options): void
     {
         $this->ensureValidOptions($options);
 
@@ -68,7 +71,7 @@ class GenerateSlugAction
         $model->{$options->slugField} = $slug;
     }
 
-    public function generateNonUniqueSlug(Model $model, SlugOptions $options): string
+    protected function generateNonUniqueSlug(Model $model, SlugOptions $options): string
     {
         $slugField = $options->slugField;
 
@@ -85,27 +88,65 @@ class GenerateSlugAction
         );
     }
 
-    public function hasCustomSlugBeenUsed(Model $model, SlugOptions $options): bool
+    protected function hasCustomSlugBeenUsed(Model $model, SlugOptions $options): bool
     {
         $slugField = $options->slugField;
 
         return $model->getOriginal($slugField) !== $model->{$slugField};
     }
 
-    public function getSlugSourceString(Model $model, SlugOptions $options): string
+    protected function getSlugSourceString(Model $model, SlugOptions $options): string
     {
         if (is_callable($options->generateSlugFrom)) {
             return $this->truncate(($options->generateSlugFrom)($model), $options);
         }
 
-        $sourceString = collect($options->generateSlugFrom)
-            ->map(fn (string $fieldName): string => data_get($model, $fieldName, ''))
-            ->implode($options->slugSeparator);
+        $sourceString = implode(
+            $options->slugSeparator,
+            array_map(fn (string $fieldName): string => (string) data_get($model, $fieldName, ''), $options->generateSlugFrom),
+        );
 
         return $this->truncate($sourceString, $options);
     }
 
     public function makeUnique(string $slug, Model $model, SlugOptions $options): string
+    {
+        if ($slug === '' || $options->suffixGenerator !== null || str_contains($options->slugField, '->')) {
+            return $this->makeUniqueIterative($slug, $model, $options);
+        }
+
+        $existing = $this->fetchExistingSlugVariants($slug, $model, $options);
+        $originalIsTaken = in_array($slug, $existing, true);
+
+        if (! $options->useSuffixOnFirstOccurrence && ! $originalIsTaken) {
+            return $slug;
+        }
+
+        $prefix = $slug.$options->slugSeparator;
+        $prefixLength = strlen($prefix);
+        $usedSuffixes = [];
+
+        foreach ($existing as $existingSlug) {
+            if (! str_starts_with((string) $existingSlug, $prefix)) {
+                continue;
+            }
+
+            $tail = substr((string) $existingSlug, $prefixLength);
+
+            if ($tail !== '' && ctype_digit($tail)) {
+                $usedSuffixes[(int) $tail] = true;
+            }
+        }
+
+        $candidate = $options->startSlugSuffixFrom;
+        while (isset($usedSuffixes[$candidate])) {
+            $candidate++;
+        }
+
+        return $prefix.$candidate;
+    }
+
+    protected function makeUniqueIterative(string $slug, Model $model, SlugOptions $options): string
     {
         $originalSlug = $slug;
         $iteration = 0;
@@ -122,7 +163,36 @@ class GenerateSlugAction
         return $slug;
     }
 
-    public function generateSuffix(string $originalSlug, int $iteration, SlugOptions $options): string
+    /**
+     * @return array<int, mixed>
+     */
+    protected function fetchExistingSlugVariants(string $slug, Model $model, SlugOptions $options): array
+    {
+        $likePattern = addcslashes($slug, '%_\\').$options->slugSeparator.'%';
+
+        $query = $model->newQuery()
+            ->withoutGlobalScopes()
+            ->where(function ($query) use ($options, $slug, $likePattern): void {
+                $query->where($options->slugField, $slug)
+                    ->orWhere($options->slugField, 'like', $likePattern);
+            });
+
+        if ($options->extraScopeCallback) {
+            $query->where($options->extraScopeCallback);
+        }
+
+        if ($model->exists) {
+            $query->where($model->getKeyName(), '!=', $model->getKey());
+        }
+
+        if ($this->modelUsesSoftDeletes($model)) {
+            $query->withoutGlobalScope(SoftDeletingScope::class);
+        }
+
+        return $query->pluck($options->slugField)->all();
+    }
+
+    protected function generateSuffix(string $originalSlug, int $iteration, SlugOptions $options): string
     {
         if ($options->suffixGenerator) {
             return ($options->suffixGenerator)($originalSlug, $iteration);
@@ -131,7 +201,7 @@ class GenerateSlugAction
         return (string) ($options->startSlugSuffixFrom + $iteration);
     }
 
-    public function otherRecordExistsWithSlug(string $slug, Model $model, SlugOptions $options): bool
+    protected function otherRecordExistsWithSlug(string $slug, Model $model, SlugOptions $options): bool
     {
         $query = $model->newQuery()
             ->where($options->slugField, $slug)
@@ -145,11 +215,17 @@ class GenerateSlugAction
             $query->where($model->getKeyName(), '!=', $model->getKey());
         }
 
-        if (in_array(SoftDeletes::class, class_uses_recursive($model), true)) {
+        if ($this->modelUsesSoftDeletes($model)) {
             $query->withoutGlobalScope(SoftDeletingScope::class);
         }
 
         return $query->exists();
+    }
+
+    protected function modelUsesSoftDeletes(Model $model): bool
+    {
+        return self::$usesSoftDeletesCache[$model::class]
+            ??= in_array(SoftDeletes::class, class_uses_recursive($model), true);
     }
 
     public function ensureValidOptions(SlugOptions $options): void

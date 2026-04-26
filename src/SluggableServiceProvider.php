@@ -11,6 +11,9 @@ use Spatie\Sluggable\Support\SluggableAttributeResolver;
 
 class SluggableServiceProvider extends ServiceProvider
 {
+    /** @var array<class-string, bool> */
+    protected static array $usesHasSlugCache = [];
+
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/sluggable.php', 'sluggable');
@@ -68,10 +71,16 @@ class SluggableServiceProvider extends ServiceProvider
             return null;
         }
 
-        if (in_array(HasSlug::class, class_uses_recursive($model), true)) {
+        if ($this->modelUsesHasSlug($model::class)) {
             return null;
         }
 
         return SluggableAttributeResolver::resolveOptions($model::class);
+    }
+
+    protected function modelUsesHasSlug(string $class): bool
+    {
+        return self::$usesHasSlugCache[$class]
+            ??= in_array(HasSlug::class, class_uses_recursive($class), true);
     }
 }

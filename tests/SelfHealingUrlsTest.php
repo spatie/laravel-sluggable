@@ -6,7 +6,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Exceptions\StaleSelfHealingUrl;
-use Spatie\Sluggable\Facades\Sluggable;
+use Spatie\Sluggable\Facades\SelfHealing;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingModel;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingTranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
@@ -97,10 +97,10 @@ it('responds with 200 when the URL is already canonical', function () {
     $response->assertSee('Fresh Title');
 });
 
-it('invokes a custom handler registered through the Sluggable facade', function () {
+it('invokes a custom handler registered through the SelfHealing facade', function () {
     $model = SelfHealingModel::create(['name' => 'Fresh Title']);
 
-    Sluggable::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
+    SelfHealing::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
         return response("stale:{$staleRouteKey}:canonical:{$model->getRouteKey()}", 418);
     });
 
