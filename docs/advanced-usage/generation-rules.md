@@ -7,6 +7,8 @@ Slugs are generated on both create and update by default. Every aspect of that c
 
 ## Skip on create
 
+Set `onCreate` to `false` (or call `doNotGenerateSlugsOnCreate()`) to leave the slug column untouched when a model is first persisted.
+
 ```php
 #[Sluggable(onCreate: false)]
 ```

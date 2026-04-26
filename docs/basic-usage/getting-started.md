@@ -7,6 +7,8 @@ This walkthrough takes a `Post` model from nothing to a working `/posts/{slug}` 
 
 ## 1. Add the attribute to the model
 
+Place `#[Sluggable]` on the model class and tell it which column to read from and which to write to.
+
 ```php
 namespace App\Models;
 
@@ -16,13 +18,14 @@ use Spatie\Sluggable\Attributes\Sluggable;
 #[Sluggable(from: 'title', to: 'slug')]
 class Post extends Model
 {
-    protected $fillable = ['title'];
 }
 ```
 
-That's it for setup. The package's service provider listens for Eloquent's `creating` and `updating` events and reads the attribute at runtime, so no trait or extra registration is needed.
+That's all the configuration the package needs. Its service provider listens for Eloquent's `creating` and `updating` events and reads the attribute at runtime, so no trait or extra registration is required.
 
 ## 2. Add a slug column to the migration
+
+The package writes the slug into the column you named in the attribute, so the table needs a matching string column.
 
 ```php
 use Illuminate\Database\Migrations\Migration;
@@ -57,7 +60,7 @@ $post->update(['title' => 'Hello Universe']);
 $post->slug; // "hello-universe"
 ```
 
-Resolve a model from a route by pointing the parameter at the slug column:
+To resolve a model from a route, point the route parameter at the slug column.
 
 ```php
 Route::get('/posts/{post:slug}', fn (Post $post) => view('posts.show', compact('post')));

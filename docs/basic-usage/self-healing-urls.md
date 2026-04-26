@@ -47,6 +47,8 @@ $post->getRouteKey(); // "hello-world-5"
 
 ## Request behavior
 
+Bind the model to a route the usual way and the package handles the slug-and-id route key for you.
+
 ```php
 Route::get('/posts/{post}', fn (Post $post) => $post);
 ```

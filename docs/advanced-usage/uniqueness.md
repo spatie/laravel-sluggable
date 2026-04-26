@@ -7,6 +7,8 @@ Slugs are unique by default. On a collision, the package appends a counter start
 
 ## Allowing duplicates
 
+Turn the uniqueness check off when colliding slugs are acceptable.
+
 ```php
 #[Sluggable(unique: false)]
 ```
@@ -19,6 +21,8 @@ SlugOptions::create()
 ```
 
 ## Starting the counter at a different number
+
+`startSlugSuffixFrom()` controls the first numeric suffix used on a collision. The default is `1`.
 
 ```php
 SlugOptions::create()

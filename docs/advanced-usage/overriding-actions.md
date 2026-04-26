@@ -13,6 +13,8 @@ The package delegates low-level work to three action classes that can each be sw
 
 ## Publishing the config
 
+Publish the configuration file before pointing any of the action keys at a custom class.
+
 ```bash
 php artisan vendor:publish --tag=sluggable-config
 ```
@@ -31,6 +33,8 @@ return [
 ```
 
 ## Example: uppercase slugs in the route key
+
+Extend the default action and override its single `execute()` method to wrap the call.
 
 ```php
 namespace App\Sluggable;

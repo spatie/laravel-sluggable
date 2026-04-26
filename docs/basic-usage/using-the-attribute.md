@@ -17,6 +17,8 @@ class Post extends Model
 }
 ```
 
+Creating or updating the model writes the slug to the configured column.
+
 ```php
 $post = Post::create(['title' => 'Hello World']);
 $post->slug; // "hello-world"

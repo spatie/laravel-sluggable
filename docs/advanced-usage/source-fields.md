@@ -7,6 +7,8 @@ A slug can be generated from one column, several columns joined together, or a c
 
 ## A single column
 
+Point `from` at a single column name and the slug is built from that column's value.
+
 ```php
 #[Sluggable(from: 'title')]
 ```
