@@ -1,6 +1,6 @@
 ---
 title: Using slugs in routes
-weight: 3
+weight: 4
 ---
 
 To resolve a model from its slug in a route, use Laravel's [implicit route model binding](https://laravel.com/docs/routing#implicit-binding). The simplest approach points the route parameter at the slug column.

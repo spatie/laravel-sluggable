@@ -1,9 +1,9 @@
 ---
 title: Using the Sluggable attribute
-weight: 1
+weight: 2
 ---
 
-For most models, a single `#[Sluggable]` attribute on the class is enough. A wildcard Eloquent event listener in the package's service provider picks up the attribute at runtime and generates slugs when models are created or updated.
+A single `#[Sluggable]` attribute on the class is enough for most models. A wildcard Eloquent event listener in the package's service provider picks the attribute up at runtime and generates slugs when models are created or updated.
 
 ```php
 namespace App\Models;
@@ -24,7 +24,7 @@ $post->slug; // "hello-world"
 
 ## Supported arguments
 
-The attribute constructor accepts the same options that `SlugOptions` exposes, as long as they can be expressed as attribute arguments. Callables, closures, and dynamic database scopes cannot go in an attribute, so features that require them fall back to the trait (see [Using the HasSlug trait](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait)).
+The attribute constructor mirrors the `SlugOptions` builder for the options that can be expressed as attribute arguments.
 
 | Argument | Default | Description |
 | --- | --- | --- |
@@ -40,14 +40,13 @@ The attribute constructor accepts the same options that `SlugOptions` exposes, a
 | `selfHealing` | `false` | Turn the route key into `slug-id` (requires the `HasSlug` trait). |
 | `selfHealingSeparator` | `'-'` | Separator used between slug and identifier. |
 
-## When to use the trait instead
+## What the attribute can't do
 
-Reach for the trait when you need any of the following:
+A few things need the [`HasSlug` trait](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait) instead of (or alongside) the attribute, because they need closures, instance methods, or both:
 
-- A callable passed to `generateSlugsFrom()` that computes the slug from arbitrary model state.
-- `skipGenerateWhen(fn () => ...)`, `extraScope(fn ($query) => ...)`, or `usingSuffixGenerator(fn () => ...)`.
+- Closures: `generateSlugsFrom(fn ($model) => ...)`, `skipGenerateWhen(fn () => ...)`, `extraScope(fn ($query) => ...)`, `usingSuffixGenerator(fn () => ...)`.
 - Translatable slugs through `HasTranslatableSlug`.
-- The `findBySlug()` helper.
-- Self-healing URLs. The attribute alone cannot override `getRouteKey()` and `resolveRouteBinding()`, so `selfHealing: true` requires the trait on the same class.
+- The `findBySlug()` static helper.
+- Self-healing URLs need the trait on the same class so it can override `getRouteKey()` and `resolveRouteBinding()`. The attribute's `selfHealing: true` works once the trait is present.
 
-If both are present on a model, the trait wins and the attribute is ignored.
+If a model has both, the trait's `getSlugOptions()` wins and the attribute is ignored.

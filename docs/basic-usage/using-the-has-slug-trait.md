@@ -1,9 +1,9 @@
 ---
 title: Using the HasSlug trait
-weight: 2
+weight: 3
 ---
 
-Use the `HasSlug` trait when you need options the attribute cannot express, such as callables, dynamic database scopes, translatable slugs, or self-healing URLs. The trait requires a `getSlugOptions()` method that returns a `SlugOptions` instance.
+The `HasSlug` trait is the long form of the same configuration the `#[Sluggable]` attribute encodes. Add the trait, implement `getSlugOptions()`, and return a `SlugOptions` instance. Use it when you need closures, dynamic scopes, translatable slugs, self-healing URLs, or the `findBySlug()` helper.
 
 ```php
 namespace App\Models;

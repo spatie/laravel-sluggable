@@ -3,7 +3,7 @@ title: Introduction
 weight: 1
 ---
 
-This package generates a unique slug for any Eloquent model whenever it is created or updated. Pick whichever configuration style fits the model: place the `#[Sluggable]` attribute on the class for simple cases, or add the `HasSlug` trait and a `getSlugOptions()` method for full control.
+This package generates a unique slug for any Eloquent model whenever it is created or updated. Add a `#[Sluggable]` attribute to the class and the package takes care of the rest.
 
 ```php
 use Spatie\Sluggable\Attributes\Sluggable;
@@ -18,6 +18,8 @@ $post->slug; // "activerecord-is-awesome"
 ```
 
 Slugs are produced by Laravel's `Str::slug` helper, which lowercases and replaces spaces with a configurable separator.
+
+Head to [Generating your first slug](/docs/laravel-sluggable/v4/basic-usage/getting-started) for the migration, the model, and the route binding in one walkthrough.
 
 On top of generation, this package also ships:
 

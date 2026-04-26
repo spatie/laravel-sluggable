@@ -1,6 +1,6 @@
 ---
 title: Finding models by slug
-weight: 4
+weight: 5
 ---
 
 The `HasSlug` trait adds a static `findBySlug()` helper that queries the slug column configured through `saveSlugsTo()`.
