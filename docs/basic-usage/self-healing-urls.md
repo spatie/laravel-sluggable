@@ -3,7 +3,9 @@ title: Self-healing URLs
 weight: 5
 ---
 
-A self-healing URL pairs the slug with the model's primary key, so the slug portion can change freely without breaking existing links. Route model binding resolves the model by the primary key, and stale slugs trigger a `301` redirect to the canonical URL.
+Say you publish a blog post titled "Hello World". Its URL is `/posts/hello-world`. A few days later you realise the title should have been "Hello Universe", so you update it. The slug regenerates to `hello-universe` and the URL becomes `/posts/hello-universe`. Every search engine result, every shared link, every bookmark pointing at `/posts/hello-world` now returns `404`.
+
+Self-healing URLs fix this. The route key becomes `{slug}-{id}`. The slug part can change without breaking lookups, because the primary key still resolves the model. Stale slugs trigger a `301` redirect to the canonical URL.
 
 ## Enabling
 

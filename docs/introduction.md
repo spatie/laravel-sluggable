@@ -28,46 +28,6 @@ On top of generation, this package also ships:
 
 ## Self-healing URLs at a glance
 
-Say you publish a blog post titled "Hello World". Its URL is `/posts/hello-world`. A few days later you realise the title should have been "Hello Universe", so you update it. The slug regenerates to `hello-universe` and the URL becomes `/posts/hello-universe`. Every search engine result, every shared link, every bookmark pointing at `/posts/hello-world` now returns `404`.
+Bookmarks, search results, and shared links keep working when a slug changes. Enable `selfHealing` on the attribute (or the slug options) and the route key becomes `{slug}-{id}`. The primary key resolves the model, the slug just rides along, and stale URLs `301`-redirect to the canonical one.
 
-Self-healing URLs fix this. Enable it on the `#[Sluggable]` attribute (or the slug options), and the model's route key becomes `{slug}-{id}`.
-
-```php
-use Spatie\Sluggable\Attributes\Sluggable;
-use Spatie\Sluggable\HasSlug;
-
-#[Sluggable(
-    from: 'title',
-    to: 'slug',
-    selfHealing: true,
-)]
-class Post extends Model
-{
-    use HasSlug;
-}
-```
-
-The `HasSlug` trait is required because self-healing overrides `getRouteKey()` and `resolveRouteBinding()`, which the attribute alone cannot do.
-
-Creating the post gives you a route key that carries both the slug and the id.
-
-```php
-$post = Post::create(['title' => 'Hello World']);
-$post->getRouteKey(); // "hello-world-5"
-```
-
-Wire up a standard implicit route binding.
-
-```php
-Route::get('/posts/{post}', fn (Post $post) => $post);
-```
-
-Now rename the post to "Hello Universe". The canonical URL becomes `/posts/hello-universe-5`. The old URL still lands on the right page, with a `301` redirect to the new one.
-
-| Request | Response |
-| --- | --- |
-| `GET /posts/hello-universe-5` | `200 OK` |
-| `GET /posts/hello-world-5` | `301` redirect to `/posts/hello-universe-5` |
-| `GET /posts/hello-world-99` | `404` when id `99` does not exist |
-
-Read more in [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
+Read the full story in [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
