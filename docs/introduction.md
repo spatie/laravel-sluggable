@@ -36,7 +36,11 @@ Self-healing URLs fix this. Enable it on the `#[Sluggable]` attribute (or the sl
 use Spatie\Sluggable\Attributes\Sluggable;
 use Spatie\Sluggable\HasSlug;
 
-#[Sluggable(from: 'title', to: 'slug', selfHealing: true)]
+#[Sluggable(
+    from: 'title',
+    to: 'slug',
+    selfHealing: true,
+)]
 class Post extends Model
 {
     use HasSlug;

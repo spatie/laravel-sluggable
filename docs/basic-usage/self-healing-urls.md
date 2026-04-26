@@ -13,7 +13,11 @@ Self-healing requires the `HasSlug` trait, because the feature overrides `getRou
 use Spatie\Sluggable\Attributes\Sluggable;
 use Spatie\Sluggable\HasSlug;
 
-#[Sluggable(from: 'title', to: 'slug', selfHealing: true)]
+#[Sluggable(
+    from: 'title',
+    to: 'slug',
+    selfHealing: true,
+)]
 class Post extends Model
 {
     use HasSlug;
@@ -69,7 +73,12 @@ $post->getRouteKey(); // "nederlandse-titel-5"
 The default separator is `-`. If your slugs can legitimately end with a number followed by a hyphen, use a separator that cannot collide with slug values.
 
 ```php
-#[Sluggable(from: 'title', to: 'slug', selfHealing: true, selfHealingSeparator: '--')]
+#[Sluggable(
+    from: 'title',
+    to: 'slug',
+    selfHealing: true,
+    selfHealingSeparator: '--',
+)]
 ```
 
 ```php
