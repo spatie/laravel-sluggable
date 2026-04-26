@@ -3,9 +3,26 @@ title: Generating your first slug
 weight: 1
 ---
 
-This walkthrough takes a `Post` model from nothing to a working `/posts/{slug}` URL in three steps: a migration, the `#[Sluggable]` attribute, and a query.
+This walkthrough takes a `Post` model from nothing to a working `/posts/{slug}` URL in three steps: the `#[Sluggable]` attribute, a migration, and a query.
 
-## 1. Add a slug column to the migration
+## 1. Add the attribute to the model
+
+```php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\Attributes\Sluggable;
+
+#[Sluggable(from: 'title', to: 'slug')]
+class Post extends Model
+{
+    protected $fillable = ['title'];
+}
+```
+
+That's it for setup. The package's service provider listens for Eloquent's `creating` and `updating` events and reads the attribute at runtime, so no trait or extra registration is needed.
+
+## 2. Add a slug column to the migration
 
 ```php
 use Illuminate\Database\Migrations\Migration;
@@ -27,23 +44,6 @@ return new class extends Migration
 ```
 
 The `unique()` constraint is optional. The package appends `-1`, `-2`, etc. on collisions whether or not the database enforces uniqueness, but the constraint is a useful safety net for code paths that bypass Eloquent.
-
-## 2. Add the attribute to the model
-
-```php
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\Attributes\Sluggable;
-
-#[Sluggable(from: 'title', to: 'slug')]
-class Post extends Model
-{
-    protected $fillable = ['title'];
-}
-```
-
-That's it for setup. The package's service provider listens for Eloquent's `creating` and `updating` events and reads the attribute at runtime, so no trait or extra registration is needed.
 
 ## 3. Use it
 
