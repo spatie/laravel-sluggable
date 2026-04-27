@@ -129,13 +129,21 @@ Use cases include:
 
 ## Under the hood
 
-The first time someone visits `/posts/hello-world-5`, the package splits the URL at the last separator. The right side is the primary key, so it goes looking for the post with id `5`. It finds the post, confirms that its current slug is still `hello-world`, and hands the model to your controller. Nothing special happens. The request is served normally.
+### A fresh request
 
-Now imagine you rename the post to "Hello Universe". The slug in the database becomes `hello-universe`, but the old link `/posts/hello-world-5` is still floating around on Twitter, in Google's index, and in somebody's bookmarks. When that old link hits your app, the package again pulls `5` off the end and loads the post. This time the slug in the URL does not match the post's current slug, so the package sends back a `301` redirect to `/posts/hello-universe-5`. The visitor (or the search engine crawler) follows the redirect and lands on the canonical URL.
+When someone visits `/posts/hello-world-5`, the package splits the URL at the last separator. The right side is the primary key, so it goes looking for the post with id `5`. It finds the post, confirms that its current slug is still `hello-world`, and hands the model to your controller. Nothing special happens. The request is served normally.
+
+### A stale link
+
+Now imagine you rename the post to "Hello Universe". The slug in the database becomes `hello-universe`, but the old link `/posts/hello-world-5` is still floating around on Twitter, in Google's index, and in somebody's bookmarks.
+
+When that old link hits your app, the package again pulls `5` off the end and loads the post. This time the slug in the URL does not match the post's current slug, so the package sends back a `301` redirect to `/posts/hello-universe-5`. The visitor (or the search engine crawler) follows the redirect and lands on the canonical URL.
+
+### No database writes
 
 The database is never touched by this process. The package only reads. Your slug column is updated the usual way, through Eloquent, when you save the model. Visiting a stale URL doesn't regenerate a slug, doesn't store the old one anywhere, and doesn't leave any trace.
 
-Because the lookup is always by primary key, the slug column doesn't need to be unique, and changing a title never orphans an existing link. The one thing you do need to watch out for is the separator: since the primary key sits at the end of the URL, the separator has to be something that cannot appear at the end of a slug. Otherwise the package cannot tell where the slug stops and the id begins.
+Because the lookup is always by primary key, the slug column doesn't need to be unique, and changing a title never orphans an existing link.
 
 ## When you don't need self-healing
 
