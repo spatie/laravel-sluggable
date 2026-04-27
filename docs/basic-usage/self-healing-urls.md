@@ -131,6 +131,10 @@ Use cases include:
 - Logging the stale access for analytics.
 - Refusing to redirect based on request state.
 
+## Changing the URL format
+
+The default route key looks like `{slug}-{id}`. To use a different layout, for example `{id}-{slug}`, swap the two actions that build and parse the route key. They are configurable on `config/sluggable.php` and the package ships a worked example for the id-first format. See [Putting the identifier first](/docs/laravel-sluggable/v4/advanced-usage/overriding-actions#example-putting-the-identifier-first) on the overriding actions page.
+
 ## Under the hood
 
 ### A fresh request
