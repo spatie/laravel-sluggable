@@ -2,18 +2,17 @@
 
 namespace Spatie\Sluggable\Actions;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 use Spatie\Sluggable\Exceptions\InvalidOption;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Sluggable\Support\TraitDetector;
 
 class GenerateSlugAction
 {
-    /** @var array<class-string, bool> */
-    protected static array $usesSoftDeletesCache = [];
-
     public function onCreate(Model $model, SlugOptions $options): void
     {
         if (! $options->generateSlugsOnCreate) {
@@ -42,8 +41,12 @@ class GenerateSlugAction
 
     protected function shouldSkipGeneration(Model $model, SlugOptions $options): bool
     {
-        if ($options->skipGenerateWhen !== null && ($options->skipGenerateWhen)() === true) {
-            return true;
+        if ($options->skipGenerateWhen !== null) {
+            $skip = $options->skipGenerateWhen;
+
+            if ($skip() === true) {
+                return true;
+            }
         }
 
         if (! $options->preventOverwrite) {
@@ -78,7 +81,7 @@ class GenerateSlugAction
         if ($this->hasCustomSlugBeenUsed($model, $options)) {
             $current = $model->{$slugField};
 
-            if ($current !== null && $current !== '') {
+            if (filled($current)) {
                 return $current;
             }
         }
@@ -99,7 +102,7 @@ class GenerateSlugAction
 
     protected function getSlugSourceString(Model $model, SlugOptions $options): string
     {
-        if (is_callable($options->generateSlugFrom)) {
+        if ($options->generateSlugFrom instanceof Closure) {
             return $this->truncate(($options->generateSlugFrom)($model), $options);
         }
 
@@ -120,8 +123,10 @@ class GenerateSlugAction
         $existing = $this->fetchExistingSlugVariants($slug, $model, $options);
         $originalIsTaken = in_array($slug, $existing, true);
 
-        if (! $options->useSuffixOnFirstOccurrence && ! $originalIsTaken) {
-            return $slug;
+        if (! $options->useSuffixOnFirstOccurrence) {
+            if (! $originalIsTaken) {
+                return $slug;
+            }
         }
 
         $prefix = $slug.$options->slugSeparator;
@@ -135,9 +140,15 @@ class GenerateSlugAction
 
             $tail = substr((string) $existingSlug, $prefixLength);
 
-            if ($tail !== '' && ctype_digit($tail)) {
-                $usedSuffixes[(int) $tail] = true;
+            if ($tail === '') {
+                continue;
             }
+
+            if (! ctype_digit($tail)) {
+                continue;
+            }
+
+            $usedSuffixes[(int) $tail] = true;
         }
 
         $candidate = $options->startSlugSuffixFrom;
@@ -226,8 +237,7 @@ class GenerateSlugAction
 
     protected function modelUsesSoftDeletes(Model $model): bool
     {
-        return self::$usesSoftDeletesCache[$model::class]
-            ??= in_array(SoftDeletes::class, class_uses_recursive($model), true);
+        return TraitDetector::uses($model, SoftDeletes::class);
     }
 
     public function ensureValidOptions(SlugOptions $options): void

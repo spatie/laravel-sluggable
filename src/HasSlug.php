@@ -2,6 +2,7 @@
 
 namespace Spatie\Sluggable;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction;
@@ -36,7 +37,7 @@ trait HasSlug
 
     protected function generateSlugAction(): GenerateSlugAction
     {
-        return Config::getAction('generate_slug', GenerateSlugAction::class);
+        return Config::getAction(Config::ACTION_GENERATE_SLUG, GenerateSlugAction::class);
     }
 
     public function getRouteKey(): mixed
@@ -47,7 +48,7 @@ trait HasSlug
             return parent::getRouteKey();
         }
 
-        $action = Config::getAction('build_self_healing_route_key', BuildSelfHealingRouteKeyAction::class);
+        $action = Config::getAction(Config::ACTION_BUILD_SELF_HEALING_ROUTE_KEY, BuildSelfHealingRouteKeyAction::class);
 
         return $action->execute(
             $this->getSelfHealingSlugValue(),
@@ -65,7 +66,7 @@ trait HasSlug
         }
 
         $action = Config::getAction(
-            'extract_identifier_from_self_healing_route_key',
+            Config::ACTION_EXTRACT_IDENTIFIER_FROM_SELF_HEALING_ROUTE_KEY,
             ExtractIdentifierFromSelfHealingRouteKeyAction::class,
         );
 
@@ -94,7 +95,7 @@ trait HasSlug
         return (string) ($this->{$this->getSlugOptions()->slugField} ?? '');
     }
 
-    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
+    public static function findBySlug(string $slug, array $columns = ['*'], ?Closure $additionalQuery = null): ?Model
     {
         $field = (new static)->getSlugOptions()->slugField;
 

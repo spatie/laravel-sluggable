@@ -491,3 +491,40 @@ it('restores the original locale after getting a localized route key', function 
 
     expect($model->getLocale())->toBe('en');
 });
+
+it('honours a custom separator on translatable slugs', function () {
+    $this->testModel->useSlugOptions(
+        SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->usingSeparator('_')
+    );
+
+    $this->testModel->setTranslation('name', 'en', 'Hello World');
+    $this->testModel->setTranslation('name', 'nl', 'Hallo Wereld');
+    $this->testModel->save();
+
+    expect($this->testModel->slug)->toBe('hello_world');
+    expect($this->testModel->getTranslation('slug', 'nl'))->toBe('hallo_wereld');
+});
+
+it('scopes translatable slug uniqueness with extraScope', function () {
+    $first = new TranslatableModel;
+    $first->test_model_id = 1;
+    $first->setTranslation('name', 'en', 'Same Title');
+    $first->save();
+
+    $second = new TranslatableModel;
+    $second->test_model_id = 2;
+    $second->useSlugOptions(
+        SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->extraScope(fn ($query) => $query->where('test_model_id', 2))
+    );
+    $second->setTranslation('name', 'en', 'Same Title');
+    $second->save();
+
+    expect($first->slug)->toBe('same-title');
+    expect($second->slug)->toBe('same-title');
+});

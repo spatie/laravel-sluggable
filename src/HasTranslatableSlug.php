@@ -2,6 +2,7 @@
 
 namespace Spatie\Sluggable;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -20,7 +21,7 @@ trait HasTranslatableSlug
     {
         $generateSlugFrom = $this->slugOptions->generateSlugFrom;
 
-        if (is_callable($generateSlugFrom)) {
+        if ($generateSlugFrom instanceof Closure) {
             return Collection::make($this->slugOptions->translatableLocales);
         }
 
@@ -63,14 +64,19 @@ trait HasTranslatableSlug
     {
         $skip = $this->slugOptions->skipGenerateWhen;
 
-        return $skip !== null && $skip() === true;
+        if ($skip === null) {
+            return false;
+        }
+
+        return $skip() === true;
     }
 
     public function generateSlug(): void
     {
-        $this->slugOptions = $this->getSlugOptions();
+        $options = clone $this->getSlugOptions();
+        $options->preventOverwrite = false;
 
-        $this->slugOptions->preventOverwrite = false;
+        $this->slugOptions = $options;
 
         $this->addSlug();
     }
@@ -84,8 +90,10 @@ trait HasTranslatableSlug
         $slugField = $this->slugOptions->slugField;
 
         $this->getLocalesForSlug()->unique()->each(function ($locale) use ($slugField, $action) {
-            if ($this->slugOptions->preventOverwrite && filled($this->getTranslation($slugField, $locale, false))) {
-                return;
+            if ($this->slugOptions->preventOverwrite) {
+                if (filled($this->getTranslation($slugField, $locale, false))) {
+                    return;
+                }
             }
 
             $this->withLocale($locale, function () use ($slugField, $locale, $action) {
@@ -115,9 +123,15 @@ trait HasTranslatableSlug
         return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
     }
 
+    /**
+     * The translatable trait keeps its own slug-preservation logic (not GenerateSlugAction's
+     * `hasCustomSlugBeenUsed`) because translation reads go through `getTranslations()`, not
+     * a plain attribute, and because the "slug derives from current title" check is locale-aware.
+     * Unifying the two would require teaching the action about JSON columns and locales.
+     */
     protected function shouldPreserveExistingSlug(?string $currentSlug): bool
     {
-        if ($currentSlug === null || $currentSlug === '') {
+        if (blank($currentSlug)) {
             return false;
         }
 
@@ -125,7 +139,7 @@ trait HasTranslatableSlug
             return true;
         }
 
-        if (is_callable($this->slugOptions->generateSlugFrom)) {
+        if ($this->slugOptions->generateSlugFrom instanceof Closure) {
             return false;
         }
 
@@ -166,9 +180,9 @@ trait HasTranslatableSlug
         );
     }
 
-    protected function buildTranslatableSourceString(callable $fieldReader): string
+    protected function buildTranslatableSourceString(Closure $fieldReader): string
     {
-        if (is_callable($this->slugOptions->generateSlugFrom)) {
+        if ($this->slugOptions->generateSlugFrom instanceof Closure) {
             $sourceString = ($this->slugOptions->generateSlugFrom)($this, $this->getLocale());
         } else {
             $sourceString = implode(
@@ -209,7 +223,7 @@ trait HasTranslatableSlug
         }
     }
 
-    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
+    public static function findBySlug(string $slug, array $columns = ['*'], ?Closure $additionalQuery = null): ?Model
     {
         $modelInstance = new static;
         $field = $modelInstance->getSlugOptions()->slugField;

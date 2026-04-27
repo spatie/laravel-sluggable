@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+use Spatie\Sluggable\Exceptions\InvalidOption;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModelSoftDeletes;
@@ -469,4 +470,69 @@ it('can find models using findBySlug with fallback locale', function () {
         ->not->toBeNull()
         ->and($foundModelInFallbackLocale->id)
         ->toEqual($model->id);
+});
+
+it('preserves a manually-set slug of literal "0"', function () {
+    $model = TestModel::create(['name' => 'irrelevant']);
+
+    $model->url = '0';
+    $model->save();
+
+    expect($model->fresh()->url)->toBe('0');
+});
+
+it('honours the columns argument of findBySlug', function () {
+    TestModel::create(['name' => 'looking for me', 'other_field' => 'secret']);
+
+    $found = TestModel::findBySlug('looking-for-me', ['id', 'url']);
+
+    expect($found)->not->toBeNull();
+    expect($found->getAttributes())->toHaveKeys(['id', 'url']);
+    expect($found->getAttributes())->not->toHaveKey('other_field');
+});
+
+it('throws when no source field is configured', function () {
+    $model = new class extends TestModel
+    {
+        public function getSlugOptions(): SlugOptions
+        {
+            return SlugOptions::create()
+                ->generateSlugsFrom([])
+                ->saveSlugsTo('url');
+        }
+    };
+
+    expect(fn () => $model->fill(['name' => 'foo'])->save())
+        ->toThrow(InvalidOption::class, 'Could not determine which fields should be sluggified');
+});
+
+it('throws when no destination field is configured', function () {
+    $model = new class extends TestModel
+    {
+        public function getSlugOptions(): SlugOptions
+        {
+            return SlugOptions::create()
+                ->generateSlugsFrom('name')
+                ->saveSlugsTo('');
+        }
+    };
+
+    expect(fn () => $model->fill(['name' => 'foo'])->save())
+        ->toThrow(InvalidOption::class, 'Could not determine in which field the slug should be saved');
+});
+
+it('throws when maxLength is not positive', function () {
+    $model = new class extends TestModel
+    {
+        public function getSlugOptions(): SlugOptions
+        {
+            return SlugOptions::create()
+                ->generateSlugsFrom('name')
+                ->saveSlugsTo('url')
+                ->slugsShouldBeNoLongerThan(0);
+        }
+    };
+
+    expect(fn () => $model->fill(['name' => 'foo'])->save())
+        ->toThrow(InvalidOption::class, 'Maximum length should be greater than zero');
 });

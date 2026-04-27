@@ -8,12 +8,10 @@ use Illuminate\Support\ServiceProvider;
 use Spatie\Sluggable\Actions\GenerateSlugAction;
 use Spatie\Sluggable\Support\Config;
 use Spatie\Sluggable\Support\SluggableAttributeResolver;
+use Spatie\Sluggable\Support\TraitDetector;
 
 class SluggableServiceProvider extends ServiceProvider
 {
-    /** @var array<class-string, bool> */
-    protected static array $usesHasSlugCache = [];
-
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/sluggable.php', 'sluggable');
@@ -44,7 +42,7 @@ class SluggableServiceProvider extends ServiceProvider
                 return;
             }
 
-            Config::getAction('generate_slug', GenerateSlugAction::class)
+            Config::getAction(Config::ACTION_GENERATE_SLUG, GenerateSlugAction::class)
                 ->onCreate($payload[0], $options);
         });
 
@@ -55,7 +53,7 @@ class SluggableServiceProvider extends ServiceProvider
                 return;
             }
 
-            Config::getAction('generate_slug', GenerateSlugAction::class)
+            Config::getAction(Config::ACTION_GENERATE_SLUG, GenerateSlugAction::class)
                 ->onUpdate($payload[0], $options);
         });
     }
@@ -80,7 +78,6 @@ class SluggableServiceProvider extends ServiceProvider
 
     protected function modelUsesHasSlug(string $class): bool
     {
-        return self::$usesHasSlugCache[$class]
-            ??= in_array(HasSlug::class, class_uses_recursive($class), true);
+        return TraitDetector::uses($class, HasSlug::class);
     }
 }

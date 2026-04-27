@@ -97,6 +97,19 @@ it('responds to a POST with a 308 status', function () {
     $response->assertRedirect("/posts/fresh-title-{$model->id}");
 });
 
+it('redirects to the canonical URL when the stale slug contains URL-encoded characters', function () {
+    $model = SelfHealingModel::create(['name' => 'Fresh Title']);
+
+    Route::get('/posts/{post}', fn (SelfHealingModel $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+
+    $staleSlug = 'héllo';
+    $response = $this->get('/posts/'.rawurlencode("{$staleSlug}-{$model->id}"));
+
+    $response->assertStatus(308);
+    $response->assertRedirect("/posts/fresh-title-{$model->id}");
+});
+
 it('responds with 200 when the URL is already canonical', function () {
     $model = SelfHealingModel::create(['name' => 'Fresh Title']);
 
