@@ -5,11 +5,12 @@ weight: 3
 
 The package delegates low-level work to three action classes that can each be swapped for your own.
 
-| Action key | Default class | Purpose |
-| --- | --- | --- |
-| `generate_slug` | `Spatie\Sluggable\Actions\GenerateSlugAction` | Generates the slug on create and update. |
-| `build_self_healing_route_key` | `Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction` | Composes the `{slug}{separator}{id}` route key. |
-| `extract_identifier_from_self_healing_route_key` | `Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction` | Splits an incoming route value back into `slug` and `identifier`. |
+- **`generate_slug`** generates the slug on create and update.  
+  Default: `Spatie\Sluggable\Actions\GenerateSlugAction`.
+- **`build_self_healing_route_key`** composes the `{slug}{separator}{id}` route key.  
+  Default: `Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction`.
+- **`extract_identifier_from_self_healing_route_key`** splits an incoming route value back into `slug` and `identifier`.  
+  Default: `Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction`.
 
 ## Publishing the config
 
