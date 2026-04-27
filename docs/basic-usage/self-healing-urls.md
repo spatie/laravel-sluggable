@@ -1,6 +1,6 @@
 ---
 title: Self-healing URLs
-weight: 6
+weight: 5
 ---
 
 Say you publish a blog post titled "Hello World". Its URL is `/posts/hello-world`. A few days later you realise the title should have been "Hello Universe", so you update it. The slug regenerates to `hello-universe` and the URL becomes `/posts/hello-universe`. Every search engine result, every shared link, every bookmark pointing at `/posts/hello-world` now returns `404`.
@@ -50,6 +50,7 @@ $post->getRouteKey(); // "hello-world-5"
 Bind the model to a route the usual way and the package handles the slug-and-id route key for you.
 
 ```php
+// routes/web.php
 Route::get('/posts/{post}', fn (Post $post) => $post);
 ```
 
@@ -135,3 +136,12 @@ Now imagine you rename the post to "Hello Universe". The slug in the database be
 The database is never touched by this process. The package only reads. Your slug column is updated the usual way, through Eloquent, when you save the model. Visiting a stale URL doesn't regenerate a slug, doesn't store the old one anywhere, and doesn't leave any trace.
 
 Because the lookup is always by primary key, the slug column doesn't need to be unique, and changing a title never orphans an existing link. The one thing you do need to watch out for is the separator: since the primary key sits at the end of the URL, the separator has to be something that cannot appear at the end of a slug. Otherwise the package cannot tell where the slug stops and the id begins.
+
+## When you don't need self-healing
+
+If your slug truly never changes after creation (taxonomy slugs, immutable reference data, short-lived resources), Laravel's built-in [implicit route model binding](https://laravel.com/docs/routing#implicit-binding) is enough. Point the route parameter at the slug column with `{post:slug}`, or override `getRouteKeyName()` on the model to return `'slug'` and drop the explicit hint. Be aware that any future change to the slug column breaks every existing link, which is exactly the situation self-healing exists to prevent.
+
+```php
+// routes/web.php
+Route::get('/posts/{post:slug}', fn (Post $post) => $post);
+```

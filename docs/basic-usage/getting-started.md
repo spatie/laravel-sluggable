@@ -62,7 +62,7 @@ $post->slug; // "hello-universe"
 
 ## 4. Wire it into a route with self-healing (optional)
 
-This step is optional. Skip it if you don't need slugs in your URLs, or if your slugs genuinely never change after creation (see [Using slugs in routes](/docs/laravel-sluggable/v4/basic-usage/using-slugs-in-routes) for plain `{post:slug}` binding).
+This step is optional. Skip it if you don't need slugs in your URLs, or if your slugs genuinely never change after creation (see [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls#when-you-dont-need-self-healing) for plain `{post:slug}` binding).
 
 Most user-editable content (blog posts, articles, products, documentation pages, events) eventually gets renamed, and a renamed slug breaks every existing link unless you opt into self-healing URLs. With self-healing enabled the route key becomes `{slug}-{id}`, the primary key drives the lookup, and a stale slug `301`-redirects to the canonical URL instead of returning a `404`.
 
@@ -93,7 +93,7 @@ Bind the model to a route the usual way; the package handles the route key for y
 Route::get('/posts/{post}', fn (Post $post) => view('posts.show', compact('post')));
 ```
 
-A request to `/posts/hello-world-5` resolves the post; renaming it later doesn't break the link. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls) for the full mechanics, or [Using slugs in routes](/docs/laravel-sluggable/v4/basic-usage/using-slugs-in-routes) for plain `{post:slug}` binding when the slug genuinely never changes.
+A request to `/posts/hello-world-5` resolves the post; renaming it later doesn't break the link. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls) for the full mechanics, including the plain `{post:slug}` alternative for slugs that genuinely never change.
 
 ## What's next
 
