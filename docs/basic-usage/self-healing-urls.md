@@ -61,6 +61,8 @@ Route::get('/posts/{post}', fn (Post $post) => $post);
 | `/posts/hello-world-99` | `404 Not Found` when id `99` does not exist. |
 | `/posts/hello-world` | `404 Not Found`, no identifier in the URL. |
 
+The redirect uses `308` rather than the more familiar `301` because `308` preserves the request method when followed. A stale `PUT`, `PATCH`, or `DELETE` to a self-healing URL still arrives at the canonical route as the same verb. With `301`, clients are allowed to rewrite the method to `GET`, which would turn the request into a `405 Method Not Allowed` on resource routes. Search engines treat both statuses the same for ranking, so SEO is unaffected. To return something else, see [Customizing the redirect](#customizing-the-redirect) below.
+
 ## Translatable slugs
 
 `HasTranslatableSlug` supports self-healing as well. The route key uses the slug for the current locale.
