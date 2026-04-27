@@ -5,13 +5,19 @@ weight: 1
 
 Pass an array to `from` (or `generateSlugsFrom()`) and the columns are concatenated using the slug separator before `Str::slug` runs.
 
+With the attribute:
+
 ```php
 #[Sluggable(from: ['first_name', 'last_name'])]
 ```
 
+Or via the trait:
+
 ```php
 SlugOptions::create()->generateSlugsFrom(['first_name', 'last_name']);
 ```
+
+The result joins the columns with the separator before slugifying.
 
 ```php
 $author = Author::create(['first_name' => 'John', 'last_name' => 'Doe']);

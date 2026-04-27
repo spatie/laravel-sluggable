@@ -1,6 +1,6 @@
 ---
 title: Laravel Boost skill
-weight: 11
+weight: 7
 ---
 
 This package ships a [Laravel Boost](https://github.com/laravel/boost) skill that teaches any Boost-aware AI assistant (Claude Code, Cursor, Copilot CLI, Gemini CLI, and others supported by Boost) how to use `laravel-sluggable` correctly.

@@ -1,6 +1,6 @@
 ---
 title: Translatable slugs
-weight: 9
+weight: 5
 ---
 
 Use the `HasTranslatableSlug` trait together with `spatie/laravel-translatable` to store one slug per locale.

@@ -76,8 +76,10 @@ class GenerateSlugAction
         $slugField = $options->slugField;
 
         if ($this->hasCustomSlugBeenUsed($model, $options)) {
-            if (! empty($model->{$slugField})) {
-                return $model->{$slugField};
+            $current = $model->{$slugField};
+
+            if ($current !== null && $current !== '') {
+                return $current;
             }
         }
 
