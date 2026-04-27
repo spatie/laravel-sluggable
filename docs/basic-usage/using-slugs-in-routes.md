@@ -7,7 +7,7 @@ The package writes slugs to a column on your model, but it doesn't touch routing
 
 ## Recommended: self-healing URLs
 
-Reach for self-healing URLs whenever the source field can be edited later, which is the typical case for posts, products, profiles, and most other user-facing content. The route key becomes `{slug}-{id}`, the primary key drives the lookup, and renaming the model `301`-redirects every old URL to the new canonical one instead of returning a `404`.
+Reach for self-healing URLs whenever the source field can be edited later, which is the typical case for blog posts, articles, products, documentation pages, events, and most other user-facing content. The route key becomes `{slug}-{id}`, the primary key drives the lookup, and renaming the model `301`-redirects every old URL to the new canonical one instead of returning a `404`.
 
 ```php
 use Spatie\Sluggable\Attributes\Sluggable;
