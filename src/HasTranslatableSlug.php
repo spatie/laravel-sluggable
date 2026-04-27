@@ -196,6 +196,19 @@ trait HasTranslatableSlug
         return (string) ($this->getTranslation($slugField, $this->getLocale(), false) ?? '');
     }
 
+    public function getLocalizedRouteKey(string $locale): mixed
+    {
+        $originalLocale = $this->getLocale();
+
+        try {
+            $this->setLocale($locale);
+
+            return $this->getRouteKey();
+        } finally {
+            $this->setLocale($originalLocale);
+        }
+    }
+
     public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
     {
         $modelInstance = new static;
