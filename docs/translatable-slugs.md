@@ -68,10 +68,10 @@ $article = Article::findBySlug('my-article');
 
 ## Getting the route key for a specific locale
 
-Use `getLocalizedRouteKey()` to retrieve the route key for a given locale without changing the model's active locale permanently.
+Use `getLocalizedRouteKey()` to retrieve the route key for a given locale without permanently changing the model's active locale.
 
 ```php
-$article->getLocalizedRouteKey('nl'); // returns the route key for the 'nl' locale
+$article->getLocalizedRouteKey('nl'); // "nederlandse-titel-5"
 ```
 
-The method temporarily sets the model locale inside a `try/finally` block, guaranteeing the original locale is always restored afterwards.
+The method swaps in the requested locale, calls `getRouteKey()`, and restores the original locale via `try/finally`, so the model is always left as it was found, including when `getRouteKey()` throws.

@@ -5,8 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\Tests\TestSupport\Category;
 use Spatie\Sluggable\Tests\TestSupport\Project;
-use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingTranslatableModel;
+use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModelSoftDeletes;
 
@@ -475,8 +475,8 @@ it('can get the route key for a specific locale', function () {
     $model->setTranslation('name', 'nl', 'Test value NL');
     $model->save();
 
-    expect($model->getLocalizedRouteKey('en'))->toContain('test-value-en');
-    expect($model->getLocalizedRouteKey('nl'))->toContain('test-value-nl');
+    expect($model->getLocalizedRouteKey('en'))->toBe("test-value-en-{$model->id}");
+    expect($model->getLocalizedRouteKey('nl'))->toBe("test-value-nl-{$model->id}");
 });
 
 it('restores the original locale after getting a localized route key', function () {
