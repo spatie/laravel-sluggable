@@ -1,6 +1,6 @@
 ---
 title: Installation & setup
-weight: 4
+weight: 3
 ---
 
 Install the package via composer:

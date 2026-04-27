@@ -117,7 +117,7 @@ trait HasTranslatableSlug
 
     protected function shouldPreserveExistingSlug(?string $currentSlug): bool
     {
-        if (empty($currentSlug)) {
+        if ($currentSlug === null || $currentSlug === '') {
             return false;
         }
 

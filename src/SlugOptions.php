@@ -68,7 +68,7 @@ class SlugOptions
     /**
      * @param  string|array<int, string>|Closure  $fieldName
      */
-    public function generateSlugsFrom(string|array|Closure $fieldName): self
+    public function generateSlugsFrom(string|array|Closure $fieldName): static
     {
         if (is_string($fieldName)) {
             $fieldName = [$fieldName];
@@ -79,91 +79,91 @@ class SlugOptions
         return $this;
     }
 
-    public function saveSlugsTo(string $fieldName): self
+    public function saveSlugsTo(string $fieldName): static
     {
         $this->slugField = $fieldName;
 
         return $this;
     }
 
-    public function allowDuplicateSlugs(): self
+    public function allowDuplicateSlugs(): static
     {
         $this->generateUniqueSlugs = false;
 
         return $this;
     }
 
-    public function slugsShouldBeNoLongerThan(int $maximumLength): self
+    public function slugsShouldBeNoLongerThan(int $maximumLength): static
     {
         $this->maximumLength = $maximumLength;
 
         return $this;
     }
 
-    public function skipGenerateWhen(Closure $callable): self
+    public function skipGenerateWhen(Closure $callable): static
     {
         $this->skipGenerateWhen = $callable;
 
         return $this;
     }
 
-    public function doNotGenerateSlugsOnCreate(): self
+    public function doNotGenerateSlugsOnCreate(): static
     {
         $this->generateSlugsOnCreate = false;
 
         return $this;
     }
 
-    public function doNotGenerateSlugsOnUpdate(): self
+    public function doNotGenerateSlugsOnUpdate(): static
     {
         $this->generateSlugsOnUpdate = false;
 
         return $this;
     }
 
-    public function preventOverwrite(): self
+    public function preventOverwrite(): static
     {
         $this->preventOverwrite = true;
 
         return $this;
     }
 
-    public function usingSeparator(string $separator): self
+    public function usingSeparator(string $separator): static
     {
         $this->slugSeparator = $separator;
 
         return $this;
     }
 
-    public function usingLanguage(string $language): self
+    public function usingLanguage(string $language): static
     {
         $this->slugLanguage = $language;
 
         return $this;
     }
 
-    public function extraScope(Closure $callbackMethod): self
+    public function extraScope(Closure $callbackMethod): static
     {
         $this->extraScopeCallback = $callbackMethod;
 
         return $this;
     }
 
-    public function startSlugSuffixFrom(int $startSlugSuffixFrom): self
+    public function startSlugSuffixFrom(int $startSlugSuffixFrom): static
     {
         $this->startSlugSuffixFrom = max(1, $startSlugSuffixFrom);
 
         return $this;
     }
 
-    public function useSuffixOnFirstOccurrence(): self
+    public function useSuffixOnFirstOccurrence(): static
     {
         $this->useSuffixOnFirstOccurrence = true;
 
         return $this;
     }
 
-    public function selfHealing(string $separator = self::DEFAULT_SEPARATOR): self
+    public function selfHealing(string $separator = self::DEFAULT_SEPARATOR): static
     {
         $this->selfHealingUrls = true;
         $this->selfHealingSeparator = $separator;
@@ -174,7 +174,7 @@ class SlugOptions
     /**
      * @param  Closure(string $slug, int $iteration): string  $generator
      */
-    public function usingSuffixGenerator(Closure $generator): self
+    public function usingSuffixGenerator(Closure $generator): static
     {
         $this->suffixGenerator = $generator;
 

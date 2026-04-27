@@ -1,6 +1,6 @@
 ---
 name: sluggable-development
-description: "Use this skill when making a field on an Eloquent model sluggable, generating the migration for a slug column, switching an existing model to self-healing URLs, or resolving a model from its slug in a route. Trigger whenever the request mentions slugs, permalinks, the spatie/laravel-sluggable package, the HasSlug trait, the HasTranslatableSlug trait, the #[Sluggable] attribute, SlugOptions, findBySlug, self-healing URLs, or stale slug redirects in a Laravel project. Covers: choosing between the attribute and the trait, generating unique slugs across create and update, configuring separator/length/language/scope/uniqueness, preventing slug overwrites, scoping uniqueness with a closure, handling translatable slugs via spatie/laravel-translatable, route model binding through the slug column, building {slug}-{id} route keys with selfHealing(), customizing the 301 redirect through the Sluggable facade, overriding the default actions via config/sluggable.php. Do not use for generating URL-safe strings without persisting them, for signed URLs, or for Laravel's built-in Str::slug helper when the result is not stored on a model."
+description: "Use this skill when making a field on an Eloquent model sluggable, generating the migration for a slug column, switching an existing model to self-healing URLs, or resolving a model from its slug in a route. Trigger whenever the request mentions slugs, permalinks, the spatie/laravel-sluggable package, the HasSlug trait, the HasTranslatableSlug trait, the #[Sluggable] attribute, SlugOptions, findBySlug, self-healing URLs, or stale slug redirects in a Laravel project. Covers: choosing between the attribute and the trait, generating unique slugs across create and update, configuring separator/length/language/scope/uniqueness, preventing slug overwrites, scoping uniqueness with a closure, handling translatable slugs via spatie/laravel-translatable, route model binding through the slug column, building {slug}-{id} route keys with selfHealing(), customizing the 301 redirect through the SelfHealing facade, overriding the default actions via config/sluggable.php. Do not use for generating URL-safe strings without persisting them, for signed URLs, or for Laravel's built-in Str::slug helper when the result is not stored on a model."
 license: MIT
 metadata:
   author: spatie
@@ -12,8 +12,8 @@ Use this skill when adding slug generation to an Eloquent model with `spatie/lar
 
 ## Picking a configuration style
 
-- **`#[Sluggable]` attribute** — place it on the class. A wildcard Eloquent event listener in the package's service provider picks it up. Use this for most models.
-- **`HasSlug` trait + `getSlugOptions()`** — use when you need any of: callables for `generateSlugsFrom`, closures for `extraScope` or `skipGenerateWhen`, custom suffix generators, translatable slugs, `findBySlug()`, or self-healing URLs.
+- **`#[Sluggable]` attribute**: place it on the class. A wildcard Eloquent event listener in the package's service provider picks it up. Use this for most models.
+- **`HasSlug` trait + `getSlugOptions()`**: use when you need any of these features (callables for `generateSlugsFrom`, closures for `extraScope` or `skipGenerateWhen`, custom suffix generators, translatable slugs, `findBySlug()`, or self-healing URLs).
 
 If both are present on a model, the trait wins and the attribute is ignored.
 
@@ -30,6 +30,8 @@ class Post extends Model
 {
 }
 ```
+
+Creating a model now writes the slug into the configured column.
 
 ```php
 $post = Post::create(['title' => 'Hello World']);
@@ -136,6 +138,8 @@ public function getRouteKeyName(): string
 }
 ```
 
+The route definition then needs no `:slug` hint.
+
 ```php
 Route::get('/posts/{post}', fn (Post $post) => $post);
 ```
@@ -165,6 +169,8 @@ public function getSlugOptions(): SlugOptions
         ->selfHealing();
 }
 ```
+
+The route key now includes the primary key, and stale slugs redirect.
 
 ```php
 $post = Post::create(['title' => 'Hello World']);
@@ -233,6 +239,8 @@ Three action classes do the low-level work. Swap any of them by publishing the c
 ```bash
 php artisan vendor:publish --tag=sluggable-config
 ```
+
+Then point the relevant key in `config/sluggable.php` at your own class.
 
 ```php
 return [

@@ -86,6 +86,8 @@ The default separator is `-`. If your slugs can legitimately end with a number f
 )]
 ```
 
+Or via the trait:
+
 ```php
 SlugOptions::create()
     ->generateSlugsFrom('title')

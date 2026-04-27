@@ -51,6 +51,8 @@ class UppercaseRouteKeyAction extends BuildSelfHealingRouteKeyAction
 }
 ```
 
+Then point the config key at the new class.
+
 ```php
 // config/sluggable.php
 'build_self_healing_route_key' => App\Sluggable\UppercaseRouteKeyAction::class,
