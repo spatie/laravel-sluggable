@@ -491,4 +491,3 @@ it('restores the original locale after getting a localized route key', function 
 
     expect($model->getLocale())->toBe('en');
 });
-
