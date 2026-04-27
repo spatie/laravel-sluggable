@@ -62,13 +62,7 @@ trait HasTranslatableSlug
 
     protected function shouldSkipGeneration(): bool
     {
-        $skip = $this->slugOptions->skipGenerateWhen;
-
-        if ($skip === null) {
-            return false;
-        }
-
-        return $skip() === true;
+        return $this->generateSlugAction()->shouldSkipBasedOnSkipWhen($this->slugOptions);
     }
 
     public function generateSlug(): void
@@ -120,7 +114,7 @@ trait HasTranslatableSlug
             ? $currentSlug
             : $this->getSlugSourceString();
 
-        return Str::slug($slugString, $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        return $this->generateSlugAction()->slugifySource($slugString, $this->slugOptions);
     }
 
     /**
@@ -182,16 +176,11 @@ trait HasTranslatableSlug
 
     protected function buildTranslatableSourceString(Closure $fieldReader): string
     {
-        if ($this->slugOptions->generateSlugFrom instanceof Closure) {
-            $sourceString = ($this->slugOptions->generateSlugFrom)($this, $this->getLocale());
-        } else {
-            $sourceString = implode(
-                $this->slugOptions->slugSeparator,
-                array_map(fn (string $fieldName): string => (string) $fieldReader($fieldName), $this->slugOptions->generateSlugFrom),
-            );
-        }
-
-        return mb_substr($sourceString, 0, $this->slugOptions->maximumLength);
+        return $this->generateSlugAction()->buildSourceString(
+            $this->slugOptions,
+            fn (string $fieldName): string => (string) $fieldReader($fieldName),
+            fn (Closure $source): string => (string) $source($this, $this->getLocale()),
+        );
     }
 
     protected function hasCustomSlugBeenUsed(): bool

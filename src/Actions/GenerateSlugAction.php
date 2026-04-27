@@ -39,14 +39,19 @@ class GenerateSlugAction
         $this->addSlug($model, $options);
     }
 
+    public function shouldSkipBasedOnSkipWhen(SlugOptions $options): bool
+    {
+        if ($options->skipGenerateWhen === null) {
+            return false;
+        }
+
+        return ($options->skipGenerateWhen)() === true;
+    }
+
     protected function shouldSkipGeneration(Model $model, SlugOptions $options): bool
     {
-        if ($options->skipGenerateWhen !== null) {
-            $skip = $options->skipGenerateWhen;
-
-            if ($skip() === true) {
-                return true;
-            }
+        if ($this->shouldSkipBasedOnSkipWhen($options)) {
+            return true;
         }
 
         if (! $options->preventOverwrite) {
@@ -76,21 +81,15 @@ class GenerateSlugAction
 
     protected function generateNonUniqueSlug(Model $model, SlugOptions $options): string
     {
-        $slugField = $options->slugField;
-
         if ($this->hasCustomSlugBeenUsed($model, $options)) {
-            $current = $model->{$slugField};
+            $current = $model->{$options->slugField};
 
             if (filled($current)) {
                 return $current;
             }
         }
 
-        return Str::slug(
-            $this->getSlugSourceString($model, $options),
-            $options->slugSeparator,
-            $options->slugLanguage,
-        );
+        return $this->slugifySource($this->getSlugSourceString($model, $options), $options);
     }
 
     protected function hasCustomSlugBeenUsed(Model $model, SlugOptions $options): bool
@@ -100,18 +99,44 @@ class GenerateSlugAction
         return $model->getOriginal($slugField) !== $model->{$slugField};
     }
 
-    protected function getSlugSourceString(Model $model, SlugOptions $options): string
+    public function slugifySource(string $source, SlugOptions $options): string
     {
+        return Str::slug($source, $options->slugSeparator, $options->slugLanguage);
+    }
+
+    /**
+     * Build (and truncate) the source string used as input to slugification.
+     * The two closures let translatable callers swap how a field is read
+     * and how a user-supplied source closure is invoked.
+     *
+     * @param  Closure(string $fieldName): string  $fieldReader
+     * @param  Closure(Closure): string|null  $closureCaller
+     */
+    public function buildSourceString(
+        SlugOptions $options,
+        Closure $fieldReader,
+        ?Closure $closureCaller = null,
+    ): string {
         if ($options->generateSlugFrom instanceof Closure) {
-            return $this->truncate(($options->generateSlugFrom)($model), $options);
+            $closureCaller ??= fn (Closure $source) => $source();
+            $sourceString = $closureCaller($options->generateSlugFrom);
+        } else {
+            $sourceString = implode(
+                $options->slugSeparator,
+                array_map($fieldReader, $options->generateSlugFrom),
+            );
         }
 
-        $sourceString = implode(
-            $options->slugSeparator,
-            array_map(fn (string $fieldName): string => (string) data_get($model, $fieldName, ''), $options->generateSlugFrom),
-        );
+        return mb_substr($sourceString, 0, $options->maximumLength);
+    }
 
-        return $this->truncate($sourceString, $options);
+    protected function getSlugSourceString(Model $model, SlugOptions $options): string
+    {
+        return $this->buildSourceString(
+            $options,
+            fn (string $fieldName): string => (string) data_get($model, $fieldName, ''),
+            fn (Closure $source): string => (string) $source($model),
+        );
     }
 
     public function makeUnique(string $slug, Model $model, SlugOptions $options): string
@@ -257,8 +282,4 @@ class GenerateSlugAction
         }
     }
 
-    protected function truncate(string $value, SlugOptions $options): string
-    {
-        return mb_substr($value, 0, $options->maximumLength);
-    }
 }
