@@ -7,7 +7,7 @@ This page documents every argument the `#[Sluggable]` attribute accepts. For set
 
 ## `from`
 
-The source column. Pass a single column name to slugify its value, or an array of column names to join them with the slug separator before slugification. Defaults to `'name'`. See [Choosing source fields](/docs/laravel-sluggable/v4/advanced-usage/source-fields).
+The source column. Pass a single column name to slugify its value, or an array of column names to join them with the slug separator before slugification. Defaults to `'name'`. See [Combining multiple source columns](/docs/laravel-sluggable/v4/advanced-usage/source-fields).
 
 ## `to`
 
@@ -15,7 +15,7 @@ The column the generated slug is written to. Defaults to `'slug'`.
 
 ## `separator`
 
-The character `Str::slug` uses to join words. Defaults to `'-'`. See [Configuring separator, length, and language](/docs/laravel-sluggable/v4/advanced-usage/separator-length-and-language).
+The character `Str::slug` uses to join words. Defaults to `'-'`.
 
 ## `language`
 
@@ -27,11 +27,11 @@ Truncates the slug before uniqueness resolution runs. Defaults to `250`. A uniqu
 
 ## `unique`
 
-When `true` (the default), the package appends a numeric suffix (`-1`, `-2`, etc.) on collisions so the slug column stays unique. Set to `false` to allow duplicates. See [Ensuring uniqueness](/docs/laravel-sluggable/v4/advanced-usage/uniqueness).
+When `true` (the default), the package appends a numeric suffix (`-1`, `-2`, etc.) on collisions so the slug column stays unique. Set to `false` to allow duplicates. To start the suffix from a different number or always force a suffix, see [Tuning the uniqueness suffix](/docs/laravel-sluggable/v4/advanced-usage/uniqueness).
 
 ## `onCreate`
 
-When `true` (the default), a slug is generated as the model is first persisted. Set to `false` to leave the column untouched on create. See [Controlling when slugs are generated](/docs/laravel-sluggable/v4/advanced-usage/generation-rules).
+When `true` (the default), a slug is generated as the model is first persisted. Set to `false` to leave the column untouched on create.
 
 ## `onUpdate`
 

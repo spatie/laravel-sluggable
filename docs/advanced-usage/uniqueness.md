@@ -1,28 +1,13 @@
 ---
-title: Ensuring uniqueness
-weight: 3
+title: Tuning the uniqueness suffix
+weight: 2
 ---
 
-Slugs are unique by default. On a collision, the package appends a counter starting at 1: `this-is-an-example`, `this-is-an-example-1`, `this-is-an-example-2`.
-
-## Allowing duplicates
-
-Turn the uniqueness check off when colliding slugs are acceptable.
-
-```php
-#[Sluggable(unique: false)]
-```
-
-```php
-SlugOptions::create()
-    ->generateSlugsFrom('name')
-    ->saveSlugsTo('slug')
-    ->allowDuplicateSlugs();
-```
+Slugs are unique by default. On a collision, the package appends a counter starting at `1` (for example `this-is-an-example`, `this-is-an-example-1`, `this-is-an-example-2`). Two builder methods change how that suffix is generated. They live on `SlugOptions` and are not available through the attribute.
 
 ## Starting the counter at a different number
 
-`startSlugSuffixFrom()` controls the first numeric suffix used on a collision. The default is `1`.
+`startSlugSuffixFrom()` sets the first numeric suffix used on a collision.
 
 ```php
 SlugOptions::create()
@@ -33,7 +18,7 @@ SlugOptions::create()
 
 ## Always append a suffix, even on the first record
 
-Instead of `this-is-an-example`, `this-is-an-example-1`, you get `this-is-an-example-1`, `this-is-an-example-2`.
+`useSuffixOnFirstOccurrence()` adds a suffix even when the slug would otherwise be unique. Instead of `this-is-an-example`, `this-is-an-example-1`, you get `this-is-an-example-1`, `this-is-an-example-2`.
 
 ```php
 SlugOptions::create()
@@ -42,15 +27,4 @@ SlugOptions::create()
     ->useSuffixOnFirstOccurrence();
 ```
 
-## Custom suffix generator (trait only)
-
-Replace the numeric counter with your own logic. The callable receives the base slug and the iteration number.
-
-```php
-SlugOptions::create()
-    ->generateSlugsFrom('name')
-    ->saveSlugsTo('slug')
-    ->usingSuffixGenerator(
-        fn (string $slug, int $iteration) => bin2hex(random_bytes(4)),
-    );
-```
+For a non-numeric or otherwise custom suffix, use the trait's `usingSuffixGenerator()`. See [A custom suffix generator](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait#a-custom-suffix-generator).

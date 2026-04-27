@@ -1,6 +1,6 @@
 ---
 title: Overriding the underlying actions
-weight: 6
+weight: 3
 ---
 
 The package delegates low-level work to three action classes that can each be swapped for your own.

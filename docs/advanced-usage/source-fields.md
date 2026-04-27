@@ -1,25 +1,9 @@
 ---
-title: Choosing source fields
+title: Combining multiple source columns
 weight: 1
 ---
 
-A slug can be generated from one column, several columns joined together, or a callable.
-
-## A single column
-
-Point `from` at a single column name and the slug is built from that column's value.
-
-```php
-#[Sluggable(from: 'title')]
-```
-
-```php
-SlugOptions::create()->generateSlugsFrom('title');
-```
-
-## Multiple columns
-
-Pass an array and the columns are joined using the slug separator.
+Pass an array to `from` (or `generateSlugsFrom()`) and the columns are concatenated using the slug separator before `Str::slug` runs.
 
 ```php
 #[Sluggable(from: ['first_name', 'last_name'])]
@@ -34,15 +18,4 @@ $author = Author::create(['first_name' => 'John', 'last_name' => 'Doe']);
 $author->slug; // "john-doe"
 ```
 
-## A callable (trait only)
-
-When you need arbitrary logic (concatenations, string transformations, reading related models), pass a callable to `generateSlugsFrom()`. Callables cannot go in attribute arguments, so this path requires the trait.
-
-```php
-public function getSlugOptions(): SlugOptions
-{
-    return SlugOptions::create()
-        ->generateSlugsFrom(fn (Post $post) => "{$post->author->name} {$post->title}")
-        ->saveSlugsTo('slug');
-}
-```
+For a slug derived from arbitrary logic (concatenations, related models, conditional values), use the trait and pass a closure to `generateSlugsFrom()`. See [A closure as the source field](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait#a-closure-as-the-source-field).
