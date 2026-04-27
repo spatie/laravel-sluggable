@@ -2,6 +2,28 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 4.0.0 - 2026-04-27
+
+v4 is mostly additive. Breaking changes are limited to minimum versions and a small handful of API removals. Full details in [UPGRADING.md](https://github.com/spatie/laravel-sluggable/blob/main/UPGRADING.md).
+
+### Highlights
+
+- **`#[Sluggable]` attribute** as a drop-in alternative to the `HasSlug` trait. Trait-based models keep working unchanged.
+- **Self-healing URLs**: route keys that combine the slug with the primary key (`hello-world-5`) so renaming a model never breaks an existing link. Stale URLs return a `308` (was `301`) so `PUT`/`PATCH`/`DELETE` keep working.
+- **Overridable actions**: swap the slug generator or self-healing URL builder/parser via `config/sluggable.php`.
+- **Laravel Boost skill** bundled with the package for AI assistants.
+
+### Breaking changes
+
+- Minimum **PHP 8.3** and **Laravel 12**. `spatie/laravel-translatable` v6+ when using `HasTranslatableSlug`. Pest 4 / Testbench 10+ in your test suite.
+- `skipGenerateWhen()` is now evaluated on every save instead of once. The `SlugOptions::\$skipGenerate` boolean is gone in favor of `\$skipGenerateWhen`.
+- The closure-shaped options (`generateSlugsFrom`, `extraScope`, `usingSuffixGenerator`, `skipGenerateWhen`) are typed as `Closure`. Array/string callables need wrapping in a `fn`.
+- `HasSlug` no longer keeps a `protected \$slugOptions` cache; override `generateSlugAction()` to inject custom behavior instead.
+- Self-healing redirects default to `308 Permanent Redirect`.
+- The `Sluggable` facade was renamed to `SelfHealing`.
+
+See [UPGRADING.md](https://github.com/spatie/laravel-sluggable/blob/main/UPGRADING.md) for migration steps.
+
 ## 3.8.1 - 2026-03-23
 
 ### What's Changed
