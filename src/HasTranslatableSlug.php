@@ -26,8 +26,8 @@ trait HasTranslatableSlug
         }
 
         return Collection::wrap($generateSlugFrom)
-            ->filter(fn ($fieldName) => $this->isTranslatableAttribute($fieldName))
-            ->flatMap(fn ($fieldName) => $this->getTranslatedLocales($fieldName));
+            ->filter($this->isTranslatableAttribute(...))
+            ->flatMap($this->getTranslatedLocales(...));
     }
 
     protected function generateSlugOnCreate(): void
@@ -67,10 +67,8 @@ trait HasTranslatableSlug
 
     public function generateSlug(): void
     {
-        $options = clone $this->getSlugOptions();
-        $options->preventOverwrite = false;
-
-        $this->slugOptions = $options;
+        $this->slugOptions = clone $this->getSlugOptions();
+        $this->slugOptions->preventOverwrite = false;
 
         $this->addSlug();
     }

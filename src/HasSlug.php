@@ -48,13 +48,12 @@ trait HasSlug
             return parent::getRouteKey();
         }
 
-        $action = Config::getAction(Config::ACTION_BUILD_SELF_HEALING_ROUTE_KEY, BuildSelfHealingRouteKeyAction::class);
-
-        return $action->execute(
-            $this->getSelfHealingSlugValue(),
-            $this->getKey(),
-            $slugOptions->selfHealingSeparator,
-        );
+        return Config::getAction(Config::ACTION_BUILD_SELF_HEALING_ROUTE_KEY, BuildSelfHealingRouteKeyAction::class)
+            ->execute(
+                $this->getSelfHealingSlugValue(),
+                $this->getKey(),
+                $slugOptions->selfHealingSeparator,
+            );
     }
 
     public function resolveRouteBinding(mixed $value, $field = null): ?Model
@@ -65,13 +64,11 @@ trait HasSlug
             return parent::resolveRouteBinding($value, $field);
         }
 
-        $action = Config::getAction(
+        $routeKey = (string) $value;
+        $identifier = Config::getAction(
             Config::ACTION_EXTRACT_IDENTIFIER_FROM_SELF_HEALING_ROUTE_KEY,
             ExtractIdentifierFromSelfHealingRouteKeyAction::class,
-        );
-
-        $routeKey = (string) $value;
-        $identifier = $action->execute($routeKey, $slugOptions->selfHealingSeparator)['identifier'];
+        )->execute($routeKey, $slugOptions->selfHealingSeparator)['identifier'];
 
         if ($identifier === null) {
             return null;

@@ -155,26 +155,7 @@ class GenerateSlugAction
         }
 
         $prefix = $slug.$options->slugSeparator;
-        $prefixLength = strlen($prefix);
-        $usedSuffixes = [];
-
-        foreach ($existing as $existingSlug) {
-            if (! str_starts_with((string) $existingSlug, $prefix)) {
-                continue;
-            }
-
-            $tail = substr((string) $existingSlug, $prefixLength);
-
-            if ($tail === '') {
-                continue;
-            }
-
-            if (! ctype_digit($tail)) {
-                continue;
-            }
-
-            $usedSuffixes[(int) $tail] = true;
-        }
+        $usedSuffixes = $this->extractNumericSuffixes($existing, $prefix);
 
         $candidate = $options->startSlugSuffixFrom;
         while (isset($usedSuffixes[$candidate])) {
@@ -182,6 +163,34 @@ class GenerateSlugAction
         }
 
         return $prefix.$candidate;
+    }
+
+    /**
+     * @param  array<int, mixed>  $existing
+     * @return array<int, true>
+     */
+    protected function extractNumericSuffixes(array $existing, string $prefix): array
+    {
+        $prefixLength = strlen($prefix);
+        $usedSuffixes = [];
+
+        foreach ($existing as $existingSlug) {
+            $existingSlug = (string) $existingSlug;
+
+            if (! str_starts_with($existingSlug, $prefix)) {
+                continue;
+            }
+
+            $tail = substr($existingSlug, $prefixLength);
+
+            if ($tail === '' || ! ctype_digit($tail)) {
+                continue;
+            }
+
+            $usedSuffixes[(int) $tail] = true;
+        }
+
+        return $usedSuffixes;
     }
 
     protected function makeUniqueIterative(string $slug, Model $model, SlugOptions $options): string
@@ -268,7 +277,7 @@ class GenerateSlugAction
     public function ensureValidOptions(SlugOptions $options): void
     {
         if (is_array($options->generateSlugFrom)) {
-            if (count($options->generateSlugFrom) === 0) {
+            if ($options->generateSlugFrom === []) {
                 throw InvalidOption::missingFromField();
             }
         }
