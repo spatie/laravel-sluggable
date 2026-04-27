@@ -2,6 +2,14 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 3.8.1 - 2026-03-23
+
+### What's Changed
+
+* Fix `preventOverwrite` for translatable slugs (#304)
+
+Thanks to @jyrkidn for reporting and providing the initial fix in #302.
+
 ## 3.8.0 - 2026-02-21
 
 ### What's Changed
