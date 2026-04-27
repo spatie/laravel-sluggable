@@ -6,6 +6,7 @@ weight: 4
 The package writes slugs to a column on your model, but it doesn't touch routing. Resolving a model from a slug in a URL is something you wire up yourself with Laravel's [implicit route model binding](https://laravel.com/docs/routing#implicit-binding). The simplest form points the route parameter at the slug column with `{post:slug}`.
 
 ```php
+// routes/web.php
 Route::get('/posts/{post:slug}', fn (Post $post) => $post);
 ```
 
@@ -33,6 +34,7 @@ class Post extends Model
 The route parameter is now resolved against the slug column without the explicit hint.
 
 ```php
+// routes/web.php
 Route::get('/posts/{post}', fn (Post $post) => $post);
 ```
 
