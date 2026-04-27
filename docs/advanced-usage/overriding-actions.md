@@ -55,7 +55,3 @@ class UppercaseRouteKeyAction extends BuildSelfHealingRouteKeyAction
 // config/sluggable.php
 'build_self_healing_route_key' => App\Sluggable\UppercaseRouteKeyAction::class,
 ```
-
-## How resolution works
-
-Action classes are resolved through `Spatie\Sluggable\Support\Config`, which reads the `sluggable.actions.{key}` entry, instantiates the class via the container, and validates that it extends the expected type. Any class resolved this way can use constructor injection just like a regular service.
