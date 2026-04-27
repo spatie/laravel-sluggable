@@ -1,7 +1,6 @@
 build
 composer.lock
 vendor
-tests/Integration/temp
 .phpunit.result.cache
 .php-cs-fixer.cache
-tests/temp/database.sqlite
+.claude
