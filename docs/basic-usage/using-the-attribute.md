@@ -43,20 +43,8 @@ When `true`, the package skips slug generation if the destination column already
 
 ## `selfHealing`
 
-Turns the model's route key into `{slug}{selfHealingSeparator}{id}`. The slug rides along in the URL, but the primary key drives the lookup, so renaming a model never breaks an old link. Stale URLs `301`-redirect to the canonical one. Defaults to `false`. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
-
-**Requires the `HasSlug` trait on the same class.** Self-healing has to override `getRouteKey()` and `resolveRouteBinding()`, which an attribute alone cannot do. Setting `selfHealing: true` without `use HasSlug;` throws a `SelfHealingRequiresTrait` exception.
+Enables self-healing route keys. Defaults to `false`. Requires the `HasSlug` trait on the same class. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
 
 ## `selfHealingSeparator`
 
-The string placed between the slug and the identifier in the self-healing route key. Defaults to `'-'`. Use something that cannot appear at the end of a slug (for example `'--'`) when your slugs can themselves end in a digit. Same trait requirement as `selfHealing`.
-
-## What the attribute can't do
-
-A few features need the [`HasSlug` trait](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait) instead of (or, for self-healing, alongside) the attribute, because they need closures or instance methods:
-
-- Closures: `generateSlugsFrom(fn ($model) => ...)`, `skipGenerateWhen(fn () => ...)`, `extraScope(fn ($query) => ...)`, `usingSuffixGenerator(fn () => ...)`.
-- Translatable slugs through `HasTranslatableSlug`.
-- The `findBySlug()` static helper.
-
-If a model has both, the trait's `getSlugOptions()` wins and the attribute is ignored.
+The string placed between the slug and the identifier in the self-healing route key. Defaults to `'-'`. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
