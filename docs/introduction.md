@@ -30,6 +30,6 @@ On top of generation, this package also ships:
 
 ## Self-healing URLs at a glance
 
-Bookmarks, search results, and shared links keep working when a slug changes. Enable `selfHealing` on the attribute (or the slug options) and the route key becomes `{slug}-{id}`. The primary key resolves the model, the slug just rides along, and stale URLs `301`-redirect to the canonical one.
+Bookmarks, search results, and shared links keep working when a slug changes. Enable `selfHealing` on the attribute (or the slug options) and the route key becomes `{slug}-{id}`. The primary key resolves the model, the slug just rides along, and stale URLs `308`-redirect to the canonical one.
 
 Read the full story in [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).

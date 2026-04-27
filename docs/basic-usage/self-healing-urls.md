@@ -5,7 +5,7 @@ weight: 5
 
 Say you publish a blog post titled "Hello World". Its URL is `/posts/hello-world`. A few days later you realise the title should have been "Hello Universe", so you update it. The slug regenerates to `hello-universe` and the URL becomes `/posts/hello-universe`. Every search engine result, every shared link, every bookmark pointing at `/posts/hello-world` now returns `404`.
 
-Self-healing URLs fix this. The route key becomes `{slug}-{id}`. The slug part can change without breaking lookups, because the primary key still resolves the model. Stale slugs trigger a `301` redirect to the canonical URL.
+Self-healing URLs fix this. The route key becomes `{slug}-{id}`. The slug part can change without breaking lookups, because the primary key still resolves the model. Stale slugs trigger a `308` redirect to the canonical URL.
 
 ## Enabling
 
@@ -57,7 +57,7 @@ Route::get('/posts/{post}', fn (Post $post) => $post);
 | Incoming path | Result |
 | --- | --- |
 | `/posts/hello-world-5` | `200 OK` with the resolved model. |
-| `/posts/outdated-slug-5` | `301 Moved Permanently` to `/posts/hello-world-5`. |
+| `/posts/outdated-slug-5` | `308 Permanent Redirect` to `/posts/hello-world-5`. |
 | `/posts/hello-world-99` | `404 Not Found` when id `99` does not exist. |
 | `/posts/hello-world` | `404 Not Found`, no identifier in the URL. |
 
@@ -97,7 +97,7 @@ SlugOptions::create()
 
 ## Customizing the redirect
 
-When an incoming URL's slug is stale, the package throws a `Spatie\Sluggable\Exceptions\StaleSelfHealingUrl` exception. Its `render()` method delegates to the `SelfHealingManager`, which by default returns a `301` redirect to the canonical URL.
+When an incoming URL's slug is stale, the package throws a `Spatie\Sluggable\Exceptions\StaleSelfHealingUrl` exception. Its `render()` method delegates to the `SelfHealingManager`, which by default returns a `308` redirect to the canonical URL.
 
 Register a closure through the `SelfHealing` facade in a service provider's `boot()` method. The closure receives the resolved model, the stale route key, and the incoming request, and returns whatever response you want.
 
@@ -122,7 +122,7 @@ class AppServiceProvider extends ServiceProvider
 
 Use cases include:
 
-- Returning a `302` redirect instead of `301`.
+- Returning a `302` redirect instead of `308`.
 - Rendering an "old link" notification before redirecting.
 - Logging the stale access for analytics.
 - Refusing to redirect based on request state.
@@ -137,7 +137,7 @@ When someone visits `/posts/hello-world-5`, the package splits the URL at the la
 
 Now imagine you rename the post to "Hello Universe". The slug in the database becomes `hello-universe`, but the old link `/posts/hello-world-5` is still floating around on Twitter, in Google's index, and in somebody's bookmarks.
 
-When that old link hits your app, the package again pulls `5` off the end and loads the post. This time the slug in the URL does not match the post's current slug, so the package sends back a `301` redirect to `/posts/hello-universe-5`. The visitor (or the search engine crawler) follows the redirect and lands on the canonical URL.
+When that old link hits your app, the package again pulls `5` off the end and loads the post. This time the slug in the URL does not match the post's current slug, so the package sends back a `308` redirect to `/posts/hello-universe-5`. The visitor (or the search engine crawler) follows the redirect and lands on the canonical URL.
 
 ### No database writes
 

@@ -19,7 +19,7 @@ The skill activates when a query mentions slugs, permalinks, the `HasSlug` trait
 - Generating the migration for a slug column, including the `nullable` then unique backfill pattern and the JSON column requirement for translatable slugs.
 - Configuring separator, length, language, uniqueness behavior, and scope.
 - Wiring implicit route binding through the slug column.
-- Enabling self-healing URLs, customizing the separator, and overriding the `301` redirect through the `SelfHealing` facade.
+- Enabling self-healing URLs, customizing the separator, and overriding the `308` redirect through the `SelfHealing` facade.
 - Swapping the default action classes via `config/sluggable.php`.
 
 The full skill content lives at [`resources/boost/skills/sluggable-development/SKILL.md`](https://github.com/spatie/laravel-sluggable/blob/main/resources/boost/skills/sluggable-development/SKILL.md) in the package repository.
