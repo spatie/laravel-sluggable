@@ -281,5 +281,4 @@ class GenerateSlugAction
             throw InvalidOption::invalidMaximumLength();
         }
     }
-
 }
