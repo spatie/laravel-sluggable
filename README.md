@@ -39,7 +39,7 @@ For features that need closures (custom source callables, scoped uniqueness, con
 - **Overridable actions**: swap the slug generator or the self-healing URL logic for your own class via a config file.
 - **Laravel Boost skill** bundled with the package, so AI assistants know how to scaffold sluggable models in your project. Boost discovers it automatically once both packages are installed.
 
-Self-healing URLs in one snippet:
+Self-healing URLs combine the slug with the primary key. The `HasSlug` trait is required alongside the attribute, because it overrides Eloquent's route key and route binding methods.
 
 ```php
 #[Sluggable(from: 'title', to: 'slug', selfHealing: true)]

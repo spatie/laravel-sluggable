@@ -4,7 +4,6 @@ namespace Spatie\Sluggable\Tests;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Spatie\Sluggable\SluggableServiceProvider;
@@ -27,20 +26,16 @@ abstract class TestCase extends Orchestra
 
     protected function getEnvironmentSetUp($app): void
     {
-        $this->initializeDirectory($this->getTempDirectory());
-
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite', [
             'driver' => 'sqlite',
-            'database' => $this->getTempDirectory().'/database.sqlite',
+            'database' => ':memory:',
             'prefix' => '',
         ]);
     }
 
     protected function setUpDatabase(Application $app): void
     {
-        file_put_contents($this->getTempDirectory().'/database.sqlite', '');
-
         Schema::create('test_models', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
@@ -99,19 +94,5 @@ abstract class TestCase extends Orchestra
 
             $table->primary(['category_id', 'project_id']);
         });
-    }
-
-    protected function initializeDirectory(string $directory): void
-    {
-        if (File::isDirectory($directory)) {
-            File::deleteDirectory($directory);
-        }
-
-        File::makeDirectory($directory);
-    }
-
-    protected function getTempDirectory(): string
-    {
-        return __DIR__.'/temp';
     }
 }

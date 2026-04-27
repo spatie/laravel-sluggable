@@ -4,7 +4,13 @@
     "license": "MIT",
     "keywords": [
         "spatie",
-        "laravel-sluggable"
+        "laravel",
+        "laravel-sluggable",
+        "slug",
+        "slugs",
+        "eloquent",
+        "self-healing",
+        "translatable"
     ],
     "authors": [
         {
