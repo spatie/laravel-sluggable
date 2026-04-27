@@ -3,7 +3,7 @@ title: Generating your first slug
 weight: 1
 ---
 
-This walkthrough takes a `Post` model from nothing to a working `/posts/{slug}-{id}` URL in four steps: the `#[Sluggable]` attribute, a migration, a query, and a route.
+This walkthrough takes a `Post` model from nothing to a working slug in three steps: the `#[Sluggable]` attribute, a migration, and a query. An optional fourth step wires the slug into a route with self-healing URLs so renaming a model never breaks an old link.
 
 ## 1. Add the attribute to the model
 
@@ -60,9 +60,13 @@ $post->update(['title' => 'Hello Universe']);
 $post->slug; // "hello-universe"
 ```
 
-## 4. Wire it into a route with self-healing
+## 4. Wire it into a route with self-healing (optional)
 
-Most user-editable content (posts, products, profiles) eventually gets renamed. To make sure existing URLs don't break when that happens, enable self-healing on the attribute and add the `HasSlug` trait. The route key becomes `{slug}-{id}`, the primary key drives the lookup, and a stale slug `301`-redirects to the canonical URL instead of returning a `404`.
+This step is optional. Skip it if you don't need slugs in your URLs, or if your slugs genuinely never change after creation (see [Using slugs in routes](/docs/laravel-sluggable/v4/basic-usage/using-slugs-in-routes) for plain `{post:slug}` binding).
+
+Most user-editable content (posts, products, profiles) eventually gets renamed, and a renamed slug breaks every existing link unless you opt into self-healing URLs. With self-healing enabled the route key becomes `{slug}-{id}`, the primary key drives the lookup, and a stale slug `301`-redirects to the canonical URL instead of returning a `404`.
+
+To follow along, add `selfHealing: true` to the attribute on the `Post` model from step 1 and add `use HasSlug;` to the class. The trait is required because self-healing has to override `getRouteKey()` and `resolveRouteBinding()`.
 
 ```php
 namespace App\Models;
@@ -101,4 +105,4 @@ That is enough for most projects. From here you can:
 
 ## Let the Laravel Boost skill set things up for you
 
-If your project uses [Laravel Boost](https://github.com/laravel/boost), this package ships a [Boost skill](/docs/laravel-sluggable/v4/laravel-boost-skill) that teaches Boost-aware AI assistants (Claude Code, Cursor, Copilot CLI, Gemini CLI, and others) how to scaffold all four steps above. Ask your assistant something like "set up sluggable on the Post model" and it will write the migration, add the attribute, wire up self-healing, and add the route binding.
+If your project uses [Laravel Boost](https://github.com/laravel/boost), this package ships a [Boost skill](/docs/laravel-sluggable/v4/laravel-boost-skill) that teaches Boost-aware AI assistants (Claude Code, Cursor, Copilot CLI, Gemini CLI, and others) how to scaffold every step above, including the optional self-healing route binding. Ask your assistant something like "set up sluggable on the Post model" and it will write the migration, add the attribute, and wire up the route.
