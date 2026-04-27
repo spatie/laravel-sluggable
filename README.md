@@ -34,7 +34,7 @@ For features that need closures (custom source callables, scoped uniqueness, con
 ## Highlights
 
 - **Unique slugs out of the box**, with a configurable `-1`, `-2`, ... suffix on collisions.
-- **Self-healing URLs**: route keys that combine the slug with the primary key (`hello-world-5`) so renaming a model never breaks an existing link. Stale slugs return a `301` redirect to the canonical URL.
+- **Self-healing URLs**: route keys that combine the slug with the primary key (`hello-world-5`) so renaming a model never breaks an existing link. Stale slugs return a `308` redirect to the canonical URL.
 - **Translatable slugs** through `HasTranslatableSlug` and `spatie/laravel-translatable`.
 - **Overridable actions**: swap the slug generator or the self-healing URL logic for your own class via a config file.
 - **Laravel Boost skill** bundled with the package, so AI assistants know how to scaffold sluggable models in your project. Boost discovers it automatically once both packages are installed.
@@ -49,7 +49,7 @@ class Post extends Model
 }
 
 // /posts/hello-world-5   → 200
-// /posts/old-title-5     → 301 to /posts/hello-world-5
+// /posts/old-title-5     → 308 to /posts/hello-world-5
 ```
 
 Spatie is a web design agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).

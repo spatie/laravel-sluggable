@@ -37,6 +37,6 @@ class SelfHealingManager
             $request->fullUrl(),
         );
 
-        return redirect($canonicalUrl, 301);
+        return redirect($canonicalUrl, 308);
     }
 }

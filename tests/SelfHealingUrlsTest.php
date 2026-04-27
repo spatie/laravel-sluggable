@@ -73,7 +73,7 @@ it('respects a custom separator', function () {
     expect($resolved->id)->toBe($model->id);
 });
 
-it('redirects with a 301 when an implicit route binding encounters a stale slug', function () {
+it('redirects with a 308 when an implicit route binding encounters a stale slug', function () {
     $model = SelfHealingModel::create(['name' => 'Fresh Title']);
 
     Route::get('/posts/{post}', fn (SelfHealingModel $post) => $post->name)
@@ -81,7 +81,19 @@ it('redirects with a 301 when an implicit route binding encounters a stale slug'
 
     $response = $this->get("/posts/old-slug-{$model->id}");
 
-    $response->assertStatus(301);
+    $response->assertStatus(308);
+    $response->assertRedirect("/posts/fresh-title-{$model->id}");
+});
+
+it('responds to a POST with a 308 status', function () {
+    $model = SelfHealingModel::create(['name' => 'Fresh Title']);
+
+    Route::post('/posts/{post}', fn (SelfHealingModel $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+
+    $response = $this->post("/posts/old-slug-{$model->id}");
+
+    $response->assertStatus(308);
     $response->assertRedirect("/posts/fresh-title-{$model->id}");
 });
 
@@ -147,7 +159,7 @@ it('redirects stale translatable URLs to the current locale canonical URL', func
 
     $response = $this->get("/posts/stale-english-{$model->id}");
 
-    $response->assertStatus(301);
+    $response->assertStatus(308);
     $response->assertRedirect("/posts/fresh-english-{$model->id}");
 });
 

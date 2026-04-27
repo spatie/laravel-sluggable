@@ -32,6 +32,6 @@ On top of generation, this package also ships:
 
 Rename a post and its URL changes with it. Every bookmark, search result, and shared link pointing at the old URL now returns a `404`.
 
-Enable `selfHealing` and the route key becomes `{slug}-{id}`. The primary key resolves the model, so the slug can change without breaking lookups. Old URLs return a `301` redirect to the current one.
+Enable `selfHealing` and the route key becomes `{slug}-{id}`. The primary key resolves the model, so the slug can change without breaking lookups. Old URLs return a `308` redirect to the current one.
 
 Read the full story in [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).

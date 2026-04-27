@@ -64,7 +64,7 @@ $post->slug; // "hello-universe"
 
 This step is optional. Skip it if you don't need slugs in your URLs, or if your slugs genuinely never change after creation (see [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls#when-you-dont-need-self-healing) for plain `{post:slug}` binding).
 
-Most user-editable content (blog posts, articles, products, documentation pages, events) eventually gets renamed, and a renamed slug breaks every existing link unless you opt into self-healing URLs. With self-healing enabled the route key becomes `{slug}-{id}`, the primary key drives the lookup, and a stale slug `301`-redirects to the canonical URL instead of returning a `404`.
+Most user-editable content (blog posts, articles, products, documentation pages, events) eventually gets renamed, and a renamed slug breaks every existing link unless you opt into self-healing URLs. With self-healing enabled the route key becomes `{slug}-{id}`, the primary key drives the lookup, and a stale slug `308`-redirects to the canonical URL instead of returning a `404`.
 
 To follow along, add `selfHealing: true` to the attribute on the `Post` model from step 1 and add `use HasSlug;` to the class. The trait is required because self-healing has to override `getRouteKey()` and `resolveRouteBinding()`.
 

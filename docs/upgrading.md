@@ -55,6 +55,12 @@ Array-style callables (`[$obj, 'method']`) and string callables (`'my_function'`
 
 `HasTranslatableSlug` still keeps its own `$slugOptions` field because it iterates per locale.
 
+## Self-healing redirects are now `308` instead of `301`
+
+The default response for a stale self-healing URL is now `308 Permanent Redirect`, replacing `301 Moved Permanently`. Both convey "permanent" semantics to search engines, but `308` preserves the request method when followed, so `PUT`/`PATCH`/`DELETE` requests to a stale URL no longer silently degrade to `GET` and return `405 Method Not Allowed`.
+
+Update any code that asserts on the specific status code (tests, middleware, monitoring). The behavior of a custom handler registered through `SelfHealing::onStaleSelfHealingUrl()` is unchanged.
+
 ## Renamed: `Sluggable` facade is now `SelfHealing`
 
 The facade for registering the stale-URL handler was renamed to clarify that it only customizes self-healing behavior.
