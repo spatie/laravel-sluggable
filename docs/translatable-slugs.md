@@ -65,3 +65,13 @@ $article = Article::findBySlug('my-article');
 ## Self-healing URLs
 
 `selfHealing()` works with the translatable trait. The route key uses the slug for the current locale; stale slugs trigger the same redirect flow described in [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
+
+## Getting the route key for a specific locale
+
+Use `getLocalizedRouteKey()` to retrieve the route key for a given locale without permanently changing the model's active locale.
+
+```php
+$article->getLocalizedRouteKey('nl'); // "nederlandse-titel-5"
+```
+
+The method swaps in the requested locale, calls `getRouteKey()`, and restores the original locale via `try/finally`, so the model is always left as it was found, including when `getRouteKey()` throws.
