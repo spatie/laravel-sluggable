@@ -116,7 +116,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         SelfHealing::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
-            return redirect()->route('posts.show', $model, status: 302);
+            return redirect()->route('posts.show', $model, status: 307);
         });
     }
 }
@@ -124,7 +124,7 @@ class AppServiceProvider extends ServiceProvider
 
 Use cases include:
 
-- Returning a `302` redirect instead of `308`.
+- Returning a `307` temporary redirect instead of the permanent `308`.
 - Rendering an "old link" notification before redirecting.
 - Logging the stale access for analytics.
 - Refusing to redirect based on request state.

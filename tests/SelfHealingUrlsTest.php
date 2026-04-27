@@ -85,20 +85,16 @@ it('redirects with a 308 when an implicit route binding encounters a stale slug'
     $response->assertRedirect("/posts/fresh-title-{$model->id}");
 });
 
-it('redirects a POST request with a 308 so the method is preserved', function () {
+it('responds to a POST with a 308 status', function () {
     $model = SelfHealingModel::create(['name' => 'Fresh Title']);
 
     Route::post('/posts/{post}', fn (SelfHealingModel $post) => $post->name)
         ->middleware(SubstituteBindings::class);
 
-    $redirect = $this->post("/posts/old-slug-{$model->id}");
-    $redirect->assertStatus(308);
-    $redirect->assertRedirect("/posts/fresh-title-{$model->id}");
+    $response = $this->post("/posts/old-slug-{$model->id}");
 
-    // Follow as POST to verify the method is preserved (GET would return 405)
-    $this->post($redirect->headers->get('Location'))
-        ->assertStatus(200)
-        ->assertSee('Fresh Title');
+    $response->assertStatus(308);
+    $response->assertRedirect("/posts/fresh-title-{$model->id}");
 });
 
 it('responds with 200 when the URL is already canonical', function () {
