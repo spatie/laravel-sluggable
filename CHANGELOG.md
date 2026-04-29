@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 4.0.1 - 2026-04-29
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.0...4.0.1
+
 ## 4.0.0 - 2026-04-27
 
 v4 is mostly additive. Breaking changes are limited to minimum versions and a small handful of API removals. Full details in [UPGRADING.md](https://github.com/spatie/laravel-sluggable/blob/main/UPGRADING.md).
