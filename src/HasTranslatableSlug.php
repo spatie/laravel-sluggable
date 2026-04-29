@@ -81,14 +81,14 @@ trait HasTranslatableSlug
 
         $slugField = $this->slugOptions->slugField;
 
-        $this->getLocalesForSlug()->unique()->each(function ($locale) use ($slugField, $action) {
+        $this->getLocalesForSlug()->unique()->each(function (string $locale) use ($slugField, $action) {
             if ($this->slugOptions->preventOverwrite) {
                 if (filled($this->getTranslation($slugField, $locale, false))) {
                     return;
                 }
             }
 
-            $this->withLocale($locale, function () use ($slugField, $locale, $action) {
+            $this->withLocale($locale, function () use ($slugField, $locale, $action): void {
                 $slug = $this->generateNonUniqueSlug();
 
                 if ($this->slugOptions->generateUniqueSlugs) {
@@ -216,10 +216,16 @@ trait HasTranslatableSlug
         $field = $modelInstance->getSlugOptions()->slugField;
 
         $currentField = "{$field}->{$modelInstance->getLocale()}";
-        $fallbackField = "{$field}->".config('app.fallback_locale');
+        $fallbackLocale = config('app.fallback_locale');
 
         $query = static::query()
-            ->where(fn ($query) => $query->where($currentField, $slug)->orWhere($fallbackField, $slug));
+            ->where(function (Builder $query) use ($currentField, $slug, $field, $fallbackLocale): void {
+                $query->where($currentField, $slug);
+
+                if ($fallbackLocale !== null) {
+                    $query->orWhere("{$field}->{$fallbackLocale}", $slug);
+                }
+            });
 
         if ($additionalQuery !== null) {
             $additionalQuery($query);

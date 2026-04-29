@@ -3,6 +3,7 @@
 namespace Spatie\Sluggable\Actions;
 
 use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -219,12 +220,12 @@ class GenerateSlugAction
 
         $query = $model->newQuery()
             ->withoutGlobalScopes()
-            ->where(function ($query) use ($options, $slug, $likePattern): void {
+            ->where(function (Builder $query) use ($options, $slug, $likePattern): void {
                 $query->where($options->slugField, $slug)
                     ->orWhere($options->slugField, 'like', $likePattern);
             });
 
-        if ($options->extraScopeCallback) {
+        if ($options->extraScopeCallback !== null) {
             $query->where($options->extraScopeCallback);
         }
 
@@ -241,7 +242,7 @@ class GenerateSlugAction
 
     protected function generateSuffix(string $originalSlug, int $iteration, SlugOptions $options): string
     {
-        if ($options->suffixGenerator) {
+        if ($options->suffixGenerator !== null) {
             return ($options->suffixGenerator)($originalSlug, $iteration);
         }
 
@@ -254,7 +255,7 @@ class GenerateSlugAction
             ->where($options->slugField, $slug)
             ->withoutGlobalScopes();
 
-        if ($options->extraScopeCallback) {
+        if ($options->extraScopeCallback !== null) {
             $query->where($options->extraScopeCallback);
         }
 
