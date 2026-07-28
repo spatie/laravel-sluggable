@@ -142,7 +142,7 @@ class GenerateSlugAction
 
     public function makeUnique(string $slug, Model $model, SlugOptions $options): string
     {
-        if ($slug === '' || $options->suffixGenerator !== null || str_contains($options->slugField, '->')) {
+        if ($this->cannotUseSlugVariantQuery($slug, $options)) {
             return $this->makeUniqueIterative($slug, $model, $options);
         }
 
@@ -164,6 +164,34 @@ class GenerateSlugAction
         }
 
         return $prefix.$candidate;
+    }
+
+    protected function cannotUseSlugVariantQuery(string $slug, SlugOptions $options): bool
+    {
+        if ($slug === '') {
+            return true;
+        }
+
+        if ($options->suffixGenerator !== null) {
+            return true;
+        }
+
+        if (str_contains($options->slugField, '->')) {
+            return true;
+        }
+
+        return $this->containsLikeWildcards($slug.$options->slugSeparator);
+    }
+
+    /**
+     * Not every driver honours the backslash escaping applied in
+     * `fetchExistingSlugVariants`. SQLite, for one, needs an explicit
+     * `ESCAPE` clause, so a slug or separator holding a wildcard would
+     * silently match nothing.
+     */
+    protected function containsLikeWildcards(string $value): bool
+    {
+        return strpbrk($value, '%_\\') !== false;
     }
 
     /**

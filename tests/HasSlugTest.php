@@ -261,6 +261,26 @@ it('will use separator option for slug generation', function () {
     expect($model->url)->toEqual('this_is_a_separator_test');
 });
 
+it('will keep generating free suffixes when the separator is a like wildcard', function () {
+    $createModel = fn () => new class extends TestModel
+    {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->usingSeparator('_');
+        }
+    };
+
+    $urls = collect(range(1, 3))->map(function () use ($createModel) {
+        $model = $createModel();
+        $model->name = 'foo bar';
+        $model->save();
+
+        return $model->url;
+    });
+
+    expect($urls->all())->toEqual(['foo_bar', 'foo_bar_1', 'foo_bar_2']);
+});
+
 it('will use language option for slug generation', function () {
     $model = new class extends TestModel
     {
