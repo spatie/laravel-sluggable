@@ -2,6 +2,17 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 4.0.3 - 2026-07-28
+
+### What's Changed
+
+* Fix unique slug generation when the slug or separator contains a `LIKE` wildcard (`_`, `%`, `\`) by @amrachraf6699 in https://github.com/spatie/laravel-sluggable/pull/311
+  
+  On drivers without a default `LIKE` escape character (SQLite), the slug-variant lookup silently matched nothing, so a separator like `_` caused suffixes to be reused (`foo_bar_1` twice instead of `foo_bar_2`).
+  
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.2...4.0.3
+
 ## 4.0.2 - 2026-04-30
 
 - Shorten the bundled Laravel Boost skill description so it loads in OpenAI Codex (1024 character limit).
