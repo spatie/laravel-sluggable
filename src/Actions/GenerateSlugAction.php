@@ -142,7 +142,7 @@ class GenerateSlugAction
 
     public function makeUnique(string $slug, Model $model, SlugOptions $options): string
     {
-        if ($slug === '' || $options->suffixGenerator !== null || str_contains($options->slugField, '->')) {
+        if ($slug === '' || $options->suffixGenerator !== null || str_contains($options->slugField, '->') || strpbrk($slug.$options->slugSeparator, '%_\\') !== false) {
             return $this->makeUniqueIterative($slug, $model, $options);
         }
 
