@@ -8,6 +8,7 @@ use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Exceptions\StaleSelfHealingUrl;
 use Spatie\Sluggable\Facades\SelfHealing;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingModel;
+use Spatie\Sluggable\Tests\TestSupport\SelfHealingModelSoftDeletes;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingTranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 
@@ -174,6 +175,27 @@ it('redirects stale translatable URLs to the current locale canonical URL', func
 
     $response->assertStatus(308);
     $response->assertRedirect("/posts/fresh-english-{$model->id}");
+});
+
+it('resolves a self-healing route key on a route that allows trashed models', function () {
+    $model = SelfHealingModelSoftDeletes::create(['name' => 'Hello World']);
+    $model->delete();
+
+    Route::get('/posts/{post}', fn (SelfHealingModelSoftDeletes $post) => $post->name)
+        ->middleware(SubstituteBindings::class)
+        ->withTrashed();
+
+    $this->get("/posts/{$model->getRouteKey()}")->assertOk()->assertSee('Hello World');
+});
+
+it('does not resolve a trashed model when the route does not allow trashed models', function () {
+    $model = SelfHealingModelSoftDeletes::create(['name' => 'Hello World']);
+    $model->delete();
+
+    Route::get('/posts/{post}', fn (SelfHealingModelSoftDeletes $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+
+    $this->get("/posts/{$model->getRouteKey()}")->assertNotFound();
 });
 
 class UppercaseSlugRouteKeyAction extends BuildSelfHealingRouteKeyAction
