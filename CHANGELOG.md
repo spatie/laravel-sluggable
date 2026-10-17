@@ -2,6 +2,17 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 4.0.4 - 2026-10-17
+
+### What’s Changed
+
+* Fix self-healing URLs returning 404 on routes using `->withTrashed()` by @MohannadElemary in https://github.com/spatie/laravel-sluggable/pull/313 (fixes #312).
+  
+  Canonical URLs now resolve for both active and soft-deleted models on routes that allow trashed bindings. Stale slugs redirect to the canonical URL with 308; routes without `withTrashed()` continue to exclude deleted models.
+  
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.3...4.0.4
+
 ## 4.0.3 - 2026-07-28
 
 ### What's Changed
