@@ -58,11 +58,25 @@ trait HasSlug
 
     public function resolveRouteBinding(mixed $value, $field = null): ?Model
     {
-        $slugOptions = $this->getSlugOptions();
-
-        if (! $slugOptions->selfHealingUrls) {
+        if (! $this->getSlugOptions()->selfHealingUrls) {
             return parent::resolveRouteBinding($value, $field);
         }
+
+        return $this->resolveSelfHealingRouteBinding($value);
+    }
+
+    public function resolveSoftDeletableRouteBinding($value, $field = null): ?Model
+    {
+        if (! $this->getSlugOptions()->selfHealingUrls) {
+            return parent::resolveSoftDeletableRouteBinding($value, $field);
+        }
+
+        return $this->resolveSelfHealingRouteBinding($value, withTrashed: true);
+    }
+
+    protected function resolveSelfHealingRouteBinding(mixed $value, bool $withTrashed = false): ?Model
+    {
+        $slugOptions = $this->getSlugOptions();
 
         $routeKey = (string) $value;
         $identifier = Config::getAction(
@@ -74,7 +88,13 @@ trait HasSlug
             return null;
         }
 
-        $model = $this->newQuery()->whereKey($identifier)->first();
+        $query = $this->newQuery()->whereKey($identifier);
+
+        if ($withTrashed) {
+            $query->withTrashed();
+        }
+
+        $model = $query->first();
 
         if ($model === null) {
             return null;
