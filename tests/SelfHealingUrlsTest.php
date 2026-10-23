@@ -205,3 +205,35 @@ class UppercaseSlugRouteKeyAction extends BuildSelfHealingRouteKeyAction
         return parent::execute(strtoupper($slug), $identifier, $separator);
     }
 }
+
+it('resolves a self-healing route key through the route binding query', function () {
+    $model = SelfHealingModel::create(['name' => 'Hello World']);
+
+    $resolved = (new SelfHealingModel)
+        ->resolveRouteBindingQuery(SelfHealingModel::query(), $model->getRouteKey())
+        ->first();
+
+    expect($resolved?->id)->toBe($model->id);
+});
+
+it('resolves a self-healing route key through a scoped translatable route binding query', function () {
+    $parent = TestModel::create(['name' => 'Parent']);
+
+    $model = new SelfHealingTranslatableModel;
+    $model->setTranslation('name', 'en', 'Hello World');
+    $model->test_model_id = $parent->id;
+    $model->save();
+
+    $resolved = (new SelfHealingTranslatableModel)
+        ->resolveRouteBindingQuery($parent->hasMany(SelfHealingTranslatableModel::class, 'test_model_id'), $model->getRouteKey(), 'id')
+        ->first();
+
+    expect($resolved?->id)->toBe($model->id);
+});
+
+it('keeps the default route binding query for plain keys and other fields', function () {
+    $model = SelfHealingModel::create(['name' => 'Hello World']);
+
+    expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::query(), (string) $model->id)->first()?->id)->toBe($model->id);
+    expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::query(), 'hello-world', 'url')->first()?->id)->toBe($model->id);
+});
