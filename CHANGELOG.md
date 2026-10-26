@@ -2,6 +2,20 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 4.0.5 - 2026-10-26
+
+### What’s Changed
+
+* Fix self-healing route keys returning 404 through `resolveRouteBindingQuery()`, including Filament record lookups and Laravel scoped child bindings, by @MohannadElemary in https://github.com/spatie/laravel-sluggable/pull/315 (fixes #314).
+* Preserve supplied relationship constraints and global scopes. Support explicit, qualified and custom route key fields, translated slugs and custom separators.
+* Query-based lookups accept stale keys without redirecting, so records remain resolvable after edits. Normal route binding retains its existing 308 redirects.
+* Add regression coverage for wrong-parent rejection, soft-delete scopes, field selection and stale keys, and document query-based lookup behavior.
+* Use the Spatie-hosted README ad image.
+
+No PHP or Laravel requirements changed.
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.4...4.0.5
+
 ## 4.0.4 - 2026-10-17
 
 ### What’s Changed
