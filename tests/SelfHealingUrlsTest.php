@@ -205,3 +205,115 @@ class UppercaseSlugRouteKeyAction extends BuildSelfHealingRouteKeyAction
         return parent::execute(strtoupper($slug), $identifier, $separator);
     }
 }
+
+it('resolves current and stale keys through the route binding query', function (?string $field, string $separator) {
+    SelfHealingModel::$separator = $separator;
+
+    $model = SelfHealingModel::create(['name' => 'Hello World']);
+    $routeKey = $model->getRouteKey();
+
+    $resolved = (new SelfHealingModel)
+        ->resolveRouteBindingQuery(SelfHealingModel::query(), $routeKey, $field)
+        ->first();
+
+    expect($resolved?->id)->toBe($model->id);
+
+    $model->update(['name' => 'Changed Title']);
+
+    $resolved = (new SelfHealingModel)
+        ->resolveRouteBindingQuery(SelfHealingModel::query(), $routeKey, $field)
+        ->first();
+
+    expect($resolved?->name)->toBe('Changed Title');
+})->with([null, 'id', 'test_models.id'])->with(['-', '--']);
+
+it('resolves a self-healing route key through a scoped translatable route binding query', function () {
+    $parent = TestModel::create(['name' => 'Parent']);
+    $otherParent = TestModel::create(['name' => 'Other Parent']);
+
+    $model = new SelfHealingTranslatableModel;
+    $model->setTranslation('name', 'en', 'Hello World');
+    $model->setTranslation('name', 'nl', 'Hallo Wereld');
+    $model->test_model_id = $parent->id;
+    $model->save();
+
+    foreach (['en', 'nl'] as $locale) {
+        $routeKey = $model->getLocalizedRouteKey($locale);
+
+        $resolved = (new SelfHealingTranslatableModel)
+            ->resolveRouteBindingQuery($parent->hasMany(SelfHealingTranslatableModel::class, 'test_model_id'), $routeKey, 'id')
+            ->first();
+
+        expect($resolved?->id)->toBe($model->id);
+
+        $resolved = (new SelfHealingTranslatableModel)
+            ->resolveRouteBindingQuery($otherParent->hasMany(SelfHealingTranslatableModel::class, 'test_model_id'), $routeKey, 'id')
+            ->first();
+
+        expect($resolved)->toBeNull();
+    }
+});
+
+it('keeps the default route binding query for plain keys and other fields', function () {
+    $decoy = SelfHealingModel::create(['name' => 'Decoy']);
+    $model = SelfHealingModel::create(['name' => 'Hello World', 'other_field' => "reference-{$decoy->id}"]);
+
+    expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::query(), (string) $model->id)->first()?->id)->toBe($model->id);
+    expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::query(), 'hello-world', 'url')->first()?->id)->toBe($model->id);
+    expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::query(), "reference-{$decoy->id}", 'other_field')->first()?->id)->toBe($model->id);
+    expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::query(), "reference-{$decoy->id}", 'test_models.other_field')->first()?->id)->toBe($model->id);
+
+    foreach (['noseparator', 'trailing-', 'missing-999'] as $routeKey) {
+        expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::query(), $routeKey)->first())->toBeNull();
+    }
+});
+
+it('uses the primary key when the model has a custom route key field', function (?string $field) {
+    $model = new class extends SelfHealingModel
+    {
+        public function getRouteKeyName(): string
+        {
+            return 'url';
+        }
+    };
+    $model->fill(['name' => 'Hello World'])->save();
+
+    $resolved = $model->resolveRouteBindingQuery($model->newQuery(), $model->getRouteKey(), $field)->first();
+
+    expect($resolved?->id)->toBe($model->id);
+    expect($model->resolveRouteBindingQuery($model->newQuery(), 'hello-world', 'id')->first())->toBeNull();
+})->with([null, 'url', 'test_models.url']);
+
+it('preserves query constraints and soft delete scopes in route binding queries', function () {
+    $model = SelfHealingModelSoftDeletes::create(['name' => 'Hello World']);
+    $routeKey = $model->getRouteKey();
+
+    $resolve = fn ($query) => (new SelfHealingModelSoftDeletes)->resolveRouteBindingQuery($query, $routeKey)->first();
+
+    expect($resolve(SelfHealingModelSoftDeletes::query())?->id)->toBe($model->id);
+    expect($resolve(SelfHealingModelSoftDeletes::where('name', 'Another Title')))->toBeNull();
+
+    $model->delete();
+
+    expect($resolve(SelfHealingModelSoftDeletes::query()))->toBeNull();
+    expect($resolve(SelfHealingModelSoftDeletes::withTrashed())?->id)->toBe($model->id);
+});
+
+it('resolves scoped child routes without allowing access through another parent', function () {
+    TestModel::resolveRelationUsing('selfHealingPosts', fn (TestModel $parent) => $parent->hasMany(SelfHealingTranslatableModel::class, 'test_model_id'));
+
+    $parent = TestModel::create(['name' => 'Parent']);
+    $otherParent = TestModel::create(['name' => 'Other Parent']);
+    $model = SelfHealingTranslatableModel::create([
+        'name' => ['en' => 'Hello World'],
+        'test_model_id' => $parent->id,
+    ]);
+
+    Route::get('/parents/{parent}/posts/{selfHealingPost}', fn (TestModel $parent, SelfHealingTranslatableModel $selfHealingPost) => (string) $selfHealingPost->id)
+        ->middleware(SubstituteBindings::class)
+        ->scopeBindings();
+
+    $this->get("/parents/{$parent->id}/posts/{$model->getRouteKey()}")->assertOk()->assertContent((string) $model->id);
+    $this->get("/parents/{$otherParent->id}/posts/{$model->getRouteKey()}")->assertNotFound();
+    $this->get("/parents/{$parent->id}/posts/stale-title-{$model->id}")->assertOk()->assertContent((string) $model->id);
+});
