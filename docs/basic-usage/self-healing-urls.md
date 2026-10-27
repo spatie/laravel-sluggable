@@ -63,12 +63,6 @@ Route::get('/posts/{post}', fn (Post $post) => $post);
 
 The redirect uses `308` rather than the more familiar `301` because `308` preserves the request method when followed. A stale `PUT`, `PATCH`, or `DELETE` to a self-healing URL still arrives at the canonical route as the same verb. With `301`, clients are allowed to rewrite the method to `GET`, which would turn the request into a `405 Method Not Allowed` on resource routes. Search engines treat both statuses the same for ranking, so SEO is unaffected. To return something else, see [Customizing the redirect](#customizing-the-redirect) below.
 
-### Query-based lookups
-
-`resolveRouteBindingQuery()` also accepts self-healing route keys. It adds a primary-key constraint to the supplied query, preserving relationship constraints and global scopes. This applies when the field is omitted or matches `getRouteKeyName()`, including its qualified column name. Other fields retain their existing lookup behavior.
-
-Query-based lookups deliberately accept stale slugs without redirecting. This lets tools such as Filament continue resolving a record using its old route key after an edit. Laravel's scoped child bindings use this query-based path too. Normal `resolveRouteBinding()` and `resolveSoftDeletableRouteBinding()` calls still redirect stale slugs with `308`.
-
 ## Translatable slugs
 
 `HasTranslatableSlug` supports self-healing as well. The route key uses the slug for the current locale.

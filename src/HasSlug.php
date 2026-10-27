@@ -76,8 +76,13 @@ trait HasSlug
 
     protected function resolveSelfHealingRouteBinding(mixed $value, bool $withTrashed = false): ?Model
     {
+        $slugOptions = $this->getSlugOptions();
+
         $routeKey = (string) $value;
-        $identifier = $this->getSelfHealingIdentifier($routeKey);
+        $identifier = Config::getAction(
+            Config::ACTION_EXTRACT_IDENTIFIER_FROM_SELF_HEALING_ROUTE_KEY,
+            ExtractIdentifierFromSelfHealingRouteKeyAction::class,
+        )->execute($routeKey, $slugOptions->selfHealingSeparator)['identifier'];
 
         if ($identifier === null) {
             return null;
@@ -100,35 +105,6 @@ trait HasSlug
         }
 
         return $model;
-    }
-
-    public function resolveRouteBindingQuery($query, $value, $field = null)
-    {
-        if (! $this->getSlugOptions()->selfHealingUrls) {
-            return parent::resolveRouteBindingQuery($query, $value, $field);
-        }
-
-        return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
-    }
-
-    protected function resolveSelfHealingRouteBindingQuery($query, mixed $value, ?string $field = null)
-    {
-        $routeKeyName = $this->getRouteKeyName();
-        $identifier = $this->getSelfHealingIdentifier((string) $value);
-
-        if ($identifier === null || ! in_array($field, [null, $routeKeyName, $this->qualifyColumn($routeKeyName)], true)) {
-            return parent::resolveRouteBindingQuery($query, $value, $field);
-        }
-
-        return $query->whereKey($identifier);
-    }
-
-    protected function getSelfHealingIdentifier(string $routeKey): ?string
-    {
-        return Config::getAction(
-            Config::ACTION_EXTRACT_IDENTIFIER_FROM_SELF_HEALING_ROUTE_KEY,
-            ExtractIdentifierFromSelfHealingRouteKeyAction::class,
-        )->execute($routeKey, $this->getSlugOptions()->selfHealingSeparator)['identifier'];
     }
 
     protected function getSelfHealingSlugValue(): string
