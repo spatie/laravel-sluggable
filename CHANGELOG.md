@@ -2,6 +2,20 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 4.0.6 - 2026-10-27
+
+### What's Changed
+
+* Restore the released 4.0.4 runtime code in a new forward corrective patch by @MohannadElemary and the maintainers in https://github.com/spatie/laravel-sluggable/pull/317 (fixes #316).
+* Fix the fatal trait-composition regression introduced in 4.0.5 when a model combines `HasSlug` with Laravel's `HasUuids` or `HasUlids`.
+* Intentionally withdraw the automatic self-healing `resolveRouteBindingQuery()` support added in 4.0.5, for both `HasSlug` and `HasTranslatableSlug`. The associated Filament/query-lookup and scoped child-binding improvements are not retained. This recovery does not introduce a new opt-in API.
+* Retain 4.0.4's normal self-healing route binding, canonical URLs and stale-key 308 redirects, including soft-deletable route binding.
+* Add real consuming-model UUID/ULID regressions and restored-baseline scoped HTTP coverage; remove documentation and tests for the withdrawn query feature.
+
+The complete `src/` tree and runtime dependency requirements match 4.0.4 exactly. PHP/Laravel support requirements are unchanged. The Spatie-hosted README images and all published release history are preserved; no existing tags or releases were moved or replaced.
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.5...4.0.6
+
 ## 4.0.5 - 2026-10-26
 
 ### What’s Changed
