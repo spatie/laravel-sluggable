@@ -237,7 +237,7 @@ trait HasTranslatableSlug
     public function resolveRouteBindingQuery($query, $value, $field = null): Builder|Relation
     {
         if ($this->getSlugOptions()->selfHealingUrls) {
-            return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
+            return parent::resolveRouteBindingQuery($query, $value, $field);
         }
 
         $field ??= $this->getRouteKeyName();
