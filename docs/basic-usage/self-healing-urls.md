@@ -65,7 +65,18 @@ The redirect uses `308` rather than the more familiar `301` because `308` preser
 
 ### Query-based lookups
 
-`resolveRouteBindingQuery()` also accepts self-healing route keys. It adds a primary-key constraint to the supplied query, preserving relationship constraints and global scopes. This applies when the field is omitted or matches `getRouteKeyName()`, including its qualified column name. Other fields retain their existing lookup behavior.
+`HasTranslatableSlug` models also accept self-healing route keys in `resolveRouteBindingQuery()`. For `HasSlug` models, add this method to the model:
+
+```php
+public function resolveRouteBindingQuery($query, $value, $field = null)
+{
+    return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
+}
+```
+
+`HasSlug` doesn't define it itself, because Laravel's `HasUuids` and `HasUlids` traits define the same method and PHP doesn't allow two traits to bring in the same method.
+
+The lookup adds a primary-key constraint to the supplied query, preserving relationship constraints and global scopes. This applies when the field is omitted or matches `getRouteKeyName()`, including its qualified column name. Other fields retain their existing lookup behavior.
 
 Query-based lookups deliberately accept stale slugs without redirecting. This lets tools such as Filament continue resolving a record using its old route key after an edit. Laravel's scoped child bindings use this query-based path too. Normal `resolveRouteBinding()` and `resolveSoftDeletableRouteBinding()` calls still redirect stale slugs with `308`.
 

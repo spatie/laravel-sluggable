@@ -25,4 +25,9 @@ class SelfHealingModelSoftDeletes extends Model
             ->saveSlugsTo('url')
             ->selfHealing();
     }
+
+    public function resolveRouteBindingQuery($query, $value, $field = null)
+    {
+        return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
+    }
 }

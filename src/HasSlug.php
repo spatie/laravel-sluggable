@@ -102,15 +102,6 @@ trait HasSlug
         return $model;
     }
 
-    public function resolveRouteBindingQuery($query, $value, $field = null)
-    {
-        if (! $this->getSlugOptions()->selfHealingUrls) {
-            return parent::resolveRouteBindingQuery($query, $value, $field);
-        }
-
-        return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
-    }
-
     protected function resolveSelfHealingRouteBindingQuery($query, mixed $value, ?string $field = null)
     {
         $routeKeyName = $this->getRouteKeyName();

@@ -25,4 +25,9 @@ class SelfHealingModel extends Model
             ->saveSlugsTo('url')
             ->selfHealing(separator: static::$separator);
     }
+
+    public function resolveRouteBindingQuery($query, $value, $field = null)
+    {
+        return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
+    }
 }

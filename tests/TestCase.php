@@ -76,6 +76,12 @@ abstract class TestCase extends Orchestra
             $table->unsignedInteger('scope_id')->nullable();
         });
 
+        Schema::create('ulid_models', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->string('name')->nullable();
+            $table->string('url')->nullable();
+        });
+
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();
