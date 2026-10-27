@@ -9,6 +9,7 @@ use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModelSoftDeletes;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\UlidModel;
+use Spatie\Sluggable\Tests\TestSupport\UuidModel;
 
 it('will save a slug when saving a model', function () {
     $model = TestModel::create(['name' => 'this is a test']);
@@ -569,4 +570,15 @@ it('can be combined with HasUlids', function () {
     expect($model->url)->toBe('hello-world');
     $this->get("/posts/{$model->id}")->assertOk()->assertContent('hello-world');
     $this->get('/posts/not-a-ulid')->assertNotFound();
+});
+
+it('can be combined with HasUuids', function () {
+    $model = UuidModel::create(['name' => 'Hello World']);
+
+    Route::get('/articles/{article}', fn (UuidModel $article) => $article->url)
+        ->middleware(SubstituteBindings::class);
+
+    expect($model->url)->toBe('hello-world');
+    $this->get("/articles/{$model->id}")->assertOk()->assertContent('hello-world');
+    $this->get('/articles/not-a-uuid')->assertNotFound();
 });

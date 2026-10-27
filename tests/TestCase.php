@@ -82,6 +82,12 @@ abstract class TestCase extends Orchestra
             $table->string('url')->nullable();
         });
 
+        Schema::create('uuid_models', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name')->nullable();
+            $table->string('url')->nullable();
+        });
+
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();

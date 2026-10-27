@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Exceptions\StaleSelfHealingUrl;
 use Spatie\Sluggable\Facades\SelfHealing;
+use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingModel;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingModelSoftDeletes;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingTranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
+use Spatie\Sluggable\Tests\TestSupport\UlidModel;
 
 afterEach(function () {
     SelfHealingModel::$separator = '-';
@@ -283,6 +285,31 @@ it('uses the primary key when the model has a custom route key field', function 
     expect($resolved?->id)->toBe($model->id);
     expect($model->resolveRouteBindingQuery($model->newQuery(), 'hello-world', 'id')->first())->toBeNull();
 })->with([null, 'url', 'test_models.url']);
+
+it('resolves stale keys through the route binding query on a HasUlids model with the documented override', function () {
+    $model = new class extends UlidModel
+    {
+        protected $table = 'ulid_models';
+
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->selfHealing();
+        }
+
+        public function resolveRouteBindingQuery($query, $value, $field = null)
+        {
+            return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
+        }
+    };
+    $model->fill(['name' => 'Hello World'])->save();
+    $routeKey = $model->getRouteKey();
+
+    expect($routeKey)->toBe("hello-world-{$model->id}");
+
+    $model->update(['name' => 'Changed Title']);
+
+    expect($model->resolveRouteBindingQuery($model->newQuery(), $routeKey)->first()?->name)->toBe('Changed Title');
+});
 
 it('preserves query constraints and soft delete scopes in route binding queries', function () {
     $model = SelfHealingModelSoftDeletes::create(['name' => 'Hello World']);
