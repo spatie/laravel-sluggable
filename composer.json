@@ -22,15 +22,15 @@
     ],
     "homepage": "https://github.com/spatie/laravel-sluggable",
     "require": {
-        "php": "^8.3",
-        "illuminate/database": "^12.0|^13.0",
-        "illuminate/support": "^12.0|^13.0"
+        "php": "^8.4",
+        "illuminate/database": "^13.0",
+        "illuminate/support": "^13.0"
     },
     "require-dev": {
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.24",
-        "orchestra/testbench": "^10.0|^11.0",
-        "pestphp/pest": "^4.0",
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^5.0",
         "spatie/laravel-translatable": "^6.0"
     },
     "minimum-stability": "dev",

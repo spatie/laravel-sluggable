@@ -10,10 +10,10 @@ The changes in v4 are mostly additive. The breaking changes are around minimum v
 
 ### Minimum versions
 
-- **PHP 8.3** or higher (was 8.2).
-- **Laravel 12** or higher (Laravel 10 and 11 are no longer supported).
+- **PHP 8.4** or higher (was 8.2).
+- **Laravel 13** or higher (Laravel 10, 11, and 12 are no longer supported).
 - **`spatie/laravel-translatable` v6** or higher when using `HasTranslatableSlug`.
-- **Pest 4** and **Orchestra Testbench 10** or higher in your test suite.
+- **Pest 5** and **Orchestra Testbench 11** or higher in your test suite.
 
 Update `composer.json` accordingly and run `composer update spatie/laravel-sluggable`.
 
