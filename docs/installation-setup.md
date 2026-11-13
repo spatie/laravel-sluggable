@@ -31,4 +31,4 @@ return [
 ];
 ```
 
-See [Overriding actions](/docs/laravel-sluggable/v4/advanced-usage/overriding-actions) for details.
+See [Overriding actions](advanced-usage/overriding-actions) for details.
