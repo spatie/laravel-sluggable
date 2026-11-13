@@ -6,7 +6,7 @@ weight: 3
 Install the package via composer:
 
 ```bash
-composer require spatie/laravel-sluggable
+composer require spatie/laravel-sluggable "^5.0"
 ```
 
 The service provider is registered automatically via Laravel package discovery.

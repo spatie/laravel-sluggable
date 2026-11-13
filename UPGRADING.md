@@ -1,5 +1,11 @@
 # Upgrading
 
+## From v4 to v5
+
+Version 5 requires PHP 8.4 and Laravel 13. The package's development stack requires Pest 5 and Testbench 11. Version 4 supported PHP 8.3 and Laravel 12 as well.
+
+Named-column bindings such as `{post:id}` and `{post:slug}` now look up that column literally, including routes using `withTrashed()`. Remove workarounds that parsed those values as composite self-healing keys. Default `{post}` bindings keep their self-healing behavior.
+
 ## From v3 to v4
 
 ```bash
@@ -10,10 +16,10 @@ The changes in v4 are mostly additive. The breaking changes are around minimum v
 
 ### Minimum versions
 
-- **PHP 8.4** or higher (was 8.2).
-- **Laravel 13** or higher (Laravel 10, 11, and 12 are no longer supported).
+- **PHP 8.3** or higher (was 8.2).
+- **Laravel 12** or higher (Laravel 10 and 11 are no longer supported).
 - **`spatie/laravel-translatable` v6** or higher when using `HasTranslatableSlug`.
-- **Pest 5** and **Orchestra Testbench 11** or higher in your test suite.
+- **Pest 4** and **Orchestra Testbench 10** or higher for the package's test suite.
 
 Update `composer.json` accordingly and run `composer update spatie/laravel-sluggable`.
 

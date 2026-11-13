@@ -22,4 +22,4 @@ The skill activates when a query mentions slugs, permalinks, the `HasSlug` trait
 - Enabling self-healing URLs, customizing the separator, and overriding the `308` redirect through the `SelfHealing` facade.
 - Swapping the default action classes via `config/sluggable.php`.
 
-The full skill content lives at [`resources/boost/skills/sluggable-development/SKILL.md`](https://github.com/spatie/laravel-sluggable/blob/main/resources/boost/skills/sluggable-development/SKILL.md) in the package repository.
+The full skill content lives at [`resources/boost/skills/sluggable-development/SKILL.md`](https://github.com/spatie/laravel-sluggable/blob/v5/resources/boost/skills/sluggable-development/SKILL.md) in the package repository.
