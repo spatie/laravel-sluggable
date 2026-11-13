@@ -24,4 +24,4 @@ $author = Author::create(['first_name' => 'John', 'last_name' => 'Doe']);
 $author->slug; // "john-doe"
 ```
 
-For a slug derived from arbitrary logic (concatenations, related models, conditional values), use the trait and pass a closure to `generateSlugsFrom()`. See [A closure as the source field](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait#a-closure-as-the-source-field).
+For a slug derived from arbitrary logic (concatenations, related models, conditional values), use the trait and pass a closure to `generateSlugsFrom()`. See [A closure as the source field](../basic-usage/using-the-has-slug-trait#a-closure-as-the-source-field).
