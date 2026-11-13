@@ -6,8 +6,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Exceptions\StaleSelfHealingUrl;
-use Spatie\Sluggable\Facades\Sluggable;
+use Spatie\Sluggable\Facades\SelfHealing;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingModel;
+use Spatie\Sluggable\Tests\TestSupport\SelfHealingModelSoftDeletes;
 use Spatie\Sluggable\Tests\TestSupport\SelfHealingTranslatableModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 
@@ -73,7 +74,7 @@ it('respects a custom separator', function () {
     expect($resolved->id)->toBe($model->id);
 });
 
-it('redirects with a 301 when an implicit route binding encounters a stale slug', function () {
+it('redirects with a 308 when an implicit route binding encounters a stale slug', function () {
     $model = SelfHealingModel::create(['name' => 'Fresh Title']);
 
     Route::get('/posts/{post}', fn (SelfHealingModel $post) => $post->name)
@@ -81,7 +82,32 @@ it('redirects with a 301 when an implicit route binding encounters a stale slug'
 
     $response = $this->get("/posts/old-slug-{$model->id}");
 
-    $response->assertStatus(301);
+    $response->assertStatus(308);
+    $response->assertRedirect("/posts/fresh-title-{$model->id}");
+});
+
+it('responds to a POST with a 308 status', function () {
+    $model = SelfHealingModel::create(['name' => 'Fresh Title']);
+
+    Route::post('/posts/{post}', fn (SelfHealingModel $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+
+    $response = $this->post("/posts/old-slug-{$model->id}");
+
+    $response->assertStatus(308);
+    $response->assertRedirect("/posts/fresh-title-{$model->id}");
+});
+
+it('redirects to the canonical URL when the stale slug contains URL-encoded characters', function () {
+    $model = SelfHealingModel::create(['name' => 'Fresh Title']);
+
+    Route::get('/posts/{post}', fn (SelfHealingModel $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+
+    $staleSlug = 'héllo';
+    $response = $this->get('/posts/'.rawurlencode("{$staleSlug}-{$model->id}"));
+
+    $response->assertStatus(308);
     $response->assertRedirect("/posts/fresh-title-{$model->id}");
 });
 
@@ -97,10 +123,10 @@ it('responds with 200 when the URL is already canonical', function () {
     $response->assertSee('Fresh Title');
 });
 
-it('invokes a custom handler registered through the Sluggable facade', function () {
+it('invokes a custom handler registered through the SelfHealing facade', function () {
     $model = SelfHealingModel::create(['name' => 'Fresh Title']);
 
-    Sluggable::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
+    SelfHealing::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
         return response("stale:{$staleRouteKey}:canonical:{$model->getRouteKey()}", 418);
     });
 
@@ -147,8 +173,56 @@ it('redirects stale translatable URLs to the current locale canonical URL', func
 
     $response = $this->get("/posts/stale-english-{$model->id}");
 
-    $response->assertStatus(301);
+    $response->assertStatus(308);
     $response->assertRedirect("/posts/fresh-english-{$model->id}");
+});
+
+it('resolves a self-healing route key on a route that allows trashed models', function () {
+    $model = SelfHealingModelSoftDeletes::create(['name' => 'Hello World']);
+    $model->delete();
+
+    Route::get('/posts/{post}', fn (SelfHealingModelSoftDeletes $post) => $post->name)
+        ->middleware(SubstituteBindings::class)
+        ->withTrashed();
+
+    $this->get("/posts/{$model->getRouteKey()}")->assertOk()->assertSee('Hello World');
+});
+
+it('does not resolve a trashed model when the route does not allow trashed models', function () {
+    $model = SelfHealingModelSoftDeletes::create(['name' => 'Hello World']);
+    $model->delete();
+
+    Route::get('/posts/{post}', fn (SelfHealingModelSoftDeletes $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+
+    $this->get("/posts/{$model->getRouteKey()}")->assertNotFound();
+});
+
+it('retains ordinary scoped child binding without interpreting self-healing query keys', function () {
+    TestModel::resolveRelationUsing('selfHealingPosts', fn (TestModel $parent) => $parent->hasMany(SelfHealingModel::class, 'other_field'));
+    TestModel::resolveRelationUsing('translatedPosts', fn (TestModel $parent) => $parent->hasMany(SelfHealingTranslatableModel::class, 'test_model_id'));
+
+    $parent = TestModel::create(['name' => 'Parent']);
+    $otherParent = TestModel::create(['name' => 'Other Parent']);
+    $post = SelfHealingModel::create(['name' => 'Original Article', 'other_field' => $parent->id]);
+    $translatedPost = SelfHealingTranslatableModel::create([
+        'name' => ['en' => 'English Article', 'nl' => 'Nederlands Artikel'],
+        'test_model_id' => $parent->id,
+    ]);
+
+    Route::get('/parents/{parent}/posts/{selfHealingPost}', fn (TestModel $parent, SelfHealingModel $selfHealingPost) => (string) $selfHealingPost->id)
+        ->middleware(SubstituteBindings::class)
+        ->scopeBindings();
+    Route::get('/parents/{parent}/translated/{translatedPost}', fn (TestModel $parent, SelfHealingTranslatableModel $translatedPost) => (string) $translatedPost->id)
+        ->middleware(SubstituteBindings::class)
+        ->scopeBindings();
+
+    foreach (['posts' => $post, 'translated' => $translatedPost] as $path => $model) {
+        $this->get("/parents/{$parent->id}/{$path}/{$model->id}")->assertOk()->assertContent((string) $model->id);
+        $this->get("/parents/{$otherParent->id}/{$path}/{$model->id}")->assertNotFound();
+        $this->get("/parents/{$parent->id}/{$path}/{$model->getRouteKey()}")->assertNotFound();
+        $this->get("/parents/{$parent->id}/{$path}/stale-title-{$model->id}")->assertNotFound();
+    }
 });
 
 class UppercaseSlugRouteKeyAction extends BuildSelfHealingRouteKeyAction

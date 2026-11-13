@@ -4,7 +4,13 @@
     "license": "MIT",
     "keywords": [
         "spatie",
-        "laravel-sluggable"
+        "laravel",
+        "laravel-sluggable",
+        "slug",
+        "slugs",
+        "eloquent",
+        "self-healing",
+        "translatable"
     ],
     "authors": [
         {
@@ -50,7 +56,7 @@
                 "Spatie\\Sluggable\\SluggableServiceProvider"
             ],
             "aliases": {
-                "Sluggable": "Spatie\\Sluggable\\Facades\\Sluggable"
+                "SelfHealing": "Spatie\\Sluggable\\Facades\\SelfHealing"
             }
         }
     },

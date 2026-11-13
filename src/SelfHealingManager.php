@@ -11,7 +11,7 @@ class SelfHealingManager
 {
     protected ?Closure $staleUrlHandler = null;
 
-    public function onStaleSelfHealingUrl(Closure $handler): self
+    public function onStaleSelfHealingUrl(Closure $handler): static
     {
         $this->staleUrlHandler = $handler;
 
@@ -37,6 +37,6 @@ class SelfHealingManager
             $request->fullUrl(),
         );
 
-        return redirect($canonicalUrl, 301);
+        return redirect($canonicalUrl, 308);
     }
 }

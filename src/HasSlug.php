@@ -2,6 +2,7 @@
 
 namespace Spatie\Sluggable;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction;
@@ -11,8 +12,6 @@ use Spatie\Sluggable\Support\Config;
 
 trait HasSlug
 {
-    protected SlugOptions $slugOptions;
-
     abstract public function getSlugOptions(): SlugOptions;
 
     protected static function bootHasSlug(): void
@@ -23,26 +22,22 @@ trait HasSlug
 
     protected function generateSlugOnCreate(): void
     {
-        $this->slugOptions = $this->getSlugOptions();
-
-        Config::getAction('generate_slug', GenerateSlugAction::class)
-            ->onCreate($this, $this->slugOptions);
+        $this->generateSlugAction()->onCreate($this, $this->getSlugOptions());
     }
 
     protected function generateSlugOnUpdate(): void
     {
-        $this->slugOptions = $this->getSlugOptions();
-
-        Config::getAction('generate_slug', GenerateSlugAction::class)
-            ->onUpdate($this, $this->slugOptions);
+        $this->generateSlugAction()->onUpdate($this, $this->getSlugOptions());
     }
 
     public function generateSlug(): void
     {
-        $this->slugOptions = $this->getSlugOptions();
+        $this->generateSlugAction()->generate($this, $this->getSlugOptions());
+    }
 
-        Config::getAction('generate_slug', GenerateSlugAction::class)
-            ->generate($this, $this->slugOptions);
+    protected function generateSlugAction(): GenerateSlugAction
+    {
+        return Config::getAction(Config::ACTION_GENERATE_SLUG, GenerateSlugAction::class);
     }
 
     public function getRouteKey(): mixed
@@ -53,36 +48,53 @@ trait HasSlug
             return parent::getRouteKey();
         }
 
-        $action = Config::getAction('build_self_healing_route_key', BuildSelfHealingRouteKeyAction::class);
-
-        return $action->execute(
-            $this->getSelfHealingSlugValue(),
-            $this->getKey(),
-            $slugOptions->selfHealingSeparator,
-        );
+        return Config::getAction(Config::ACTION_BUILD_SELF_HEALING_ROUTE_KEY, BuildSelfHealingRouteKeyAction::class)
+            ->execute(
+                $this->getSelfHealingSlugValue(),
+                $this->getKey(),
+                $slugOptions->selfHealingSeparator,
+            );
     }
 
-    public function resolveRouteBinding($value, $field = null)
+    public function resolveRouteBinding(mixed $value, $field = null): ?Model
     {
-        $slugOptions = $this->getSlugOptions();
-
-        if (! $slugOptions->selfHealingUrls) {
+        if (! $this->getSlugOptions()->selfHealingUrls) {
             return parent::resolveRouteBinding($value, $field);
         }
 
-        $action = Config::getAction(
-            'extract_identifier_from_self_healing_route_key',
-            ExtractIdentifierFromSelfHealingRouteKeyAction::class,
-        );
+        return $this->resolveSelfHealingRouteBinding($value);
+    }
+
+    public function resolveSoftDeletableRouteBinding($value, $field = null): ?Model
+    {
+        if (! $this->getSlugOptions()->selfHealingUrls) {
+            return parent::resolveSoftDeletableRouteBinding($value, $field);
+        }
+
+        return $this->resolveSelfHealingRouteBinding($value, withTrashed: true);
+    }
+
+    protected function resolveSelfHealingRouteBinding(mixed $value, bool $withTrashed = false): ?Model
+    {
+        $slugOptions = $this->getSlugOptions();
 
         $routeKey = (string) $value;
-        $identifier = $action->execute($routeKey, $slugOptions->selfHealingSeparator)['identifier'];
+        $identifier = Config::getAction(
+            Config::ACTION_EXTRACT_IDENTIFIER_FROM_SELF_HEALING_ROUTE_KEY,
+            ExtractIdentifierFromSelfHealingRouteKeyAction::class,
+        )->execute($routeKey, $slugOptions->selfHealingSeparator)['identifier'];
 
         if ($identifier === null) {
             return null;
         }
 
-        $model = $this->newQuery()->whereKey($identifier)->first();
+        $query = $this->newQuery()->whereKey($identifier);
+
+        if ($withTrashed) {
+            $query->withTrashed();
+        }
+
+        $model = $query->first();
 
         if ($model === null) {
             return null;
@@ -100,7 +112,7 @@ trait HasSlug
         return (string) ($this->{$this->getSlugOptions()->slugField} ?? '');
     }
 
-    public static function findBySlug(string $slug, array $columns = ['*'], ?callable $additionalQuery = null): ?Model
+    public static function findBySlug(string $slug, array $columns = ['*'], ?Closure $additionalQuery = null): ?Model
     {
         $field = (new static)->getSlugOptions()->slugField;
 

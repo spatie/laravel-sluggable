@@ -1,17 +1,20 @@
 ---
 title: Overriding the underlying actions
-weight: 1
+weight: 3
 ---
 
 The package delegates low-level work to three action classes that can each be swapped for your own.
 
-| Action key | Default class | Purpose |
-| --- | --- | --- |
-| `generate_slug` | `Spatie\Sluggable\Actions\GenerateSlugAction` | Generates the slug on create and update. |
-| `build_self_healing_route_key` | `Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction` | Composes the `{slug}{separator}{id}` route key. |
-| `extract_identifier_from_self_healing_route_key` | `Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction` | Splits an incoming route value back into `slug` and `identifier`. |
+- **`generate_slug`** generates the slug on create and update.  
+  Default: `Spatie\Sluggable\Actions\GenerateSlugAction`.
+- **`build_self_healing_route_key`** composes the `{slug}{separator}{id}` route key.  
+  Default: `Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction`.
+- **`extract_identifier_from_self_healing_route_key`** splits an incoming route value back into `slug` and `identifier`.  
+  Default: `Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction`.
 
 ## Publishing the config
+
+Publish the configuration file before pointing any of the action keys at a custom class.
 
 ```bash
 php artisan vendor:publish --tag=sluggable-config
@@ -32,6 +35,8 @@ return [
 
 ## Example: uppercase slugs in the route key
 
+Extend the default action and override its single `execute()` method to wrap the call.
+
 ```php
 namespace App\Sluggable;
 
@@ -46,11 +51,76 @@ class UppercaseRouteKeyAction extends BuildSelfHealingRouteKeyAction
 }
 ```
 
+Then point the config key at the new class.
+
 ```php
 // config/sluggable.php
 'build_self_healing_route_key' => App\Sluggable\UppercaseRouteKeyAction::class,
 ```
 
-## How resolution works
+## Example: putting the identifier first
 
-Action classes are resolved through `Spatie\Sluggable\Support\Config`, which reads the `sluggable.actions.{key}` entry, instantiates the class via the container, and validates that it extends the expected type. Any class resolved this way can use constructor injection just like a regular service.
+The default route key looks like `hello-world-5`. To flip it to `5-hello-world` instead, override both self-healing actions: one to build the new format, one to parse it back into a slug and an identifier.
+
+The build action moves the identifier in front of the slug.
+
+```php
+namespace App\Sluggable;
+
+use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
+
+class IdFirstBuildAction extends BuildSelfHealingRouteKeyAction
+{
+    public function execute(string $slug, int|string $identifier, string $separator): string
+    {
+        if ($slug === '') {
+            return (string) $identifier;
+        }
+
+        return "{$identifier}{$separator}{$slug}";
+    }
+}
+```
+
+The extractor reads the identifier from the front of the value instead of the end. The default uses `strrpos` (last separator) because slugs can contain the separator. The id-first version uses `strpos` (first separator), which is safe as long as the identifier never contains the separator. Numeric ids and ULIDs do not.
+
+```php
+namespace App\Sluggable;
+
+use Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction;
+
+class IdFirstExtractAction extends ExtractIdentifierFromSelfHealingRouteKeyAction
+{
+    public function execute(string $value, string $separator): array
+    {
+        $position = strpos($value, $separator);
+
+        if ($position === false) {
+            return ['slug' => $value, 'identifier' => null];
+        }
+
+        $identifier = substr($value, 0, $position);
+
+        if ($identifier === '' || ! ctype_digit($identifier)) {
+            return ['slug' => $value, 'identifier' => null];
+        }
+
+        return [
+            'slug' => substr($value, $position + strlen($separator)),
+            'identifier' => $identifier,
+        ];
+    }
+}
+```
+
+The `ctype_digit` check rejects values that have no numeric prefix. Drop it (or replace it with a regex that matches your key format) when models use ULID, UUID, or other non-numeric primary keys.
+
+Wire both classes into the config.
+
+```php
+// config/sluggable.php
+'build_self_healing_route_key' => App\Sluggable\IdFirstBuildAction::class,
+'extract_identifier_from_self_healing_route_key' => App\Sluggable\IdFirstExtractAction::class,
+```
+
+A `Post` with id `5` and slug `hello-world` now exposes `5-hello-world` as its route key, and a stale URL like `/posts/5-old-title` still resolves the post and `308`-redirects to `/posts/5-hello-world`.

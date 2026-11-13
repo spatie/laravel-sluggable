@@ -1,10 +1,15 @@
 <?php
 
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Spatie\Sluggable\Exceptions\InvalidOption;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModelSoftDeletes;
 use Spatie\Sluggable\Tests\TestSupport\TranslatableModel;
+use Spatie\Sluggable\Tests\TestSupport\UlidModel;
+use Spatie\Sluggable\Tests\TestSupport\UuidModel;
 
 it('will save a slug when saving a model', function () {
     $model = TestModel::create(['name' => 'this is a test']);
@@ -53,6 +58,16 @@ it('will save a unique slug by default', function () {
 
         expect($model->url)->toEqual("this-is-a-test-{$i}");
     }
+});
+
+it('reuses the lowest available suffix when earlier ones are vacated', function () {
+    TestModel::create(['name' => 'gap test']);
+    TestModel::create(['name' => 'gap test']);
+    TestModel::create(['name' => 'gap test'])->update(['url' => 'gap-test-9']);
+
+    $model = TestModel::create(['name' => 'gap test']);
+
+    expect($model->url)->toEqual('gap-test-2');
 });
 
 it('can generate slugs from multiple source fields', function () {
@@ -248,6 +263,26 @@ it('will use separator option for slug generation', function () {
     $model->save();
 
     expect($model->url)->toEqual('this_is_a_separator_test');
+});
+
+it('will keep generating free suffixes when the separator is a like wildcard', function () {
+    $createModel = fn () => new class extends TestModel
+    {
+        public function getSlugOptions(): SlugOptions
+        {
+            return parent::getSlugOptions()->usingSeparator('_');
+        }
+    };
+
+    $urls = collect(range(1, 3))->map(function () use ($createModel) {
+        $model = $createModel();
+        $model->name = 'foo bar';
+        $model->save();
+
+        return $model->url;
+    });
+
+    expect($urls->all())->toEqual(['foo_bar', 'foo_bar_1', 'foo_bar_2']);
 });
 
 it('will use language option for slug generation', function () {
@@ -459,4 +494,91 @@ it('can find models using findBySlug with fallback locale', function () {
         ->not->toBeNull()
         ->and($foundModelInFallbackLocale->id)
         ->toEqual($model->id);
+});
+
+it('preserves a manually-set slug of literal "0"', function () {
+    $model = TestModel::create(['name' => 'irrelevant']);
+
+    $model->url = '0';
+    $model->save();
+
+    expect($model->fresh()->url)->toBe('0');
+});
+
+it('honours the columns argument of findBySlug', function () {
+    TestModel::create(['name' => 'looking for me', 'other_field' => 'secret']);
+
+    $found = TestModel::findBySlug('looking-for-me', ['id', 'url']);
+
+    expect($found)->not->toBeNull();
+    expect($found->getAttributes())->toHaveKeys(['id', 'url']);
+    expect($found->getAttributes())->not->toHaveKey('other_field');
+});
+
+it('throws when no source field is configured', function () {
+    $model = new class extends TestModel
+    {
+        public function getSlugOptions(): SlugOptions
+        {
+            return SlugOptions::create()
+                ->generateSlugsFrom([])
+                ->saveSlugsTo('url');
+        }
+    };
+
+    expect(fn () => $model->fill(['name' => 'foo'])->save())
+        ->toThrow(InvalidOption::class, 'Could not determine which fields should be sluggified');
+});
+
+it('throws when no destination field is configured', function () {
+    $model = new class extends TestModel
+    {
+        public function getSlugOptions(): SlugOptions
+        {
+            return SlugOptions::create()
+                ->generateSlugsFrom('name')
+                ->saveSlugsTo('');
+        }
+    };
+
+    expect(fn () => $model->fill(['name' => 'foo'])->save())
+        ->toThrow(InvalidOption::class, 'Could not determine in which field the slug should be saved');
+});
+
+it('throws when maxLength is not positive', function () {
+    $model = new class extends TestModel
+    {
+        public function getSlugOptions(): SlugOptions
+        {
+            return SlugOptions::create()
+                ->generateSlugsFrom('name')
+                ->saveSlugsTo('url')
+                ->slugsShouldBeNoLongerThan(0);
+        }
+    };
+
+    expect(fn () => $model->fill(['name' => 'foo'])->save())
+        ->toThrow(InvalidOption::class, 'Maximum length should be greater than zero');
+});
+
+it('can be combined with HasUlids', function () {
+    $model = UlidModel::create(['name' => 'Hello World']);
+
+    Route::get('/posts/{post}', fn (UlidModel $post) => $post->url)
+        ->middleware(SubstituteBindings::class);
+
+    expect($model->url)->toBe('hello-world');
+    $this->get("/posts/{$model->id}")->assertOk()->assertContent('hello-world');
+    $this->get('/posts/not-a-ulid')->assertNotFound();
+});
+
+it('can be combined with HasUuids', function () {
+    $model = UuidModel::create(['name' => 'Hello World']);
+
+    Route::get('/articles/{article}', fn (UuidModel $article) => $article->url)
+        ->middleware(SubstituteBindings::class);
+
+    expect($model->url)->toBe('hello-world');
+    $this->get("/articles/{$model->id}")->assertOk()->assertContent('hello-world');
+    $this->get('/articles/not-a-uuid')->assertNotFound();
 });

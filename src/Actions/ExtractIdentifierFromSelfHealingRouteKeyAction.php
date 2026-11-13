@@ -5,7 +5,10 @@ namespace Spatie\Sluggable\Actions;
 class ExtractIdentifierFromSelfHealingRouteKeyAction
 {
     /**
-     * @return array{slug: string, identifier: ?string}
+     * @return array{
+     *     slug: string,
+     *     identifier: ?string,
+     * }
      */
     public function execute(string $value, string $separator): array
     {

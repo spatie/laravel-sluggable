@@ -8,10 +8,14 @@ use Spatie\Sluggable\Exceptions\SelfHealingRequiresTrait;
 use Spatie\Sluggable\Support\SluggableAttributeResolver;
 use Spatie\Sluggable\Tests\TestSupport\AttributeModel;
 use Spatie\Sluggable\Tests\TestSupport\AttributeModelCustomSeparator;
+use Spatie\Sluggable\Tests\TestSupport\AttributeModelLanguage;
+use Spatie\Sluggable\Tests\TestSupport\AttributeModelMaxLength;
 use Spatie\Sluggable\Tests\TestSupport\AttributeModelMultipleFields;
 use Spatie\Sluggable\Tests\TestSupport\AttributeModelNoCreate;
 use Spatie\Sluggable\Tests\TestSupport\AttributeModelNotUnique;
+use Spatie\Sluggable\Tests\TestSupport\AttributeModelNoUpdate;
 use Spatie\Sluggable\Tests\TestSupport\AttributeModelPreventOverwrite;
+use Spatie\Sluggable\Tests\TestSupport\AttributeModelSelfHealingCustomSeparator;
 use Spatie\Sluggable\Tests\TestSupport\AttributeModelWithTraitSelfHealing;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
 
@@ -95,6 +99,35 @@ it('uses a custom separator when configured on the attribute', function () {
     $model = AttributeModelCustomSeparator::create(['name' => 'Hello World']);
 
     expect($model->url)->toBe('hello_world');
+});
+
+it('uses the configured language when transliterating non-ASCII characters', function () {
+    $model = AttributeModelLanguage::create(['name' => 'Größe']);
+
+    expect($model->url)->toBe('groesse');
+});
+
+it('truncates the slug to the configured maxLength', function () {
+    $model = AttributeModelMaxLength::create(['name' => 'Hello World']);
+
+    expect($model->url)->toBe('hello');
+});
+
+it('does not regenerate the slug on update when onUpdate is false', function () {
+    $model = AttributeModelNoUpdate::create(['name' => 'Hello World']);
+
+    expect($model->url)->toBe('hello-world');
+
+    $model->name = 'Different Title';
+    $model->save();
+
+    expect($model->fresh()->url)->toBe('hello-world');
+});
+
+it('honours the selfHealingSeparator argument on the attribute', function () {
+    $model = AttributeModelSelfHealingCustomSeparator::create(['name' => 'Hello World']);
+
+    expect($model->getRouteKey())->toBe("hello-world--{$model->id}");
 });
 
 it('does not run the attribute listener for models that also use the HasSlug trait', function () {

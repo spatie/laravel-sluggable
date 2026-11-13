@@ -95,7 +95,7 @@ class SluggableAttributeResolver
             return;
         }
 
-        if (in_array(HasSlug::class, class_uses_recursive($class), true)) {
+        if (TraitDetector::uses($class, HasSlug::class)) {
             return;
         }
 

@@ -1,4 +1,4 @@
 ---
 title: Basic usage
-weight: 6
+weight: 4
 ---
