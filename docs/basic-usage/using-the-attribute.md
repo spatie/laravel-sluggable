@@ -1,53 +1,50 @@
 ---
 title: Using the Sluggable attribute
-weight: 1
+weight: 2
 ---
 
-For most models, a single `#[Sluggable]` attribute on the class is enough. A wildcard Eloquent event listener in the package's service provider picks up the attribute at runtime and generates slugs when models are created or updated.
+This page documents every argument the `#[Sluggable]` attribute accepts. For setup, see [Generating your first slug](/docs/laravel-sluggable/v4/basic-usage/getting-started). For closures, translatable slugs, `findBySlug()`, and the other features that need the trait, see [Using the HasSlug trait](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait).
 
-```php
-namespace App\Models;
+## `from`
 
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\Attributes\Sluggable;
+The source column. Pass a single column name to slugify its value, or an array of column names to join them with the slug separator before slugification. Defaults to `'name'`. See [Combining multiple source columns](/docs/laravel-sluggable/v4/advanced-usage/source-fields).
 
-#[Sluggable(from: 'title', to: 'slug')]
-class Post extends Model
-{
-}
-```
+## `to`
 
-```php
-$post = Post::create(['title' => 'Hello World']);
-$post->slug; // "hello-world"
-```
+The column the generated slug is written to. Defaults to `'slug'`.
 
-## Supported arguments
+## `separator`
 
-The attribute constructor accepts the same options that `SlugOptions` exposes, as long as they can be expressed as attribute arguments. Callables, closures, and dynamic database scopes cannot go in an attribute, so features that require them fall back to the trait (see [Using the HasSlug trait](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait)).
+The character `Str::slug` uses to join words. Defaults to `'-'`.
 
-| Argument | Default | Description |
-| --- | --- | --- |
-| `from` | `'name'` | Source column, or array of columns joined with the separator. |
-| `to` | `'slug'` | Destination column. |
-| `separator` | `'-'` | Separator used by `Str::slug`. |
-| `language` | `'en'` | Language code passed to `Str::slug`. |
-| `maxLength` | `250` | Truncates the slug before uniqueness resolution. |
-| `unique` | `true` | Appends a numeric suffix on collisions. |
-| `onCreate` | `true` | Generate when the model is created. |
-| `onUpdate` | `true` | Regenerate when the model is updated. |
-| `preventOverwrite` | `false` | Do not regenerate when the destination column is already filled. |
-| `selfHealing` | `false` | Turn the route key into `slug-id` (requires the `HasSlug` trait). |
-| `selfHealingSeparator` | `'-'` | Separator used between slug and identifier. |
+## `language`
 
-## When to use the trait instead
+Language code passed to `Str::slug` for transliteration of non-ASCII characters. Defaults to `'en'`.
 
-Reach for the trait when you need any of the following:
+## `maxLength`
 
-- A callable passed to `generateSlugsFrom()` that computes the slug from arbitrary model state.
-- `skipGenerateWhen(fn () => ...)`, `extraScope(fn ($query) => ...)`, or `usingSuffixGenerator(fn () => ...)`.
-- Translatable slugs through `HasTranslatableSlug`.
-- The `findBySlug()` helper.
-- Self-healing URLs. The attribute alone cannot override `getRouteKey()` and `resolveRouteBinding()`, so `selfHealing: true` requires the trait on the same class.
+Truncates the slug before uniqueness resolution runs. Defaults to `250`. A uniqueness suffix may push the final value slightly past this limit.
 
-If both are present on a model, the trait wins and the attribute is ignored.
+## `unique`
+
+When `true` (the default), the package appends a numeric suffix (`-1`, `-2`, etc.) on collisions so the slug column stays unique. Set to `false` to allow duplicates. To start the suffix from a different number or always force a suffix, see [Tuning the uniqueness suffix](/docs/laravel-sluggable/v4/advanced-usage/uniqueness).
+
+## `onCreate`
+
+When `true` (the default), a slug is generated as the model is first persisted. Set to `false` to leave the column untouched on create.
+
+## `onUpdate`
+
+When `true` (the default), the slug is regenerated whenever the source field changes on an update. Set to `false` for permalinks that should stay fixed after the initial create.
+
+## `preventOverwrite`
+
+When `true`, the package skips slug generation if the destination column already holds a value. Defaults to `false`. Useful when users provide their own slugs and the package should not stomp on them.
+
+## `selfHealing`
+
+Enables self-healing route keys. Defaults to `false`. Requires the `HasSlug` trait on the same class. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
+
+## `selfHealingSeparator`
+
+The string placed between the slug and the identifier in the self-healing route key. Defaults to `'-'`. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).

@@ -2,12 +2,15 @@
 
 namespace Spatie\Sluggable\Actions;
 
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 use Spatie\Sluggable\Exceptions\InvalidOption;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Sluggable\Support\TraitDetector;
 
 class GenerateSlugAction
 {
@@ -37,9 +40,18 @@ class GenerateSlugAction
         $this->addSlug($model, $options);
     }
 
+    public function shouldSkipBasedOnSkipWhen(SlugOptions $options): bool
+    {
+        if ($options->skipGenerateWhen === null) {
+            return false;
+        }
+
+        return ($options->skipGenerateWhen)() === true;
+    }
+
     protected function shouldSkipGeneration(Model $model, SlugOptions $options): bool
     {
-        if ($options->skipGenerate) {
+        if ($this->shouldSkipBasedOnSkipWhen($options)) {
             return true;
         }
 
@@ -55,7 +67,7 @@ class GenerateSlugAction
         $this->addSlug($model, $options);
     }
 
-    public function addSlug(Model $model, SlugOptions $options): void
+    protected function addSlug(Model $model, SlugOptions $options): void
     {
         $this->ensureValidOptions($options);
 
@@ -68,44 +80,149 @@ class GenerateSlugAction
         $model->{$options->slugField} = $slug;
     }
 
-    public function generateNonUniqueSlug(Model $model, SlugOptions $options): string
+    protected function generateNonUniqueSlug(Model $model, SlugOptions $options): string
     {
-        $slugField = $options->slugField;
-
         if ($this->hasCustomSlugBeenUsed($model, $options)) {
-            if (! empty($model->{$slugField})) {
-                return $model->{$slugField};
+            $current = $model->{$options->slugField};
+
+            if (filled($current)) {
+                return $current;
             }
         }
 
-        return Str::slug(
-            $this->getSlugSourceString($model, $options),
-            $options->slugSeparator,
-            $options->slugLanguage,
-        );
+        return $this->slugifySource($this->getSlugSourceString($model, $options), $options);
     }
 
-    public function hasCustomSlugBeenUsed(Model $model, SlugOptions $options): bool
+    protected function hasCustomSlugBeenUsed(Model $model, SlugOptions $options): bool
     {
         $slugField = $options->slugField;
 
         return $model->getOriginal($slugField) !== $model->{$slugField};
     }
 
-    public function getSlugSourceString(Model $model, SlugOptions $options): string
+    public function slugifySource(string $source, SlugOptions $options): string
     {
-        if (is_callable($options->generateSlugFrom)) {
-            return $this->truncate(($options->generateSlugFrom)($model), $options);
+        return Str::slug($source, $options->slugSeparator, $options->slugLanguage);
+    }
+
+    /**
+     * Build (and truncate) the source string used as input to slugification.
+     * The two closures let translatable callers swap how a field is read
+     * and how a user-supplied source closure is invoked.
+     *
+     * @param  Closure(string $fieldName): string  $fieldReader
+     * @param  Closure(Closure): string|null  $closureCaller
+     */
+    public function buildSourceString(
+        SlugOptions $options,
+        Closure $fieldReader,
+        ?Closure $closureCaller = null,
+    ): string {
+        if ($options->generateSlugFrom instanceof Closure) {
+            $closureCaller ??= fn (Closure $source) => $source();
+            $sourceString = $closureCaller($options->generateSlugFrom);
+        } else {
+            $sourceString = implode(
+                $options->slugSeparator,
+                array_map($fieldReader, $options->generateSlugFrom),
+            );
         }
 
-        $sourceString = collect($options->generateSlugFrom)
-            ->map(fn (string $fieldName): string => data_get($model, $fieldName, ''))
-            ->implode($options->slugSeparator);
+        return mb_substr($sourceString, 0, $options->maximumLength);
+    }
 
-        return $this->truncate($sourceString, $options);
+    protected function getSlugSourceString(Model $model, SlugOptions $options): string
+    {
+        return $this->buildSourceString(
+            $options,
+            fn (string $fieldName): string => (string) data_get($model, $fieldName, ''),
+            fn (Closure $source): string => (string) $source($model),
+        );
     }
 
     public function makeUnique(string $slug, Model $model, SlugOptions $options): string
+    {
+        if ($this->cannotUseSlugVariantQuery($slug, $options)) {
+            return $this->makeUniqueIterative($slug, $model, $options);
+        }
+
+        $existing = $this->fetchExistingSlugVariants($slug, $model, $options);
+        $originalIsTaken = in_array($slug, $existing, true);
+
+        if (! $options->useSuffixOnFirstOccurrence) {
+            if (! $originalIsTaken) {
+                return $slug;
+            }
+        }
+
+        $prefix = $slug.$options->slugSeparator;
+        $usedSuffixes = $this->extractNumericSuffixes($existing, $prefix);
+
+        $candidate = $options->startSlugSuffixFrom;
+        while (isset($usedSuffixes[$candidate])) {
+            $candidate++;
+        }
+
+        return $prefix.$candidate;
+    }
+
+    protected function cannotUseSlugVariantQuery(string $slug, SlugOptions $options): bool
+    {
+        if ($slug === '') {
+            return true;
+        }
+
+        if ($options->suffixGenerator !== null) {
+            return true;
+        }
+
+        if (str_contains($options->slugField, '->')) {
+            return true;
+        }
+
+        return $this->containsLikeWildcards($slug.$options->slugSeparator);
+    }
+
+    /**
+     * Not every driver honours the backslash escaping applied in
+     * `fetchExistingSlugVariants`. SQLite, for one, needs an explicit
+     * `ESCAPE` clause, so a slug or separator holding a wildcard would
+     * silently match nothing.
+     */
+    protected function containsLikeWildcards(string $value): bool
+    {
+        return strpbrk($value, '%_\\') !== false;
+    }
+
+    /**
+     * @param  array<int, mixed>  $existing
+     * @return array<int, true>
+     */
+    protected function extractNumericSuffixes(array $existing, string $prefix): array
+    {
+        $prefixLength = strlen($prefix);
+        $usedSuffixes = [];
+
+        foreach ($existing as $existingSlug) {
+            $existingSlug = (string) $existingSlug;
+
+            if (! str_starts_with($existingSlug, $prefix)) {
+                continue;
+            }
+
+            $tail = substr($existingSlug, $prefixLength);
+
+            if ($tail === '' || ! ctype_digit($tail)) {
+                continue;
+            }
+
+            $usedSuffixes[(int) $tail] = true;
+        }
+
+        return $usedSuffixes;
+    }
+
+    protected function makeUniqueIterative(string $slug, Model $model, SlugOptions $options): string
     {
         $originalSlug = $slug;
         $iteration = 0;
@@ -122,22 +239,21 @@ class GenerateSlugAction
         return $slug;
     }
 
-    public function generateSuffix(string $originalSlug, int $iteration, SlugOptions $options): string
+    /**
+     * @return array<int, mixed>
+     */
+    protected function fetchExistingSlugVariants(string $slug, Model $model, SlugOptions $options): array
     {
-        if ($options->suffixGenerator) {
-            return ($options->suffixGenerator)($originalSlug, $iteration);
-        }
+        $likePattern = addcslashes($slug, '%_\\').$options->slugSeparator.'%';
 
-        return (string) ($options->startSlugSuffixFrom + $iteration);
-    }
-
-    public function otherRecordExistsWithSlug(string $slug, Model $model, SlugOptions $options): bool
-    {
         $query = $model->newQuery()
-            ->where($options->slugField, $slug)
-            ->withoutGlobalScopes();
+            ->withoutGlobalScopes()
+            ->where(function (Builder $query) use ($options, $slug, $likePattern): void {
+                $query->where($options->slugField, $slug)
+                    ->orWhere($options->slugField, 'like', $likePattern);
+            });
 
-        if ($options->extraScopeCallback) {
+        if ($options->extraScopeCallback !== null) {
             $query->where($options->extraScopeCallback);
         }
 
@@ -145,17 +261,52 @@ class GenerateSlugAction
             $query->where($model->getKeyName(), '!=', $model->getKey());
         }
 
-        if (in_array(SoftDeletes::class, class_uses_recursive($model), true)) {
+        if ($this->modelUsesSoftDeletes($model)) {
+            $query->withoutGlobalScope(SoftDeletingScope::class);
+        }
+
+        return $query->pluck($options->slugField)->all();
+    }
+
+    protected function generateSuffix(string $originalSlug, int $iteration, SlugOptions $options): string
+    {
+        if ($options->suffixGenerator !== null) {
+            return ($options->suffixGenerator)($originalSlug, $iteration);
+        }
+
+        return (string) ($options->startSlugSuffixFrom + $iteration);
+    }
+
+    protected function otherRecordExistsWithSlug(string $slug, Model $model, SlugOptions $options): bool
+    {
+        $query = $model->newQuery()
+            ->where($options->slugField, $slug)
+            ->withoutGlobalScopes();
+
+        if ($options->extraScopeCallback !== null) {
+            $query->where($options->extraScopeCallback);
+        }
+
+        if ($model->exists) {
+            $query->where($model->getKeyName(), '!=', $model->getKey());
+        }
+
+        if ($this->modelUsesSoftDeletes($model)) {
             $query->withoutGlobalScope(SoftDeletingScope::class);
         }
 
         return $query->exists();
     }
 
+    protected function modelUsesSoftDeletes(Model $model): bool
+    {
+        return TraitDetector::uses($model, SoftDeletes::class);
+    }
+
     public function ensureValidOptions(SlugOptions $options): void
     {
         if (is_array($options->generateSlugFrom)) {
-            if (count($options->generateSlugFrom) === 0) {
+            if ($options->generateSlugFrom === []) {
                 throw InvalidOption::missingFromField();
             }
         }
@@ -167,10 +318,5 @@ class GenerateSlugAction
         if ($options->maximumLength <= 0) {
             throw InvalidOption::invalidMaximumLength();
         }
-    }
-
-    protected function truncate(string $value, SlugOptions $options): string
-    {
-        return mb_substr($value, 0, $options->maximumLength);
     }
 }

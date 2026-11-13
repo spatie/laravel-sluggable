@@ -2,6 +2,72 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 4.0.5 - 2026-10-26
+
+### What’s Changed
+
+* Fix self-healing route keys returning 404 through `resolveRouteBindingQuery()`, including Filament record lookups and Laravel scoped child bindings, by @MohannadElemary in https://github.com/spatie/laravel-sluggable/pull/315 (fixes #314).
+* Preserve supplied relationship constraints and global scopes. Support explicit, qualified and custom route key fields, translated slugs and custom separators.
+* Query-based lookups accept stale keys without redirecting, so records remain resolvable after edits. Normal route binding retains its existing 308 redirects.
+* Add regression coverage for wrong-parent rejection, soft-delete scopes, field selection and stale keys, and document query-based lookup behavior.
+* Use the Spatie-hosted README ad image.
+
+No PHP or Laravel requirements changed.
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.4...4.0.5
+
+## 4.0.4 - 2026-10-17
+
+### What’s Changed
+
+* Fix self-healing URLs returning 404 on routes using `->withTrashed()` by @MohannadElemary in https://github.com/spatie/laravel-sluggable/pull/313 (fixes #312).
+  
+  Canonical URLs now resolve for both active and soft-deleted models on routes that allow trashed bindings. Stale slugs redirect to the canonical URL with 308; routes without `withTrashed()` continue to exclude deleted models.
+  
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.3...4.0.4
+
+## 4.0.3 - 2026-07-28
+
+### What's Changed
+
+* Fix unique slug generation when the slug or separator contains a `LIKE` wildcard (`_`, `%`, `\`) by @amrachraf6699 in https://github.com/spatie/laravel-sluggable/pull/311
+  
+  On drivers without a default `LIKE` escape character (SQLite), the slug-variant lookup silently matched nothing, so a separator like `_` caused suffixes to be reused (`foo_bar_1` twice instead of `foo_bar_2`).
+  
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.2...4.0.3
+
+## 4.0.2 - 2026-04-30
+
+- Shorten the bundled Laravel Boost skill description so it loads in OpenAI Codex (1024 character limit).
+
+## 4.0.1 - 2026-04-29
+
+**Full Changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.0...4.0.1
+
+## 4.0.0 - 2026-04-27
+
+v4 is mostly additive. Breaking changes are limited to minimum versions and a small handful of API removals. Full details in [UPGRADING.md](https://github.com/spatie/laravel-sluggable/blob/main/UPGRADING.md).
+
+### Highlights
+
+- **`#[Sluggable]` attribute** as a drop-in alternative to the `HasSlug` trait. Trait-based models keep working unchanged.
+- **Self-healing URLs**: route keys that combine the slug with the primary key (`hello-world-5`) so renaming a model never breaks an existing link. Stale URLs return a `308` (was `301`) so `PUT`/`PATCH`/`DELETE` keep working.
+- **Overridable actions**: swap the slug generator or self-healing URL builder/parser via `config/sluggable.php`.
+- **Laravel Boost skill** bundled with the package for AI assistants.
+
+### Breaking changes
+
+- Minimum **PHP 8.3** and **Laravel 12**. `spatie/laravel-translatable` v6+ when using `HasTranslatableSlug`. Pest 4 / Testbench 10+ in your test suite.
+- `skipGenerateWhen()` is now evaluated on every save instead of once. The `SlugOptions::\$skipGenerate` boolean is gone in favor of `\$skipGenerateWhen`.
+- The closure-shaped options (`generateSlugsFrom`, `extraScope`, `usingSuffixGenerator`, `skipGenerateWhen`) are typed as `Closure`. Array/string callables need wrapping in a `fn`.
+- `HasSlug` no longer keeps a `protected \$slugOptions` cache; override `generateSlugAction()` to inject custom behavior instead.
+- Self-healing redirects default to `308 Permanent Redirect`.
+- The `Sluggable` facade was renamed to `SelfHealing`.
+
+See [UPGRADING.md](https://github.com/spatie/laravel-sluggable/blob/main/UPGRADING.md) for migration steps.
+
 ## 3.8.1 - 2026-03-23
 
 ### What's Changed

@@ -2,12 +2,14 @@
 
 namespace Spatie\Sluggable;
 
+use Closure;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Sluggable\Actions\GenerateSlugAction;
 use Spatie\Sluggable\Support\Config;
 use Spatie\Sluggable\Support\SluggableAttributeResolver;
+use Spatie\Sluggable\Support\TraitDetector;
 
 class SluggableServiceProvider extends ServiceProvider
 {
@@ -34,44 +36,31 @@ class SluggableServiceProvider extends ServiceProvider
         /** @var Dispatcher $events */
         $events = $this->app->make('events');
 
-        $events->listen('eloquent.creating: *', function (string $event, array $payload): void {
-            $options = $this->resolveAttributeOptions($payload);
-
-            if ($options === null) {
-                return;
-            }
-
-            Config::getAction('generate_slug', GenerateSlugAction::class)
-                ->onCreate($payload[0], $options);
-        });
-
-        $events->listen('eloquent.updating: *', function (string $event, array $payload): void {
-            $options = $this->resolveAttributeOptions($payload);
-
-            if ($options === null) {
-                return;
-            }
-
-            Config::getAction('generate_slug', GenerateSlugAction::class)
-                ->onUpdate($payload[0], $options);
-        });
+        $events->listen('eloquent.creating: *', $this->handleAttributeEvent('onCreate'));
+        $events->listen('eloquent.updating: *', $this->handleAttributeEvent('onUpdate'));
     }
 
-    /**
-     * @param  array<int, mixed>  $payload
-     */
-    protected function resolveAttributeOptions(array $payload): ?SlugOptions
+    protected function handleAttributeEvent(string $method): Closure
     {
-        $model = $payload[0] ?? null;
+        return function (string $event, array $payload) use ($method): void {
+            $model = $payload[0] ?? null;
 
-        if (! $model instanceof Model) {
-            return null;
-        }
+            if (! $model instanceof Model) {
+                return;
+            }
 
-        if (in_array(HasSlug::class, class_uses_recursive($model), true)) {
-            return null;
-        }
+            if (TraitDetector::uses($model::class, HasSlug::class)) {
+                return;
+            }
 
-        return SluggableAttributeResolver::resolveOptions($model::class);
+            $options = SluggableAttributeResolver::resolveOptions($model::class);
+
+            if ($options === null) {
+                return;
+            }
+
+            Config::getAction(Config::ACTION_GENERATE_SLUG, GenerateSlugAction::class)
+                ->{$method}($model, $options);
+        };
     }
 }

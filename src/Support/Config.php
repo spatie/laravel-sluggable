@@ -6,6 +6,12 @@ use Spatie\Sluggable\Exceptions\InvalidConfig;
 
 class Config
 {
+    public const ACTION_GENERATE_SLUG = 'generate_slug';
+
+    public const ACTION_BUILD_SELF_HEALING_ROUTE_KEY = 'build_self_healing_route_key';
+
+    public const ACTION_EXTRACT_IDENTIFIER_FROM_SELF_HEALING_ROUTE_KEY = 'extract_identifier_from_self_healing_route_key';
+
     /**
      * @template T of object
      *

@@ -1,6 +1,6 @@
 ---
 name: sluggable-development
-description: "Use this skill when making a field on an Eloquent model sluggable, generating the migration for a slug column, switching an existing model to self-healing URLs, or resolving a model from its slug in a route. Trigger whenever the request mentions slugs, permalinks, the spatie/laravel-sluggable package, the HasSlug trait, the HasTranslatableSlug trait, the #[Sluggable] attribute, SlugOptions, findBySlug, self-healing URLs, or stale slug redirects in a Laravel project. Covers: choosing between the attribute and the trait, generating unique slugs across create and update, configuring separator/length/language/scope/uniqueness, preventing slug overwrites, scoping uniqueness with a closure, handling translatable slugs via spatie/laravel-translatable, route model binding through the slug column, building {slug}-{id} route keys with selfHealing(), customizing the 301 redirect through the Sluggable facade, overriding the default actions via config/sluggable.php. Do not use for generating URL-safe strings without persisting them, for signed URLs, or for Laravel's built-in Str::slug helper when the result is not stored on a model."
+description: "Use when making a field on an Eloquent model sluggable, generating the migration for a slug column, switching to self-healing URLs, or resolving a model from its slug in a route. Trigger when the request mentions slugs, permalinks, the spatie/laravel-sluggable package, the HasSlug or HasTranslatableSlug trait, the #[Sluggable] attribute, SlugOptions, findBySlug, self-healing URLs, or stale slug redirects in a Laravel project. Covers choosing between the attribute and the trait, generating unique slugs, configuring separator/length/language/scope/uniqueness, preventing slug overwrites, translatable slugs via spatie/laravel-translatable, route model binding through the slug column, self-healing route keys, customizing the 308 redirect through the SelfHealing facade, and overriding the default actions via config/sluggable.php. Do not use for one-off URL-safe strings, signed URLs, or Laravel's built-in Str::slug helper when the result is not stored on a model."
 license: MIT
 metadata:
   author: spatie
@@ -12,8 +12,8 @@ Use this skill when adding slug generation to an Eloquent model with `spatie/lar
 
 ## Picking a configuration style
 
-- **`#[Sluggable]` attribute** — place it on the class. A wildcard Eloquent event listener in the package's service provider picks it up. Use this for most models.
-- **`HasSlug` trait + `getSlugOptions()`** — use when you need any of: callables for `generateSlugsFrom`, closures for `extraScope` or `skipGenerateWhen`, custom suffix generators, translatable slugs, `findBySlug()`, or self-healing URLs.
+- **`#[Sluggable]` attribute**: place it on the class. A wildcard Eloquent event listener in the package's service provider picks it up. Use this for most models.
+- **`HasSlug` trait + `getSlugOptions()`**: use when you need any of these features (callables for `generateSlugsFrom`, closures for `extraScope` or `skipGenerateWhen`, custom suffix generators, translatable slugs, `findBySlug()`, or self-healing URLs).
 
 If both are present on a model, the trait wins and the attribute is ignored.
 
@@ -30,6 +30,8 @@ class Post extends Model
 {
 }
 ```
+
+Creating a model now writes the slug into the configured column.
 
 ```php
 $post = Post::create(['title' => 'Hello World']);
@@ -136,6 +138,8 @@ public function getRouteKeyName(): string
 }
 ```
 
+The route definition then needs no `:slug` hint.
+
 ```php
 Route::get('/posts/{post}', fn (Post $post) => $post);
 ```
@@ -154,7 +158,7 @@ Post::findBySlug('my-post', ['*'], fn ($query) => $query->where('published', tru
 
 ## Self-healing URLs
 
-A self-healing URL combines the slug with the primary key (`hello-world-5`). The slug portion can change freely without breaking existing links: stale slugs trigger a `301` redirect to the canonical URL, missing identifiers return `404`. The feature requires the trait because it overrides `getRouteKey()` and `resolveRouteBinding()`.
+A self-healing URL combines the slug with the primary key (`hello-world-5`). The slug portion can change freely without breaking existing links: stale slugs trigger a `308` redirect to the canonical URL, missing identifiers return `404`. The feature requires the trait because it overrides `getRouteKey()` and `resolveRouteBinding()`.
 
 ```php
 public function getSlugOptions(): SlugOptions
@@ -166,12 +170,14 @@ public function getSlugOptions(): SlugOptions
 }
 ```
 
+The route key now includes the primary key, and stale slugs redirect.
+
 ```php
 $post = Post::create(['title' => 'Hello World']);
 $post->getRouteKey(); // "hello-world-5"
 
 // GET /posts/hello-world-5   → 200 OK
-// GET /posts/outdated-slug-5 → 301 redirect to /posts/hello-world-5
+// GET /posts/outdated-slug-5 → 308 redirect to /posts/hello-world-5
 // GET /posts/hello-world-99  → 404 when id 99 does not exist
 ```
 
@@ -185,19 +191,19 @@ Customize the separator when slugs can end with numbers preceded by a hyphen:
 
 ### Customizing the redirect
 
-Register a closure through the `Sluggable` facade in a service provider's `boot()`:
+Register a closure through the `SelfHealing` facade in a service provider's `boot()`:
 
 ```php
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Spatie\Sluggable\Facades\Sluggable;
+use Spatie\Sluggable\Facades\SelfHealing;
 
-Sluggable::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
+SelfHealing::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey, Request $request) {
     return redirect()->route('posts.show', $model, status: 302);
 });
 ```
 
-The default behavior is a `301` redirect to the canonical URL.
+The default behavior is a `308` redirect to the canonical URL.
 
 ## Translatable slugs
 
@@ -234,6 +240,8 @@ Three action classes do the low-level work. Swap any of them by publishing the c
 php artisan vendor:publish --tag=sluggable-config
 ```
 
+Then point the relevant key in `config/sluggable.php` at your own class.
+
 ```php
 return [
     'actions' => [
@@ -248,7 +256,7 @@ return [
 
 1. Create a model and assert the slug column is populated: `expect($post->slug)->toBe('expected-slug');`.
 2. Update the source column and confirm the slug either updates (default) or stays (with `onUpdate: false` / `doNotGenerateSlugsOnUpdate()`).
-3. Hit the route with a stale slug and assert a `301` redirect to the canonical URL when using self-healing.
+3. Hit the route with a stale slug and assert a `308` redirect to the canonical URL when using self-healing.
 4. Run `php artisan migrate` and confirm the slug column exists with the correct type (`string` or `json` for translatable).
 
 ## Common pitfalls
