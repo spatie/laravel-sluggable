@@ -1,6 +1,6 @@
 ---
 name: sluggable-development
-description: "Use when making a field on an Eloquent model sluggable, generating the migration for a slug column, switching to self-healing URLs, or resolving a model from its slug in a route. Trigger when the request mentions slugs, permalinks, the spatie/laravel-sluggable package, the HasSlug or HasTranslatableSlug trait, the #[Sluggable] attribute, SlugOptions, findBySlug, self-healing URLs, or stale slug redirects in a Laravel project. Covers choosing between the attribute and the trait, generating unique slugs, configuring separator/length/language/scope/uniqueness, preventing slug overwrites, translatable slugs via spatie/laravel-translatable, route model binding through the slug column, self-healing route keys, customizing the 308 redirect through the SelfHealing facade, and overriding the default actions via config/sluggable.php. Do not use for one-off URL-safe strings, signed URLs, or Laravel's built-in Str::slug helper when the result is not stored on a model."
+description: "Use when making a field on an Eloquent model sluggable, generating the migration for a slug column, switching to self-healing URLs, or resolving a model from its slug in a route. Trigger when the request mentions slugs, permalinks, the spatie/laravel-sluggable package, the HasSlug or HasTranslatableSlug trait, the HasSlugWithUuids or HasSlugWithUlids trait, the #[Sluggable] attribute, SlugOptions, findBySlug, self-healing URLs, scoped bindings on sluggable models, or stale slug redirects in a Laravel project. Covers choosing between the attribute and the trait, unique slugs, separator/length/language/scope options, preventing overwrites, translatable slugs, UUID and ULID models, route binding through the slug column, self-healing route keys in ordinary and scoped bindings, customizing the 308 redirect, and overriding the default actions. Do not use for one-off URL-safe strings, signed URLs, or Str::slug results that are not stored on a model."
 license: MIT
 metadata:
   author: spatie
@@ -189,6 +189,21 @@ Customize the separator when slugs can end with numbers preceded by a hyphen:
 ->selfHealing(separator: '--'); // route key: "hello-world--5"
 ```
 
+### Scoped bindings
+
+The slug traits accept self-healing keys in Laravel's scoped child bindings automatically. Do not add a `resolveRouteBindingQuery()` method to the model for this.
+
+```php
+Route::get('authors/{author}/posts/{post}', fn (Author $author, Post $post) => $post)
+    ->scopeBindings();
+
+// GET /authors/1/posts/hello-world-5   → 200 OK when post 5 belongs to author 1
+// GET /authors/1/posts/outdated-slug-5 → 200 OK, scoped bindings do not redirect stale slugs
+// GET /authors/2/posts/hello-world-5   → 404, the post belongs to another author
+```
+
+The parent relationship constraint, global scopes, and soft-delete filtering stay in place. Outside scoped bindings, a route that names its column, such as `{post:id}` or `{post:slug}`, looks up that column literally. Only `{post}` uses the self-healing route key.
+
 ### Customizing the redirect
 
 Register a closure through the `SelfHealing` facade in a service provider's `boot()`:
@@ -204,6 +219,42 @@ SelfHealing::onStaleSelfHealingUrl(function (Model $model, string $staleRouteKey
 ```
 
 The default behavior is a `308` redirect to the canonical URL.
+
+## UUID and ULID models
+
+`HasSlug` defines `resolveRouteBindingQuery()`, and so do Laravel's `HasUuids` and `HasUlids`. PHP rejects that combination, so use the combined trait for the model's identifier type, even when self-healing is disabled.
+
+| Model | Trait |
+| --- | --- |
+| UUID | `Spatie\Sluggable\HasSlugWithUuids` |
+| ULID | `Spatie\Sluggable\HasSlugWithUlids` |
+| Translatable UUID | `Spatie\Sluggable\HasTranslatableSlugWithUuids` |
+| Translatable ULID | `Spatie\Sluggable\HasTranslatableSlugWithUlids` |
+
+Each combined trait includes slug generation and Laravel's identifier generation. Remove `HasSlug`, `HasTranslatableSlug`, `HasUuids`, and `HasUlids` from the model when adding one. The translatable variants still need `Spatie\Translatable\HasTranslations`.
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\HasSlugWithUuids;
+use Spatie\Sluggable\SlugOptions;
+
+class Post extends Model
+{
+    use HasSlugWithUuids;
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug')
+            ->selfHealing(separator: '--');
+    }
+}
+```
+
+A self-healing UUID model needs a separator that does not occur inside a UUID, such as `--`. The route key is split at the last separator, so the default `-` would split inside the UUID. Changing the separator of an existing model changes its URLs.
+
+For UUID v4, keep the combined trait and define `newUniqueId()` on the model returning `(string) Str::orderedUuid()`. Do not add Laravel's `HasVersion4Uuids` next to the combined trait: both define `newUniqueId()`.
 
 ## Translatable slugs
 
@@ -230,7 +281,7 @@ class Article extends Model
 }
 ```
 
-`HasTranslatableSlug::findBySlug()` searches both the current locale and the application fallback locale.
+`HasTranslatableSlug::findBySlug()` searches both the current locale and the application fallback locale. A named slug binding such as `{article:slug}` matches the slug of the current locale. Self-healing route keys also use the slug of the current locale.
 
 ## Overriding the default actions
 
@@ -257,12 +308,14 @@ return [
 1. Create a model and assert the slug column is populated: `expect($post->slug)->toBe('expected-slug');`.
 2. Update the source column and confirm the slug either updates (default) or stays (with `onUpdate: false` / `doNotGenerateSlugsOnUpdate()`).
 3. Hit the route with a stale slug and assert a `308` redirect to the canonical URL when using self-healing.
-4. Run `php artisan migrate` and confirm the slug column exists with the correct type (`string` or `json` for translatable).
+4. For a `scopeBindings()` route, assert the child resolves under its own parent and returns `404` under another parent.
+5. Run `php artisan migrate` and confirm the slug column exists with the correct type (`string` or `json` for translatable).
 
 ## Common pitfalls
 
 - Setting `selfHealing: true` on the attribute without `use HasSlug;` throws `SelfHealingRequiresTrait`. Add the trait.
-- For UUID/ULID models using a slug trait, use `HasSlugWithUuids`/`HasSlugWithUlids` or their `HasTranslatableSlugWithUuids`/`HasTranslatableSlugWithUlids` variants. They include Laravel's identifier generation; adding `HasUuids`, `HasVersion4Uuids` or `HasUlids` separately causes trait conflicts. For UUID v4, define `newUniqueId()` on the model returning `(string) Str::orderedUuid()`. Use a self-healing separator such as `--` that does not occur inside UUIDs.
+- Combining `HasSlug` or `HasTranslatableSlug` with Laravel's `HasUuids`, `HasVersion4Uuids`, or `HasUlids` causes a trait conflict. Use the combined traits from [UUID and ULID models](#uuid-and-ulid-models).
+- Do not add a `resolveRouteBindingQuery()` method that only calls `resolveSelfHealingRouteBindingQuery()`. The slug traits already do this, so remove such a method when you find one.
 - Apply a slug trait only once per model inheritance chain. Inherit a base model's trait rather than adding another in the child, which can cause recursive route binding.
 - When adding the slug column to a populated table, make it `->nullable()` first and backfill before enforcing a unique index.
 - Translatable slugs require the slug column to be JSON, not `string`.
