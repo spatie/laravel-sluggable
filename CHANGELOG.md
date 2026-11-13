@@ -2,6 +2,16 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 5.0.1 - 2026-11-13
+
+### Fixes
+
+- Add opt-in support for self-healing keys in scoped route bindings and query-based lookups. Models can delegate `resolveRouteBindingQuery()` to the protected `resolveSelfHealingRouteBindingQuery()` helper without introducing a trait conflict with Laravel’s `HasUuids` or `HasUlids`. See #321 and #319.
+- Preserve parent relationship constraints, global scopes and soft-delete filtering. Query-based lookups accept stale keys without redirects; ordinary self-healing route bindings retain their 308 redirects.
+- Document the opt-in and UUID separator requirement. Existing applications do not change behavior until they opt in; PHP and Laravel requirements are unchanged.
+
+**Full changelog**: https://github.com/spatie/laravel-sluggable/compare/5.0.0...5.0.1
+
 ## 5.0.0 - 2026-11-13
 
 ### Breaking changes
