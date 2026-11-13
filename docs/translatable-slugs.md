@@ -64,7 +64,7 @@ $article = Article::findBySlug('my-article');
 
 ## Self-healing URLs
 
-`selfHealing()` works with the translatable trait. The route key uses the slug for the current locale; stale slugs trigger the same redirect flow described in [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
+`selfHealing()` works with the translatable trait. The route key uses the slug for the current locale; stale slugs trigger the same redirect flow described in [Self-healing URLs](basic-usage/self-healing-urls).
 
 ## Getting the route key for a specific locale
 

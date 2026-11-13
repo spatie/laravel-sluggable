@@ -62,7 +62,7 @@ $post->slug; // "hello-universe"
 
 ## 4. Wire it into a route with self-healing (optional)
 
-This step is optional. Skip it if you don't need slugs in your URLs, or if your slugs genuinely never change after creation (see [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls#when-you-dont-need-self-healing) for plain `{post:slug}` binding).
+This step is optional. Skip it if you don't need slugs in your URLs, or if your slugs genuinely never change after creation (see [Self-healing URLs](self-healing-urls#when-you-dont-need-self-healing) for plain `{post:slug}` binding).
 
 Most user-editable content (blog posts, articles, products, documentation pages, events) eventually gets renamed, and a renamed slug breaks every existing link unless you opt into self-healing URLs. With self-healing enabled the route key becomes `{slug}-{id}`, the primary key drives the lookup, and a stale slug `308`-redirects to the canonical URL instead of returning a `404`.
 
@@ -93,16 +93,16 @@ Bind the model to a route the usual way; the package handles the route key for y
 Route::get('/posts/{post}', fn (Post $post) => view('posts.show', compact('post')));
 ```
 
-A request to `/posts/hello-world-5` resolves the post; renaming it later doesn't break the link. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls) for the full mechanics, including the plain `{post:slug}` alternative for slugs that genuinely never change.
+A request to `/posts/hello-world-5` resolves the post; renaming it later doesn't break the link. See [Self-healing URLs](self-healing-urls) for the full mechanics, including the plain `{post:slug}` alternative for slugs that genuinely never change.
 
 ## What's next
 
 That is enough for most projects. From here you can:
 
 - Tune the generation rules (separator, language, uniqueness, when to skip): see the rest of this section.
-- Look slugs up directly with [`findBySlug()`](/docs/laravel-sluggable/v4/basic-usage/finding-models-by-slug).
-- Translate slugs per locale with [`HasTranslatableSlug`](/docs/laravel-sluggable/v4/translatable-slugs).
+- Look slugs up directly with [`findBySlug()`](finding-models-by-slug).
+- Translate slugs per locale with [`HasTranslatableSlug`](../translatable-slugs).
 
 ## Let the Laravel Boost skill set things up for you
 
-If your project uses [Laravel Boost](https://github.com/laravel/boost), this package ships a [Boost skill](/docs/laravel-sluggable/v4/laravel-boost-skill) that teaches Boost-aware AI assistants (Claude Code, Cursor, Copilot CLI, Gemini CLI, and others) how to scaffold every step above, including the optional self-healing route binding. Ask your assistant something like "set up sluggable on the Post model" and it will write the migration, add the attribute, and wire up the route.
+If your project uses [Laravel Boost](https://github.com/laravel/boost), this package ships a [Boost skill](../laravel-boost-skill) that teaches Boost-aware AI assistants (Claude Code, Cursor, Copilot CLI, Gemini CLI, and others) how to scaffold every step above, including the optional self-healing route binding. Ask your assistant something like "set up sluggable on the Post model" and it will write the migration, add the attribute, and wire up the route.
