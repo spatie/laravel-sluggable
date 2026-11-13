@@ -2,7 +2,7 @@
 
 ## From v5 to v6
 
-Version 6 is in development. Do not upgrade a production application until a v6 release is available.
+Update your Composer constraint to `spatie/laravel-sluggable:^6.0`.
 
 The requirements remain PHP 8.4+, Laravel 13, and `spatie/laravel-translatable` 6 when translating slugs. The package's tests use Pest 5 and Testbench 11; these are not application runtime dependencies. No database migration or slug regeneration is required.
 

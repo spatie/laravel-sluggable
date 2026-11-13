@@ -3,7 +3,7 @@ title: Installation & setup
 weight: 3
 ---
 
-Version 6 is in development. The command below applies once v6 is released. Use [v5](/docs/laravel-sluggable/v5/installation-setup) for a production application today.
+Install the package with Composer:
 
 ```bash
 composer require spatie/laravel-sluggable "^6.0"
