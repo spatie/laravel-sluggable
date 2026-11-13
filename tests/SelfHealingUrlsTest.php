@@ -188,6 +188,36 @@ it('resolves a self-healing route key on a route that allows trashed models', fu
     $this->get("/posts/{$model->getRouteKey()}")->assertOk()->assertSee('Hello World');
 });
 
+it('looks up the bound column when the route names one', function (string $field) {
+    $model = SelfHealingModel::create(['name' => 'Hello World']);
+
+    Route::get("posts/{post:{$field}}", fn (SelfHealingModel $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+
+    $this->get("/posts/{$model->{$field}}")->assertOk()->assertContent('Hello World');
+    $this->get('/posts/missing-999')->assertNotFound();
+    $this->get("/posts/{$model->getRouteKey()}")->assertNotFound();
+})->with(['id', 'url']);
+
+it('respects soft deletes when the route names a column', function (string $field) {
+    $model = SelfHealingModelSoftDeletes::create(['name' => 'Hello World']);
+
+    Route::get("posts/{post:{$field}}", fn (SelfHealingModelSoftDeletes $post) => $post->name)
+        ->middleware(SubstituteBindings::class);
+    Route::get("trashed-posts/{post:{$field}}", fn (SelfHealingModelSoftDeletes $post) => $post->name)
+        ->middleware(SubstituteBindings::class)
+        ->withTrashed();
+
+    $this->get("/posts/{$model->{$field}}")->assertOk()->assertContent('Hello World');
+
+    $model->delete();
+
+    $this->get("/posts/{$model->{$field}}")->assertNotFound();
+    $this->get("/trashed-posts/{$model->{$field}}")->assertOk()->assertContent('Hello World');
+    $this->get('/trashed-posts/missing-999')->assertNotFound();
+    $this->get("/trashed-posts/{$model->getRouteKey()}")->assertNotFound();
+})->with(['id', 'url']);
+
 it('does not resolve a trashed model when the route does not allow trashed models', function () {
     $model = SelfHealingModelSoftDeletes::create(['name' => 'Hello World']);
     $model->delete();

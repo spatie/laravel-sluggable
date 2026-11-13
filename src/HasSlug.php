@@ -58,7 +58,7 @@ trait HasSlug
 
     public function resolveRouteBinding(mixed $value, $field = null): ?Model
     {
-        if (! $this->getSlugOptions()->selfHealingUrls) {
+        if (! $this->getSlugOptions()->selfHealingUrls || $field !== null) {
             return parent::resolveRouteBinding($value, $field);
         }
 
@@ -67,7 +67,7 @@ trait HasSlug
 
     public function resolveSoftDeletableRouteBinding($value, $field = null): ?Model
     {
-        if (! $this->getSlugOptions()->selfHealingUrls) {
+        if (! $this->getSlugOptions()->selfHealingUrls || $field !== null) {
             return parent::resolveSoftDeletableRouteBinding($value, $field);
         }
 
