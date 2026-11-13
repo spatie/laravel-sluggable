@@ -11,6 +11,8 @@ Self-healing URLs fix this. The route key becomes `{slug}-{id}`. The slug part c
 
 Self-healing requires the `HasSlug` trait, because the feature overrides `getRouteKey()` and `resolveRouteBinding()`. Setting `selfHealing: true` on the attribute without the trait throws a `SelfHealingRequiresTrait` exception.
 
+Apply the slug trait only once per model inheritance chain. If a base model already uses it, inherit it rather than adding a slug trait again in the child.
+
 ```php
 use Spatie\Sluggable\Attributes\Sluggable;
 use Spatie\Sluggable\HasSlug;
@@ -91,6 +93,8 @@ Use the combined trait for your model's identifier type. Do not combine `HasSlug
 
 Each combined trait includes slug generation and Laravel's identifier generation. The translatable variants still need `Spatie\Translatable\HasTranslations`. These traits also work when self-healing is disabled.
 
+For UUID v4 generation, use the UUID combined trait and define `newUniqueId()` on the model to return `(string) Str::orderedUuid()`, importing `Illuminate\Support\Str`. Do not add Laravel's `HasVersion4Uuids` alongside the combined trait: their `newUniqueId()` methods conflict.
+
 ```php
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlugWithUuids;
@@ -115,6 +119,8 @@ For UUID primary keys, use a separator that does not occur inside the UUID, such
 ## Translatable slugs
 
 `HasTranslatableSlug` supports self-healing as well. The route key uses the slug for the current locale.
+
+Named slug bindings such as `{post:slug}` look up the current locale's slug in the JSON column.
 
 ```php
 $post->setLocale('en');

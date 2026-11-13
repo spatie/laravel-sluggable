@@ -60,12 +60,8 @@ trait HasSlug
 
     public function resolveRouteBinding(mixed $value, $field = null): ?Model
     {
-        if (! $this->getSlugOptions()->selfHealingUrls) {
+        if (! $this->getSlugOptions()->selfHealingUrls || $field !== null) {
             return parent::resolveRouteBinding($value, $field);
-        }
-
-        if ($field !== null) {
-            return $this->resolveSlugRouteBindingQuery($this, $value, $field)->first();
         }
 
         return $this->resolveSelfHealingRouteBinding($value);
@@ -73,12 +69,8 @@ trait HasSlug
 
     public function resolveSoftDeletableRouteBinding($value, $field = null): ?Model
     {
-        if (! $this->getSlugOptions()->selfHealingUrls) {
+        if (! $this->getSlugOptions()->selfHealingUrls || $field !== null) {
             return parent::resolveSoftDeletableRouteBinding($value, $field);
-        }
-
-        if ($field !== null) {
-            return $this->resolveSlugRouteBindingQuery($this, $value, $field)->withTrashed()->first();
         }
 
         return $this->resolveSelfHealingRouteBinding($value, withTrashed: true);
@@ -103,7 +95,7 @@ trait HasSlug
             return null;
         }
 
-        $query = $this->newQuery()->whereKey($identifier);
+        $query = $this->resolveModelRouteBindingQuery($this->newQuery(), $identifier, $this->getKeyName());
 
         if ($withTrashed) {
             $query->withTrashed();
@@ -133,6 +125,12 @@ trait HasSlug
             return $this->resolveSlugRouteBindingQuery($query, $value, $field);
         }
 
+        if ($query instanceof Model) {
+            if ($field !== null) {
+                return $this->resolveSlugRouteBindingQuery($query, $value, $field);
+            }
+        }
+
         $routeKeyName = $this->getRouteKeyName();
 
         if (! in_array($field, [null, $routeKeyName, $this->qualifyColumn($routeKeyName)], true)) {
@@ -148,7 +146,11 @@ trait HasSlug
             return $this->resolveSlugRouteBindingQuery($query, $value, $field);
         }
 
-        return $query->where($this->getQualifiedKeyName(), $identifier);
+        $keyName = $field === $this->qualifyColumn($routeKeyName)
+            ? $this->getQualifiedKeyName()
+            : $this->getKeyName();
+
+        return $this->resolveModelRouteBindingQuery($query, $identifier, $keyName);
     }
 
     protected function resolveSlugRouteBindingQuery($query, mixed $value, ?string $field = null): Builder|Relation

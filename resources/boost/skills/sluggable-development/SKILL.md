@@ -262,6 +262,8 @@ return [
 ## Common pitfalls
 
 - Setting `selfHealing: true` on the attribute without `use HasSlug;` throws `SelfHealingRequiresTrait`. Add the trait.
+- For UUID/ULID models using a slug trait, use `HasSlugWithUuids`/`HasSlugWithUlids` or their `HasTranslatableSlugWithUuids`/`HasTranslatableSlugWithUlids` variants. They include Laravel's identifier generation; adding `HasUuids`, `HasVersion4Uuids` or `HasUlids` separately causes trait conflicts. For UUID v4, define `newUniqueId()` on the model returning `(string) Str::orderedUuid()`. Use a self-healing separator such as `--` that does not occur inside UUIDs.
+- Apply a slug trait only once per model inheritance chain. Inherit a base model's trait rather than adding another in the child, which can cause recursive route binding.
 - When adding the slug column to a populated table, make it `->nullable()` first and backfill before enforcing a unique index.
 - Translatable slugs require the slug column to be JSON, not `string`.
 - The attribute cannot carry closures. Features that need them (callables for sources, dynamic scopes, custom suffix generators, skip conditions) require the trait.

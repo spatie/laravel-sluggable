@@ -39,6 +39,8 @@ class Post extends Model
 
 Keep your existing `getSlugOptions()` method or `#[Sluggable]` attribute. Translatable models must also keep `HasTranslations`. Custom `newUniqueId()` implementations still take precedence over the combined trait's default.
 
+If you use Laravel's `HasVersion4Uuids`, replace it with `HasSlugWithUuids` (or `HasTranslatableSlugWithUuids`) and define `newUniqueId()` on your model to return `(string) Str::orderedUuid()`, importing `Illuminate\Support\Str`. Do not add `HasVersion4Uuids` alongside the combined trait: both define `newUniqueId()`.
+
 ### Remove the query-binding opt-in
 
 Remove a `resolveRouteBindingQuery()` method whose only purpose is to call `resolveSelfHealingRouteBindingQuery()`. The package now does that automatically. Keep custom binding behavior you still need, but delegate to the package query hook rather than starting a new query that discards the parent relationship.
@@ -47,9 +49,15 @@ Query lookups accept stale keys without redirecting and retain the supplied rela
 
 Non-scoped `{post:id}` and `{post:slug}` routes retain literal column lookups. In scoped bindings, Laravel supplies the route key name for both implicit and explicitly named bindings. When that field matches the model's route key name, the query hook accepts composite self-healing keys as well as ordinary identifiers.
 
+For self-healing translatable models, named slug bindings such as `{post:slug}` now search the current locale's slug instead of comparing the entire JSON column.
+
 ### Keep your URL separator
 
 The route-key format has not changed. UUID models must continue using a separator that does not occur inside the identifier, such as `selfHealing(separator: '--')`, or their own build/extract actions. Changing the separator changes existing URLs; the combined traits do not change it for you.
+
+### Inherited slug traits
+
+Apply a slug trait only once in a model's inheritance chain. A child inherits its parent's slug trait; do not add `HasSlug`, `HasTranslatableSlug` or a combined slug trait again in that child. Redeclaring a slug trait can cause recursive route binding. If subclasses need different slug traits, move the trait from the shared base to each concrete model.
 
 ### Custom query-binding implementations
 
