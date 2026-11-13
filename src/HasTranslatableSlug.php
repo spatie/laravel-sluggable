@@ -234,12 +234,8 @@ trait HasTranslatableSlug
         return $query->first($columns);
     }
 
-    public function resolveRouteBindingQuery($query, $value, $field = null): Builder|Relation
+    protected function resolveSlugRouteBindingQuery($query, mixed $value, ?string $field = null): Builder|Relation
     {
-        if ($this->getSlugOptions()->selfHealingUrls) {
-            return parent::resolveRouteBindingQuery($query, $value, $field);
-        }
-
         $field ??= $this->getRouteKeyName();
         $slug = $this->getSlugOptions()->slugField;
 
@@ -247,6 +243,6 @@ trait HasTranslatableSlug
             return $query->where("{$field}->{$this->getLocale()}", $value);
         }
 
-        return parent::resolveRouteBindingQuery($query, $value, $field);
+        return $this->resolveModelRouteBindingQuery($query, $value, $field);
     }
 }

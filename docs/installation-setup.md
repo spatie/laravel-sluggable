@@ -3,10 +3,10 @@ title: Installation & setup
 weight: 3
 ---
 
-Install the package via composer:
+Version 6 is in development. The command below applies once v6 is released. Use [v5](/docs/laravel-sluggable/v5/installation-setup) for a production application today.
 
 ```bash
-composer require spatie/laravel-sluggable
+composer require spatie/laravel-sluggable "^6.0"
 ```
 
 The service provider is registered automatically via Laravel package discovery.

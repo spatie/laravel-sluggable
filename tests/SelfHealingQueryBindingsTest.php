@@ -4,17 +4,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
-use Spatie\Sluggable\Tests\TestSupport\QueryBindingModel;
-use Spatie\Sluggable\Tests\TestSupport\QueryBindingModelSoftDeletes;
-use Spatie\Sluggable\Tests\TestSupport\QueryBindingTranslatableModel;
-use Spatie\Sluggable\Tests\TestSupport\QueryBindingUlidModel;
-use Spatie\Sluggable\Tests\TestSupport\QueryBindingUuidModel;
+use Spatie\Sluggable\Tests\TestSupport\SelfHealingModel;
+use Spatie\Sluggable\Tests\TestSupport\SelfHealingModelSoftDeletes;
+use Spatie\Sluggable\Tests\TestSupport\SelfHealingTranslatableModel;
+use Spatie\Sluggable\Tests\TestSupport\SelfHealingUlidModel;
+use Spatie\Sluggable\Tests\TestSupport\SelfHealingUuidModel;
 use Spatie\Sluggable\Tests\TestSupport\TestModel;
+use Spatie\Sluggable\Tests\TestSupport\TranslatableUlidModel;
+use Spatie\Sluggable\Tests\TestSupport\TranslatableUuidModel;
 
-it('resolves opted-in scoped keys without escaping the parent relationship', function (string $modelClass, string $foreignKey) {
+it('resolves scoped keys automatically without escaping the parent relationship', function (string $modelClass, string $foreignKey) {
     $instance = new $modelClass;
 
-    if (in_array($modelClass, [QueryBindingUuidModel::class, QueryBindingUlidModel::class])) {
+    if (in_array($modelClass, [SelfHealingUuidModel::class, SelfHealingUlidModel::class, TranslatableUuidModel::class, TranslatableUlidModel::class])) {
         Schema::table($instance->getTable(), fn (Blueprint $table) => $table->unsignedInteger('parent_id'));
     }
 
@@ -23,15 +25,17 @@ it('resolves opted-in scoped keys without escaping the parent relationship', fun
     $parent = TestModel::create(['name' => 'Parent']);
     $otherParent = TestModel::create(['name' => 'Other Parent']);
     $child = $modelClass::create([
-        'name' => $modelClass === QueryBindingTranslatableModel::class ? ['en' => 'Fresh Article'] : 'Fresh Article',
+        'name' => in_array($modelClass, [SelfHealingTranslatableModel::class, TranslatableUuidModel::class, TranslatableUlidModel::class]) ? ['en' => 'Fresh Article'] : 'Fresh Article',
         $foreignKey => $parent->id,
     ]);
 
     $action = match ($modelClass) {
-        QueryBindingModel::class => fn (TestModel $parent, QueryBindingModel $child) => (string) $child->id,
-        QueryBindingTranslatableModel::class => fn (TestModel $parent, QueryBindingTranslatableModel $child) => (string) $child->id,
-        QueryBindingUuidModel::class => fn (TestModel $parent, QueryBindingUuidModel $child) => (string) $child->id,
-        QueryBindingUlidModel::class => fn (TestModel $parent, QueryBindingUlidModel $child) => (string) $child->id,
+        SelfHealingModel::class => fn (TestModel $parent, SelfHealingModel $child) => (string) $child->id,
+        SelfHealingTranslatableModel::class => fn (TestModel $parent, SelfHealingTranslatableModel $child) => (string) $child->id,
+        SelfHealingUuidModel::class => fn (TestModel $parent, SelfHealingUuidModel $child) => (string) $child->id,
+        SelfHealingUlidModel::class => fn (TestModel $parent, SelfHealingUlidModel $child) => (string) $child->id,
+        TranslatableUuidModel::class => fn (TestModel $parent, TranslatableUuidModel $child) => (string) $child->id,
+        TranslatableUlidModel::class => fn (TestModel $parent, TranslatableUlidModel $child) => (string) $child->id,
     };
 
     Route::get('parents/{parent}/children/{child}', $action)
@@ -47,19 +51,21 @@ it('resolves opted-in scoped keys without escaping the parent relationship', fun
 
     $this->get('/parents/'.$parent->id.'/children/missing-999')->assertNotFound();
 })->with([
-    'integer' => [QueryBindingModel::class, 'other_field'],
-    'translatable' => [QueryBindingTranslatableModel::class, 'test_model_id'],
-    'uuid' => [QueryBindingUuidModel::class, 'parent_id'],
-    'ulid' => [QueryBindingUlidModel::class, 'parent_id'],
+    'integer' => [SelfHealingModel::class, 'other_field'],
+    'translatable' => [SelfHealingTranslatableModel::class, 'test_model_id'],
+    'uuid' => [SelfHealingUuidModel::class, 'parent_id'],
+    'ulid' => [SelfHealingUlidModel::class, 'parent_id'],
+    'translatable uuid' => [TranslatableUuidModel::class, 'parent_id'],
+    'translatable ulid' => [TranslatableUlidModel::class, 'parent_id'],
 ]);
 
 it('preserves query constraints and named non-route columns', function () {
-    $model = QueryBindingModel::create(['name' => 'Fresh Article']);
+    $model = SelfHealingModel::create(['name' => 'Fresh Article']);
 
-    expect((new QueryBindingModel)->resolveRouteBindingQuery(QueryBindingModel::query(), $model->getRouteKey())->first()?->id)->toBe($model->id);
-    expect((new QueryBindingModel)->resolveRouteBindingQuery(QueryBindingModel::where('name', 'Other Article'), $model->getRouteKey())->first())->toBeNull();
+    expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::query(), $model->getRouteKey())->first()?->id)->toBe($model->id);
+    expect((new SelfHealingModel)->resolveRouteBindingQuery(SelfHealingModel::where('name', 'Other Article'), $model->getRouteKey())->first())->toBeNull();
 
-    Route::get('posts/{post:url}', fn (QueryBindingModel $post) => $post->name)
+    Route::get('posts/{post:url}', fn (SelfHealingModel $post) => $post->name)
         ->middleware(SubstituteBindings::class);
 
     $this->get("/posts/{$model->url}")->assertOk()->assertContent('Fresh Article');
@@ -67,14 +73,14 @@ it('preserves query constraints and named non-route columns', function () {
 });
 
 it('resolves qualified keys on many-to-many scoped bindings', function () {
-    TestModel::resolveRelationUsing('children', fn (TestModel $parent) => $parent->belongsToMany(QueryBindingModel::class, 'category_project', 'category_id', 'project_id'));
+    TestModel::resolveRelationUsing('children', fn (TestModel $parent) => $parent->belongsToMany(SelfHealingModel::class, 'category_project', 'category_id', 'project_id'));
 
     $parent = TestModel::create(['name' => 'Parent']);
     $otherParent = TestModel::create(['name' => 'Other Parent']);
-    $child = QueryBindingModel::create(['name' => 'Fresh Article']);
+    $child = SelfHealingModel::create(['name' => 'Fresh Article']);
     $parent->children()->attach($child);
 
-    Route::get('parents/{parent}/children/{child}', fn (TestModel $parent, QueryBindingModel $child) => (string) $child->id)
+    Route::get('parents/{parent}/children/{child}', fn (TestModel $parent, SelfHealingModel $child) => (string) $child->id)
         ->middleware(SubstituteBindings::class)
         ->scopeBindings();
 
@@ -83,15 +89,15 @@ it('resolves qualified keys on many-to-many scoped bindings', function () {
 });
 
 it('preserves scoped soft-delete filtering unless trashed bindings are allowed', function () {
-    TestModel::resolveRelationUsing('children', fn (TestModel $parent) => $parent->hasMany(QueryBindingModelSoftDeletes::class, 'other_field'));
+    TestModel::resolveRelationUsing('children', fn (TestModel $parent) => $parent->hasMany(SelfHealingModelSoftDeletes::class, 'other_field'));
 
     $parent = TestModel::create(['name' => 'Parent']);
     $otherParent = TestModel::create(['name' => 'Other Parent']);
-    $child = QueryBindingModelSoftDeletes::create(['name' => 'Fresh Article', 'other_field' => $parent->id]);
+    $child = SelfHealingModelSoftDeletes::create(['name' => 'Fresh Article', 'other_field' => $parent->id]);
     $child->delete();
 
     foreach (['posts', 'trashed-posts'] as $path) {
-        $route = Route::get("{$path}/{parent}/children/{child}", fn (TestModel $parent, QueryBindingModelSoftDeletes $child) => (string) $child->id)
+        $route = Route::get("{$path}/{parent}/children/{child}", fn (TestModel $parent, SelfHealingModelSoftDeletes $child) => (string) $child->id)
             ->middleware(SubstituteBindings::class)
             ->scopeBindings();
 
@@ -104,3 +110,29 @@ it('preserves scoped soft-delete filtering unless trashed bindings are allowed',
     $this->get("/trashed-posts/{$parent->id}/children/{$child->getRouteKey()}")->assertOk()->assertContent((string) $child->id);
     $this->get("/trashed-posts/{$otherParent->id}/children/{$child->getRouteKey()}")->assertNotFound();
 });
+
+it('keeps named-column bindings and ordinary redirects on combined identifier traits', function (string $modelClass) {
+    $model = $modelClass::create([
+        'name' => in_array($modelClass, [TranslatableUuidModel::class, TranslatableUlidModel::class]) ? ['en' => 'Fresh Article'] : 'Fresh Article',
+    ]);
+
+    $action = match ($modelClass) {
+        SelfHealingUuidModel::class => fn (SelfHealingUuidModel $post) => (string) $post->id,
+        SelfHealingUlidModel::class => fn (SelfHealingUlidModel $post) => (string) $post->id,
+        TranslatableUuidModel::class => fn (TranslatableUuidModel $post) => (string) $post->id,
+        TranslatableUlidModel::class => fn (TranslatableUlidModel $post) => (string) $post->id,
+    };
+
+    Route::get('posts/{post}', $action)->middleware(SubstituteBindings::class);
+
+    foreach (['id', 'url'] as $field) {
+        Route::get("{$field}/{post:{$field}}", $action)->middleware(SubstituteBindings::class);
+
+        $this->get("/{$field}/{$model->{$field}}")->assertOk()->assertContent((string) $model->id);
+        $this->get("/{$field}/{$model->getRouteKey()}")->assertNotFound();
+        $this->get("/{$field}/invalid")->assertNotFound();
+    }
+
+    $this->get("/posts/{$model->getRouteKey()}")->assertOk()->assertContent((string) $model->id);
+    $this->get("/posts/stale-title--{$model->id}")->assertStatus(308)->assertRedirect("/posts/{$model->getRouteKey()}");
+})->with([SelfHealingUuidModel::class, SelfHealingUlidModel::class, TranslatableUuidModel::class, TranslatableUlidModel::class]);

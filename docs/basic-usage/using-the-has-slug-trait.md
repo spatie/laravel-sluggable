@@ -5,6 +5,8 @@ weight: 3
 
 The `HasSlug` trait is the long form of the same configuration the `#[Sluggable]` attribute encodes. Add the trait, implement `getSlugOptions()`, and return a `SlugOptions` instance. With nothing else added the model behaves identically to one annotated `#[Sluggable(from: 'title', to: 'slug')]`.
 
+For UUID or ULID models, use `HasSlugWithUuids` or `HasSlugWithUlids` instead of combining `HasSlug` with Laravel's identifier trait. See [UUID and ULID models](self-healing-urls#uuid-and-ulid-models) for the available combinations, including translatable slugs. This applies even when self-healing is disabled.
+
 ```php
 namespace App\Models;
 

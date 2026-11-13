@@ -67,27 +67,50 @@ The redirect uses `308` rather than the more familiar `301` because `308` preser
 
 ## Scoped bindings and query-based lookups
 
-Laravel's scoped child bindings and tools that call `resolveRouteBindingQuery()` do not use `resolveRouteBinding()`. To accept self-healing keys in those lookups, add this method to the child model:
-
-```php
-public function resolveRouteBindingQuery($query, $value, $field = null)
-{
-    return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
-}
-```
-
-For a model using `HasTranslatableSlug`, give the method the return type `\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation` to match that trait's method.
+`HasSlug` and `HasTranslatableSlug` automatically accept self-healing keys through `resolveRouteBindingQuery()`. No model-level binding method is needed. This includes Laravel's scoped child bindings:
 
 ```php
 Route::get('authors/{author}/posts/{post}', fn (Author $author, Post $post) => $post)
     ->scopeBindings();
 ```
 
-The helper adds the extracted primary key to Laravel's existing relationship query. A post belonging to another author still returns `404`. Existing query constraints, global scopes, and soft-delete filtering remain in place.
+The lookup adds the extracted primary key to Laravel's existing relationship query. A post belonging to another author still returns `404`. Existing query constraints, global scopes, and soft-delete filtering remain in place.
 
-This is opt-in. `HasSlug` does not define `resolveRouteBindingQuery()` itself, because that would conflict with Laravel's `HasUuids` and `HasUlids` traits. Defining the method on your model takes precedence over either trait without a conflict. For UUID primary keys, choose a separator that does not occur inside the UUID, such as `selfHealing(separator: '--')`.
+Query-based lookups accept both canonical and stale keys without redirecting, as well as ordinary identifiers. They interpret the value when the field is omitted or matches `getRouteKeyName()`, including its qualified column name. Other columns keep their ordinary lookup behavior. Laravel passes the same field for a default scoped binding and an explicitly named route-key column, so a scoped `{post:id}` binding also accepts composite keys when `id` is the route key name. Ordinary implicit self-healing bindings still redirect stale keys with `308`; non-scoped named-column bindings look up the literal column value.
 
-Query-based lookups accept both canonical and stale keys without redirecting, as well as ordinary identifiers. They interpret the value when the field is omitted or matches `getRouteKeyName()`, including its qualified column name. Other columns keep their ordinary lookup behavior. Consequently, opting in also accepts composite keys on an explicit `{post:id}` binding when `id` is the route key name. Ordinary implicit self-healing bindings still redirect stale keys with `308`.
+## UUID and ULID models
+
+Use the combined trait for your model's identifier type. Do not combine `HasSlug` directly with Laravel's `HasUuids` or `HasUlids`: both define the route query method and PHP rejects that combination.
+
+| Model | Trait |
+| --- | --- |
+| UUID | `Spatie\Sluggable\HasSlugWithUuids` |
+| ULID | `Spatie\Sluggable\HasSlugWithUlids` |
+| Translatable UUID | `Spatie\Sluggable\HasTranslatableSlugWithUuids` |
+| Translatable ULID | `Spatie\Sluggable\HasTranslatableSlugWithUlids` |
+
+Each combined trait includes slug generation and Laravel's identifier generation. The translatable variants still need `Spatie\Translatable\HasTranslations`. These traits also work when self-healing is disabled.
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\HasSlugWithUuids;
+use Spatie\Sluggable\SlugOptions;
+
+class Post extends Model
+{
+    use HasSlugWithUuids;
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug')
+            ->selfHealing(separator: '--');
+    }
+}
+```
+
+For UUID primary keys, use a separator that does not occur inside the UUID, such as `--`. The default parser splits at the last separator; `-` would split inside a UUID. Keep the same separator when upgrading so existing URLs remain valid.
 
 ## Translatable slugs
 

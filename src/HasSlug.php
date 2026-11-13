@@ -60,8 +60,12 @@ trait HasSlug
 
     public function resolveRouteBinding(mixed $value, $field = null): ?Model
     {
-        if (! $this->getSlugOptions()->selfHealingUrls || $field !== null) {
+        if (! $this->getSlugOptions()->selfHealingUrls) {
             return parent::resolveRouteBinding($value, $field);
+        }
+
+        if ($field !== null) {
+            return $this->resolveSlugRouteBindingQuery($this, $value, $field)->first();
         }
 
         return $this->resolveSelfHealingRouteBinding($value);
@@ -69,11 +73,20 @@ trait HasSlug
 
     public function resolveSoftDeletableRouteBinding($value, $field = null): ?Model
     {
-        if (! $this->getSlugOptions()->selfHealingUrls || $field !== null) {
+        if (! $this->getSlugOptions()->selfHealingUrls) {
             return parent::resolveSoftDeletableRouteBinding($value, $field);
         }
 
+        if ($field !== null) {
+            return $this->resolveSlugRouteBindingQuery($this, $value, $field)->withTrashed()->first();
+        }
+
         return $this->resolveSelfHealingRouteBinding($value, withTrashed: true);
+    }
+
+    public function resolveRouteBindingQuery($query, $value, $field = null): Builder|Relation
+    {
+        return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
     }
 
     protected function resolveSelfHealingRouteBinding(mixed $value, bool $withTrashed = false): ?Model
@@ -117,13 +130,13 @@ trait HasSlug
     protected function resolveSelfHealingRouteBindingQuery($query, mixed $value, ?string $field = null): Builder|Relation
     {
         if (! $this->getSlugOptions()->selfHealingUrls) {
-            return parent::resolveRouteBindingQuery($query, $value, $field);
+            return $this->resolveSlugRouteBindingQuery($query, $value, $field);
         }
 
         $routeKeyName = $this->getRouteKeyName();
 
         if (! in_array($field, [null, $routeKeyName, $this->qualifyColumn($routeKeyName)], true)) {
-            return parent::resolveRouteBindingQuery($query, $value, $field);
+            return $this->resolveSlugRouteBindingQuery($query, $value, $field);
         }
 
         $identifier = Config::getAction(
@@ -132,10 +145,20 @@ trait HasSlug
         )->execute((string) $value, $this->getSlugOptions()->selfHealingSeparator)['identifier'];
 
         if ($identifier === null) {
-            return parent::resolveRouteBindingQuery($query, $value, $field);
+            return $this->resolveSlugRouteBindingQuery($query, $value, $field);
         }
 
         return $query->where($this->getQualifiedKeyName(), $identifier);
+    }
+
+    protected function resolveSlugRouteBindingQuery($query, mixed $value, ?string $field = null): Builder|Relation
+    {
+        return $this->resolveModelRouteBindingQuery($query, $value, $field);
+    }
+
+    protected function resolveModelRouteBindingQuery($query, mixed $value, ?string $field = null): Builder|Relation
+    {
+        return parent::resolveRouteBindingQuery($query, $value, $field);
     }
 
     public static function findBySlug(string $slug, array $columns = ['*'], ?Closure $additionalQuery = null): ?Model

@@ -14,5 +14,4 @@ parameters:
           path: src/SlugOptions.php
         - identifier: trait.unused
           paths:
-              - src/HasSlug.php
-              - src/HasTranslatableSlug.php
+              - src/Has*Slug*.php

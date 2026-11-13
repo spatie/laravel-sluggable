@@ -3,6 +3,8 @@ title: Introduction
 weight: 1
 ---
 
+These docs describe v6, which is in development. For the current release, use the [v5 documentation](/docs/laravel-sluggable/v5/introduction).
+
 This package generates a unique slug for any Eloquent model whenever it is created or updated. Add a `#[Sluggable]` attribute to the class and the package takes care of the rest.
 
 ```php
