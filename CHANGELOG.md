@@ -2,6 +2,24 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 5.0.0 - 2026-11-13
+
+### Breaking changes
+
+- Require PHP 8.4 or higher and Laravel 13. PHP 8.3 and Laravel 12 are no longer supported. See #318.
+- Package development now uses Pest 5 and Orchestra Testbench 11; CI covers PHP 8.4, 8.5 and 8.6.
+
+### Fixes
+
+- Restore named-column route binding for self-healing models, including soft-deleted models on routes that allow trashed bindings. Routes such as `{post:id}` and `{post:slug}` use Laravel column lookups; unnamed `{post}` bindings retain self-healing keys and stale-key 308 redirects. Thanks to @skybleak333 in #320.
+- Scoped child binding and `resolveRouteBindingQuery()` behavior remain unchanged. This release does not resolve #319.
+
+### Upgrading from 4.x
+
+Use PHP 8.4+ and Laravel 13, then update your Composer constraint to `spatie/laravel-sluggable:^5.0`. No application API changes are required beyond these platform requirements.
+
+**Full changelog**: https://github.com/spatie/laravel-sluggable/compare/4.0.6...5.0.0
+
 ## 4.0.6 - 2026-10-27
 
 ### What's Changed
