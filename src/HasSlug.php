@@ -3,7 +3,9 @@
 namespace Spatie\Sluggable;
 
 use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Spatie\Sluggable\Actions\BuildSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Actions\ExtractIdentifierFromSelfHealingRouteKeyAction;
 use Spatie\Sluggable\Actions\GenerateSlugAction;
@@ -110,6 +112,30 @@ trait HasSlug
     protected function getSelfHealingSlugValue(): string
     {
         return (string) ($this->{$this->getSlugOptions()->slugField} ?? '');
+    }
+
+    protected function resolveSelfHealingRouteBindingQuery($query, mixed $value, ?string $field = null): Builder|Relation
+    {
+        if (! $this->getSlugOptions()->selfHealingUrls) {
+            return parent::resolveRouteBindingQuery($query, $value, $field);
+        }
+
+        $routeKeyName = $this->getRouteKeyName();
+
+        if (! in_array($field, [null, $routeKeyName, $this->qualifyColumn($routeKeyName)], true)) {
+            return parent::resolveRouteBindingQuery($query, $value, $field);
+        }
+
+        $identifier = Config::getAction(
+            Config::ACTION_EXTRACT_IDENTIFIER_FROM_SELF_HEALING_ROUTE_KEY,
+            ExtractIdentifierFromSelfHealingRouteKeyAction::class,
+        )->execute((string) $value, $this->getSlugOptions()->selfHealingSeparator)['identifier'];
+
+        if ($identifier === null) {
+            return parent::resolveRouteBindingQuery($query, $value, $field);
+        }
+
+        return $query->where($this->getQualifiedKeyName(), $identifier);
     }
 
     public static function findBySlug(string $slug, array $columns = ['*'], ?Closure $additionalQuery = null): ?Model
