@@ -2,6 +2,29 @@
 
 All notable changes to `laravel-sluggable` will be documented in this file
 
+## 6.0.0 - 2026-11-13
+
+### Breaking changes
+
+- `HasSlug` and `HasTranslatableSlug` now implement `resolveRouteBindingQuery()`. Laravel's `HasUuids` and `HasUlids` define the same method, so UUID and ULID models must use one of the new combined traits instead, even when self-healing is disabled: `HasSlugWithUuids`, `HasSlugWithUlids`, `HasTranslatableSlugWithUuids` or `HasTranslatableSlugWithUlids`. See #322.
+- `resolveRouteBindingQuery()` has a `Builder|Relation` return type. Models overriding it need a compatible return type.
+- Apply a slug trait only once per model inheritance chain. Adding a slug trait again in a child of a slug-enabled base model can cause recursive route binding.
+- For self-healing translatable models, named slug bindings such as `{post:slug}` now match the slug of the current locale instead of comparing the entire JSON column.
+
+### What's new
+
+- Self-healing keys now work automatically in scoped route bindings and other query-based lookups, including `scopeBindings()`. The opt-in method from 5.0.1 is no longer needed. Parent relationship constraints, global scopes and soft-delete filtering stay in place. See #319.
+- Scoped and query-based lookups accept stale keys without redirecting. Ordinary implicit bindings keep their 308 redirects, and non-scoped named-column bindings such as `{post:id}` stay literal.
+- Malformed UUID and ULID identifiers in self-healing keys go through Laravel's identifier validation and return a 404 instead of reaching the database.
+- Named-column and trashed bindings keep the restrictions of a model's own `resolveRouteBindingQuery()`.
+- The bundled Laravel Boost skill covers scoped bindings and the combined UUID and ULID traits.
+
+### Upgrading from 5.x
+
+Update your Composer constraint to `spatie/laravel-sluggable:^6.0` and follow the [upgrade guide](https://github.com/spatie/laravel-sluggable/blob/main/UPGRADING.md#from-v5-to-v6). PHP 8.4+ and Laravel 13 are still required. The URL format is unchanged, and no database migration or slug regeneration is needed.
+
+**Full changelog**: https://github.com/spatie/laravel-sluggable/compare/5.0.1...6.0.0
+
 ## 5.0.1 - 2026-11-13
 
 ### Fixes
