@@ -65,6 +65,30 @@ A route that names its column, such as `/admin/posts/{post:id}` or `/posts/{post
 
 The redirect uses `308` rather than the more familiar `301` because `308` preserves the request method when followed. A stale `PUT`, `PATCH`, or `DELETE` to a self-healing URL still arrives at the canonical route as the same verb. With `301`, clients are allowed to rewrite the method to `GET`, which would turn the request into a `405 Method Not Allowed` on resource routes. Search engines treat both statuses the same for ranking, so SEO is unaffected. To return something else, see [Customizing the redirect](#customizing-the-redirect) below.
 
+## Scoped bindings and query-based lookups
+
+Laravel's scoped child bindings and tools that call `resolveRouteBindingQuery()` do not use `resolveRouteBinding()`. To accept self-healing keys in those lookups, add this method to the child model:
+
+```php
+public function resolveRouteBindingQuery($query, $value, $field = null)
+{
+    return $this->resolveSelfHealingRouteBindingQuery($query, $value, $field);
+}
+```
+
+For a model using `HasTranslatableSlug`, give the method the return type `\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation` to match that trait's method.
+
+```php
+Route::get('authors/{author}/posts/{post}', fn (Author $author, Post $post) => $post)
+    ->scopeBindings();
+```
+
+The helper adds the extracted primary key to Laravel's existing relationship query. A post belonging to another author still returns `404`. Existing query constraints, global scopes, and soft-delete filtering remain in place.
+
+This is opt-in. `HasSlug` does not define `resolveRouteBindingQuery()` itself, because that would conflict with Laravel's `HasUuids` and `HasUlids` traits. Defining the method on your model takes precedence over either trait without a conflict. For UUID primary keys, choose a separator that does not occur inside the UUID, such as `selfHealing(separator: '--')`.
+
+Query-based lookups accept both canonical and stale keys without redirecting, as well as ordinary identifiers. They interpret the value when the field is omitted or matches `getRouteKeyName()`, including its qualified column name. Other columns keep their ordinary lookup behavior. Consequently, opting in also accepts composite keys on an explicit `{post:id}` binding when `id` is the route key name. Ordinary implicit self-healing bindings still redirect stale keys with `308`.
+
 ## Translatable slugs
 
 `HasTranslatableSlug` supports self-healing as well. The route key uses the slug for the current locale.
