@@ -228,7 +228,7 @@ it('does not resolve a trashed model when the route does not allow trashed model
     $this->get("/posts/{$model->getRouteKey()}")->assertNotFound();
 });
 
-it('retains ordinary scoped child binding without interpreting self-healing query keys', function () {
+it('resolves self-healing and ordinary identifiers within scoped child bindings', function () {
     TestModel::resolveRelationUsing('selfHealingPosts', fn (TestModel $parent) => $parent->hasMany(SelfHealingModel::class, 'other_field'));
     TestModel::resolveRelationUsing('translatedPosts', fn (TestModel $parent) => $parent->hasMany(SelfHealingTranslatableModel::class, 'test_model_id'));
 
@@ -250,8 +250,8 @@ it('retains ordinary scoped child binding without interpreting self-healing quer
     foreach (['posts' => $post, 'translated' => $translatedPost] as $path => $model) {
         $this->get("/parents/{$parent->id}/{$path}/{$model->id}")->assertOk()->assertContent((string) $model->id);
         $this->get("/parents/{$otherParent->id}/{$path}/{$model->id}")->assertNotFound();
-        $this->get("/parents/{$parent->id}/{$path}/{$model->getRouteKey()}")->assertNotFound();
-        $this->get("/parents/{$parent->id}/{$path}/stale-title-{$model->id}")->assertNotFound();
+        $this->get("/parents/{$parent->id}/{$path}/{$model->getRouteKey()}")->assertOk()->assertContent((string) $model->id);
+        $this->get("/parents/{$parent->id}/{$path}/stale-title-{$model->id}")->assertOk()->assertContent((string) $model->id);
     }
 });
 

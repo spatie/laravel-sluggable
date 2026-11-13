@@ -2,15 +2,13 @@
 
 namespace Spatie\Sluggable\Tests\TestSupport;
 
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\HasSlugWithUlids;
 use Spatie\Sluggable\SlugOptions;
 
 class UlidModel extends Model
 {
-    use HasSlug;
-    use HasUlids;
+    use HasSlugWithUlids;
 
     protected $guarded = [];
 

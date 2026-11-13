@@ -1,5 +1,74 @@
 # Upgrading
 
+## From v5 to v6
+
+Update your Composer constraint to `spatie/laravel-sluggable:^6.0`.
+
+The requirements remain PHP 8.4+, Laravel 13, and `spatie/laravel-translatable` 6 when translating slugs. The package's tests use Pest 5 and Testbench 11; these are not application runtime dependencies. No database migration or slug regeneration is required.
+
+### UUID and ULID models use combined traits
+
+`HasSlug` now implements `resolveRouteBindingQuery()` so scoped bindings and query-based consumers accept self-healing keys automatically. Laravel's `HasUuids` and `HasUlids` define the same method, so replace the two separate traits with the matching combined trait, even if self-healing is disabled:
+
+| Before | After |
+| --- | --- |
+| `HasSlug` + Laravel's `HasUuids` | `Spatie\Sluggable\HasSlugWithUuids` |
+| `HasSlug` + Laravel's `HasUlids` | `Spatie\Sluggable\HasSlugWithUlids` |
+| `HasTranslatableSlug` + Laravel's `HasUuids` | `Spatie\Sluggable\HasTranslatableSlugWithUuids` |
+| `HasTranslatableSlug` + Laravel's `HasUlids` | `Spatie\Sluggable\HasTranslatableSlugWithUlids` |
+
+```php
+// Before
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Spatie\Sluggable\HasSlug;
+
+class Post extends Model
+{
+    use HasSlug;
+    use HasUuids;
+}
+
+// After
+use Spatie\Sluggable\HasSlugWithUuids;
+
+class Post extends Model
+{
+    use HasSlugWithUuids;
+}
+```
+
+Keep your existing `getSlugOptions()` method or `#[Sluggable]` attribute. Translatable models must also keep `HasTranslations`. Custom `newUniqueId()` implementations still take precedence over the combined trait's default.
+
+If you use Laravel's `HasVersion4Uuids`, replace it with `HasSlugWithUuids` (or `HasTranslatableSlugWithUuids`) and define `newUniqueId()` on your model to return `(string) Str::orderedUuid()`, importing `Illuminate\Support\Str`. Do not add `HasVersion4Uuids` alongside the combined trait: both define `newUniqueId()`.
+
+### Remove the query-binding opt-in
+
+Remove a `resolveRouteBindingQuery()` method whose only purpose is to call `resolveSelfHealingRouteBindingQuery()`. The package now does that automatically. Keep custom binding behavior you still need, but delegate to the package query hook rather than starting a new query that discards the parent relationship.
+
+Query lookups accept stale keys without redirecting and retain the supplied relationship constraints, global scopes and soft-delete filtering. Ordinary implicit bindings still redirect stale keys with `308`.
+
+Non-scoped `{post:id}` and `{post:slug}` routes retain literal column lookups. In scoped bindings, Laravel supplies the route key name for both implicit and explicitly named bindings. When that field matches the model's route key name, the query hook accepts composite self-healing keys as well as ordinary identifiers.
+
+For self-healing translatable models, named slug bindings such as `{post:slug}` now search the current locale's slug instead of comparing the entire JSON column.
+
+### Keep your URL separator
+
+The route-key format has not changed. UUID models must continue using a separator that does not occur inside the identifier, such as `selfHealing(separator: '--')`, or their own build/extract actions. Changing the separator changes existing URLs; the combined traits do not change it for you.
+
+### Inherited slug traits
+
+Apply a slug trait only once in a model's inheritance chain. A child inherits its parent's slug trait; do not add `HasSlug`, `HasTranslatableSlug` or a combined slug trait again in that child. Redeclaring a slug trait can cause recursive route binding. If subclasses need different slug traits, move the trait from the shared base to each concrete model.
+
+### Custom query-binding implementations
+
+`resolveRouteBindingQuery()` now has a `Builder|Relation` return type. Subclasses overriding it must use a compatible return type. For translated slug lookups, `HasTranslatableSlug` now customizes the protected `resolveSlugRouteBindingQuery()` hook. The protected `resolveModelRouteBindingQuery()` hook delegates ordinary identifier validation and lookup to Laravel, including in the combined UUID/ULID traits.
+
+## From v4 to v5
+
+Version 5 requires PHP 8.4 and Laravel 13. The package's development stack requires Pest 5 and Testbench 11. Version 4 supported PHP 8.3 and Laravel 12 as well.
+
+Named-column bindings such as `{post:id}` and `{post:slug}` now look up that column literally, including routes using `withTrashed()`. Remove workarounds that parsed those values as composite self-healing keys. Default `{post}` bindings keep their self-healing behavior.
+
 ## From v3 to v4
 
 ```bash
@@ -10,10 +79,10 @@ The changes in v4 are mostly additive. The breaking changes are around minimum v
 
 ### Minimum versions
 
-- **PHP 8.4** or higher (was 8.2).
-- **Laravel 13** or higher (Laravel 10, 11, and 12 are no longer supported).
+- **PHP 8.3** or higher (was 8.2).
+- **Laravel 12** or higher (Laravel 10 and 11 are no longer supported).
 - **`spatie/laravel-translatable` v6** or higher when using `HasTranslatableSlug`.
-- **Pest 5** and **Orchestra Testbench 11** or higher in your test suite.
+- **Pest 4** and **Orchestra Testbench 10** or higher for the package's test suite.
 
 Update `composer.json` accordingly and run `composer update spatie/laravel-sluggable`.
 

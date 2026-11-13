@@ -3,10 +3,10 @@ title: Installation & setup
 weight: 3
 ---
 
-Install the package via composer:
+Install the package with Composer:
 
 ```bash
-composer require spatie/laravel-sluggable
+composer require spatie/laravel-sluggable "^6.0"
 ```
 
 The service provider is registered automatically via Laravel package discovery.
@@ -31,4 +31,4 @@ return [
 ];
 ```
 
-See [Overriding actions](/docs/laravel-sluggable/v4/advanced-usage/overriding-actions) for details.
+See [Overriding actions](advanced-usage/overriding-actions) for details.

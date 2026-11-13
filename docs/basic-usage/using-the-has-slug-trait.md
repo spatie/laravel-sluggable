@@ -5,6 +5,8 @@ weight: 3
 
 The `HasSlug` trait is the long form of the same configuration the `#[Sluggable]` attribute encodes. Add the trait, implement `getSlugOptions()`, and return a `SlugOptions` instance. With nothing else added the model behaves identically to one annotated `#[Sluggable(from: 'title', to: 'slug')]`.
 
+For UUID or ULID models, use `HasSlugWithUuids` or `HasSlugWithUlids` instead of combining `HasSlug` with Laravel's identifier trait. See [UUID and ULID models](self-healing-urls#uuid-and-ulid-models) for the available combinations, including translatable slugs. This applies even when self-healing is disabled.
+
 ```php
 namespace App\Models;
 
@@ -78,7 +80,7 @@ The trait adds a static `findBySlug()` helper so you don't have to hand-write th
 $post = Post::findBySlug('hello-world');
 ```
 
-See [Finding models by slug](/docs/laravel-sluggable/v4/basic-usage/finding-models-by-slug) for the full signature.
+See [Finding models by slug](finding-models-by-slug) for the full signature.
 
 ## Regenerate a slug on demand
 
@@ -91,8 +93,8 @@ $post->save();
 
 ## Translatable slugs
 
-`HasTranslatableSlug` (which uses `HasSlug` under the hood) generates one slug per locale. See [Translatable slugs](/docs/laravel-sluggable/v4/translatable-slugs).
+`HasTranslatableSlug` (which uses `HasSlug` under the hood) generates one slug per locale. See [Translatable slugs](../translatable-slugs).
 
 ## Self-healing URLs
 
-Self-healing requires the trait so it can override `getRouteKey()` and `resolveRouteBinding()`. The feature itself can be enabled through the attribute (`selfHealing: true`) or through the slug options (`->selfHealing()`). See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
+Self-healing requires the trait so it can override `getRouteKey()` and `resolveRouteBinding()`. The feature itself can be enabled through the attribute (`selfHealing: true`) or through the slug options (`->selfHealing()`). See [Self-healing URLs](self-healing-urls).

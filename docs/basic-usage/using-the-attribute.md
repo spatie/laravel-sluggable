@@ -3,11 +3,11 @@ title: Using the Sluggable attribute
 weight: 2
 ---
 
-This page documents every argument the `#[Sluggable]` attribute accepts. For setup, see [Generating your first slug](/docs/laravel-sluggable/v4/basic-usage/getting-started). For closures, translatable slugs, `findBySlug()`, and the other features that need the trait, see [Using the HasSlug trait](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait).
+This page documents every argument the `#[Sluggable]` attribute accepts. For setup, see [Generating your first slug](getting-started). For closures, translatable slugs, `findBySlug()`, and the other features that need the trait, see [Using the HasSlug trait](using-the-has-slug-trait).
 
 ## `from`
 
-The source column. Pass a single column name to slugify its value, or an array of column names to join them with the slug separator before slugification. Defaults to `'name'`. See [Combining multiple source columns](/docs/laravel-sluggable/v4/advanced-usage/source-fields).
+The source column. Pass a single column name to slugify its value, or an array of column names to join them with the slug separator before slugification. Defaults to `'name'`. See [Combining multiple source columns](../advanced-usage/source-fields).
 
 ## `to`
 
@@ -27,7 +27,7 @@ Truncates the slug before uniqueness resolution runs. Defaults to `250`. A uniqu
 
 ## `unique`
 
-When `true` (the default), the package appends a numeric suffix (`-1`, `-2`, etc.) on collisions so the slug column stays unique. Set to `false` to allow duplicates. To start the suffix from a different number or always force a suffix, see [Tuning the uniqueness suffix](/docs/laravel-sluggable/v4/advanced-usage/uniqueness).
+When `true` (the default), the package appends a numeric suffix (`-1`, `-2`, etc.) on collisions so the slug column stays unique. Set to `false` to allow duplicates. To start the suffix from a different number or always force a suffix, see [Tuning the uniqueness suffix](../advanced-usage/uniqueness).
 
 ## `onCreate`
 
@@ -43,8 +43,8 @@ When `true`, the package skips slug generation if the destination column already
 
 ## `selfHealing`
 
-Enables self-healing route keys. Defaults to `false`. Requires the `HasSlug` trait on the same class. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
+Enables self-healing route keys. Defaults to `false`. Requires the `HasSlug` trait on the same class. See [Self-healing URLs](self-healing-urls).
 
 ## `selfHealingSeparator`
 
-The string placed between the slug and the identifier in the self-healing route key. Defaults to `'-'`. See [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
+The string placed between the slug and the identifier in the self-healing route key. Defaults to `'-'`. See [Self-healing URLs](self-healing-urls).

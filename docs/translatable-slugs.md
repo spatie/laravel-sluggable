@@ -5,6 +5,8 @@ weight: 5
 
 Use the `HasTranslatableSlug` trait together with `spatie/laravel-translatable` to store one slug per locale.
 
+For UUID or ULID primary keys, use `HasTranslatableSlugWithUuids` or `HasTranslatableSlugWithUlids` instead of `HasTranslatableSlug` and Laravel's identifier trait. Keep `HasTranslations` on the model. See [UUID and ULID models](basic-usage/self-healing-urls#uuid-and-ulid-models).
+
 ```php
 namespace App\Models;
 
@@ -64,7 +66,7 @@ $article = Article::findBySlug('my-article');
 
 ## Self-healing URLs
 
-`selfHealing()` works with the translatable trait. The route key uses the slug for the current locale; stale slugs trigger the same redirect flow described in [Self-healing URLs](/docs/laravel-sluggable/v4/basic-usage/self-healing-urls).
+`selfHealing()` works with the translatable trait. The route key uses the slug for the current locale; stale slugs trigger the same redirect flow described in [Self-healing URLs](basic-usage/self-healing-urls).
 
 ## Getting the route key for a specific locale
 

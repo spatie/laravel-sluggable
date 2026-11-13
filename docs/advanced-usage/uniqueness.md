@@ -27,4 +27,4 @@ SlugOptions::create()
     ->useSuffixOnFirstOccurrence();
 ```
 
-For a non-numeric or otherwise custom suffix, use the trait's `usingSuffixGenerator()`. See [A custom suffix generator](/docs/laravel-sluggable/v4/basic-usage/using-the-has-slug-trait#a-custom-suffix-generator).
+For a non-numeric or otherwise custom suffix, use the trait's `usingSuffixGenerator()`. See [A custom suffix generator](../basic-usage/using-the-has-slug-trait#a-custom-suffix-generator).
