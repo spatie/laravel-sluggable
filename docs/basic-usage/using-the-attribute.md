@@ -23,7 +23,7 @@ Language code passed to `Str::slug` for transliteration of non-ASCII characters.
 
 ## `maxLength`
 
-Truncates the slug before uniqueness resolution runs. Defaults to `250`. A uniqueness suffix may push the final value slightly past this limit.
+Limits the source text to this many characters before converting it into a slug. Defaults to `250`. Transliteration can expand characters (for example, `ö` becomes `oe` with `language: 'de'`), and a uniqueness suffix can add more characters. The stored slug can therefore exceed `maxLength`.
 
 ## `unique`
 

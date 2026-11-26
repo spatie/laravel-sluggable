@@ -72,6 +72,10 @@ return SlugOptions::create()
     ->usingSuffixGenerator(fn (string $slug, int $iteration) => bin2hex(random_bytes(4)));
 ```
 
+## Limit the source text length
+
+`slugsShouldBeNoLongerThan(100)` limits the source text to 100 characters before converting it into a slug. The default is 250 characters. As with the [`maxLength` attribute option](using-the-attribute#maxlength), transliteration and uniqueness suffixes can make the stored slug longer.
+
 ## Find a model by its slug
 
 The trait adds a static `findBySlug()` helper so you don't have to hand-write the `where()`.
