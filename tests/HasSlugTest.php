@@ -70,6 +70,15 @@ it('reuses the lowest available suffix when earlier ones are vacated', function 
     expect($model->url)->toEqual('gap-test-2');
 });
 
+it('does not treat a zero-padded suffix as the generated suffix', function () {
+    TestModel::create(['name' => 'Example']);
+    TestModel::create(['name' => 'Example', 'url' => 'example-01']);
+
+    $model = TestModel::create(['name' => 'Example']);
+
+    expect($model->fresh()->url)->toBe('example-1');
+});
+
 it('can generate slugs from multiple source fields', function () {
     $model = new class extends TestModel
     {

@@ -212,7 +212,7 @@ class GenerateSlugAction
 
             $tail = substr($existingSlug, $prefixLength);
 
-            if ($tail === '' || ! ctype_digit($tail)) {
+            if ($tail === '' || ! ctype_digit($tail) || (string) (int) $tail !== $tail) {
                 continue;
             }
 
